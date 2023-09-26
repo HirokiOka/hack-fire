@@ -1,6 +1,4 @@
-const textXOffset = 10;
-const textYOffset = 5;
-const programFontSize = 16;
+const socket = io();
 const textDict = {
   'こうげき': {
     'code': 'player.shot();',
@@ -44,96 +42,65 @@ const textMap = {
   'こうげき': 'player.shot();',
   'ためる': 'player.charge();',
   'うえにうごく': 'player.moveUp();',
-  'したにうごく': 'player.moveDown()',
+  'したにうごく': 'player.moveDown();',
   'もし-なら': 'if () {',
   'もし-おわり': '}',
   'あいてとおなじたかさ': 'player.position === enemy.position',
   'あいてがこうげきしていたら': 'enemy.isShooting === true',
   'あいてがためていたら': 'enemy.isCharging === true'
 };
-let codeStringArray = [];
-let actionButtons = [];
-let conditionButtons = [];
+
+socket.on('connect', () => {
+  console.log('connected to server: player1');
+});
+
+const textXOffset = 10;
+const textYOffset = 3;
+const programFontSize = 16;
+let codeStack = [];
 let exeButton;
 let delButton;
 let showProgram = false;
+//normal, condition, nested
 let insertMode = 'normal';
 let indentNum = 0;
 let buttons = [];
-
-
-function calcTargetIndices(targetString, ary) {
-  let ifIndices = [];
-  let ifIndex = ary.indexOf(targetString);
-  while (ifIndex !== -1) {
-    ifIndices.push(ifIndex);
-    ifIndex = ary.indexOf(targetString, ifIndex + 1);
-  }
-  return ifIndices;
-}
-
-function calcIndent(codeAry) {
-  const ifStartNum = calcTargetIndices('もし-なら', codeAry).length;
-  const ifEndNum = calcTargetIndices('もし-おわり', codeAry).length;
-  return ifStartNum - ifEndNum;
-}
-
-function drawProgram() {
-  if (codeStringArray.length === 0) return;
-  textSize(programFontSize);
-
-  codeStringArray.forEach((cs, idx) => {
-    const viewCode = showProgram ? textMap[cs] : cs;
-    const codeElm = textDict[cs];
-    const currentArySlice = codeStringArray.slice(0, idx);
-    const indentNum = calcIndent(currentArySlice)
-    
-    const x = width/2 + 10 + 20 * indentNum;
-    const y = idx*25 + 30;
-    const rectWidth = textWidth(viewCode) * 4/3;
-    if (showProgram) {
-      fill(0);
-    } else {
-      if (codeElm['type'] === 'action') {
-        fill('blue');
-      } else if (codeElm['type'] === 'if-start' || codeElm['type'] === 'if-end') {
-        fill('purple');
-      } else if (codeElm['type'] === 'condition') {
-        fill('orange');
-      }
-      rect(x, y, rectWidth, 20, 20);
-      fill(255);
-    }
-    text(viewCode, x + textXOffset, y + textYOffset);
-  });
-}
 
 function setup() {
   createCanvas(820, 740);
   textAlign(LEFT, TOP);
     
-  //init code buttons
+  //Init code buttons
   Object.keys(textDict).forEach((t, i) => {
     const codeType = textDict[t].type;
     let button = createButton(t);
     button.style('color', 'white');
+    button.value(codeType);
     if (codeType === 'action') {
       button.style('background-color', 'blue');
       button.position(10, i * 25 + 30);
-    } else if (codeType === 'if-start' || codeType === 'if-end') {
+      button.mousePressed(insertCode);
+    } else if (codeType === 'if-start') {
       button.style('background-color', 'purple');
       button.position(10, i * 25 + 30);
+      button.mousePressed(handleIfStart);
+    } else if (codeType === 'if-end') {
+      button.style('background-color', 'purple');
+      button.position(10, i * 25 + 30);
+      button.mousePressed(handleIfEnd);
     } else if (codeType === 'condition') {
       button.style('background-color', 'orange');
       button.position(10, i * 25 + 30);
+      button.mousePressed(insertCondition);
     }
-    button.mousePressed(insertCode);
     buttons.push(button);
   });
   
-  exeButton = createButton('じっこう');
-  exeButton.position(width/2 + 10, height - 30);
-  exeButton.mousePressed(toggleProgramView);
+  exeButton = createButton('うごかす');
+  exeButton.position(width/2 + 10, height*2/3 - 30);
+  exeButton.style('color', 'white');
+  exeButton.style('background-color', 'green');
+  exeButton.mousePressed(handleExeButton);
   
   delButton = createButton('1つけす');
   delButton.position(width/2 - 80, 10);
@@ -150,6 +117,7 @@ function draw() {
   line(width/2, 0, width/2, height);
   fill(255);
   rect(width/2, 0, width/2, height);
+
   fill(0);
   noStroke();
   text("うごき:", 10, 10);
@@ -159,15 +127,104 @@ function draw() {
 
 }
 
-function insertCode() {
-  if (insertMode === 'normal') 
-  codeStringArray.push(this.html());
+function drawProgram() {
+  if (codeStack.length === 0) return;
+  textSize(programFontSize);
+
+  codeStack.forEach((e, idx) => {
+    const elmType = e['type'];
+    const elmTxt = e['text'];
+    const viewCode = showProgram ? textMap[elmTxt] : elmTxt;
+    const currentArySlice = codeStack.slice(0, idx);
+    const indentNum = calcIndentNum(currentArySlice)
+    
+    const x = width/2 + 10 + 20 * indentNum;
+    const y = idx * 25 + 30;
+    const rectWidth = textWidth(viewCode) * 4/3;
+
+    if (showProgram) {
+      fill(0);
+    } else {
+      if (elmType === 'action') {
+        fill('blue');
+      } else if (elmType === 'if-start' || elmType === 'if-end') {
+        fill('purple');
+      } else if (elmType === 'condition') {
+        fill('orange');
+      }
+      rect(x, y, rectWidth, 20, 20);
+      fill(255);
+    }
+    text(viewCode, x + textXOffset, y + textYOffset);
+  });
 }
 
-function toggleProgramView() {
+function calcIndentNum(codeStackSlice) {
+  let indentNum = 0;
+  const ifStartNum = codeStackSlice.filter(v => v['type'] === 'if-start').length;
+  const ifEndNum = codeStackSlice.filter(v => v['type'] === 'if-end').length;
+  indentNum = ifStartNum - ifEndNum;
+  if (indentNum < 0) return 0;
+  return indentNum;
+}
+
+//Button handler
+function insertCode() {
+  if (insertMode === 'normal') {
+    const insertData = {
+      "type": this.value(),
+      "text": this.html()
+    }
+    codeStack.push(insertData);
+  }
+}
+
+function handleIfStart() {
+  if (insertMode === 'normal') {
+    const insertData = {
+      "type": this.value(),
+      "text": this.html()
+    }
+    codeStack.push(insertData);
+  }
+  insertMode = 'condition';
+  indentNum = calcIndentNum(codeStack);
+}
+
+function insertCondition() {
+  if (insertMode === 'condition') {
+    const insertData = {
+      "type": this.value(),
+      "text": this.html()
+    }
+    codeStack.push(insertData);
+  }
+  insertMode = 'normal';
+  indentNum = calcIndentNum(codeStack);
+}
+
+function handleIfEnd() {
+  if (insertMode === 'normal' && 0 < indentNum ) {
+    const insertData = {
+      "type": this.value(),
+      "text": this.html()
+    }
+    codeStack.push(insertData);
+  }
+  indentNum = calcIndentNum(codeStack);
+}
+
+function handleExeButton() {
+  sendMessage(codeStack);
   showProgram = !showProgram;
 }
 
 function deleteLine() {
-  codeStringArray.pop();
+  codeStack.pop();
+  indentNum = calcIndentNum(codeStack);
+}
+
+//Socket.io
+function sendMessage(message) {
+  socket.emit('message', message);
 }
