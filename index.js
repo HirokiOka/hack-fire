@@ -12,11 +12,20 @@ app.use(express.static('public'));
 io.on('connection', (socket) => {
   console.log('client connected');
 
-  socket.on('message', (data) => {
+  socket.on('playerOne', (data) => {
     console.log(data);
-    io.emit('message', data);
+    io.emit('playerOne', data);
+    console.log('emmitted');
   });
+
+  socket.on('playerTwo', (data) => {
+    console.log(data);
+    io.emit('playerTwo', data);
+    console.log('emmitted');
+  });
+
 });
+
 
 app.get('/', (req, res) => {
   res.sendFile(__dirname + '/index.html');

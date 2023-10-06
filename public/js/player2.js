@@ -1,6 +1,6 @@
 const socket = io();
 socket.on('connection', () => {
-  console.log('connected to server: player1');
+  console.log('connected to server: player2');
 });
 const textDict = {
   'こうげき': { 'code': 'player.shot();', 'codeType': 'action' },
@@ -165,5 +165,5 @@ function deleteLine() {
 }
 
 function sendMessage(message) {
-  socket.emit('playerOne', message);
+  socket.emit('playerTwo', message);
 }
