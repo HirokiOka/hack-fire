@@ -1,9 +1,11 @@
+const socket = io();
 const barOffset = 40;
 const barWidth = 40;
 const barLength = 300;
 const topEdge = 100;
 const bottomEdge = 600;
 const SHOT_MAX_COUNT = 10;
+const GAME_INTERVAL = 20;
 let playerOne;
 let playerTwo;
 let playerOneShotArray = [];
@@ -32,7 +34,6 @@ const conditionDict = {
 let isPlayerOneReady = false;
 let isPlayerTwoReady = false;
 let isGameRunning = false;
-const socket = io();
 
 function convertIf(ifStatement) {
   if (ifStatement.includes('おわり')) return '}';
@@ -75,13 +76,13 @@ socket.on('connection', () => {
   console.log('connected to server: main');
 });
 
-let exeCount = 20;
+let exeCount = GAME_INTERVAL;
 setInterval(() => {
   if (!isGameRunning) return;
-  const playerOneExeIndex = (20 - exeCount) % playerOneCodeStack.length;
+  const playerOneExeIndex = (GAME_INTERVAL - exeCount) % playerOneCodeStack.length;
   const p1CodeLineString = playerOneCodeStack[playerOneExeIndex];
   const p1ExecCodeLine = genExecCodeLine(p1CodeLineString, 1);
-  const playerTwoExeIndex = (20 - exeCount) % playerOneCodeStack.length;
+  const playerTwoExeIndex = (GAME_INTERVAL - exeCount) % playerOneCodeStack.length;
   const p2CodeLineString = playerTwoCodeStack[playerTwoExeIndex];
   const p2ExecCodeLine = genExecCodeLine(p2CodeLineString, 2);
   eval(p1ExecCodeLine);
@@ -91,7 +92,7 @@ setInterval(() => {
     isGameRunning = false;
     isPlayerOneReady = false;
     isPlayerTwoReady = false;
-    exeCount = 20;
+    exeCount = GAME_INTERVAL;
     roundCount++;
   }
 }, 1000);
@@ -207,6 +208,14 @@ function draw() {
   textAlign(LEFT);
   playerOne.display();
   playerTwo.display();
+
+  if (!isGameRunning) {
+    textSize(24);
+    fill('black');
+    if (isPlayerOneReady) text('PlayerOne Ready', width/4 -40, height/2);
+    if (isPlayerTwoReady) text('PlyaerTwo Ready', width*3/4-40, height/2);
+
+  }
 
   //Draw Code
   const playerOneCode = genExecCodeString(playerOneCodeStack, 1);
