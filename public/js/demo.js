@@ -40,8 +40,8 @@ function convertIf(ifStatement) {
 
 function genExecCodeString(codeStack, playerId) {
   if(codeStack.length === 0) return;
-  const playerObj = playerId === 1 ? 'playerOne.': 'playerTwo.';
   let result = '';
+  const playerObj = playerId === 1 ? 'playerOne.': 'playerTwo.';
   codeStack.forEach((codeText, i) => {
     let codeLine = '';
     if (codeText.includes('もし')) {
@@ -64,7 +64,6 @@ socket.on('playerOne', (msg) => {
   const receivedData = JSON.parse(JSON.stringify(msg, '')).map(v => v['codeText']);
   playerOneCodeStack = receivedData;
   const playerOneCode = genExecCodeString(playerOneCodeStack, 1);
-  console.log(playerOneCode);
   eval(playerOneCode);
 });
 
@@ -72,9 +71,7 @@ socket.on('playerTwo', (msg) => {
   console.log('received: player2');
   const receivedData = JSON.parse(JSON.stringify(msg, '')).map(v => v['codeText']);
   playerTwoCodeStack = receivedData;
-  console.log(playerTwoCodeStack);
   const playerTwoCode = genExecCodeString(playerTwoCodeStack, 2);
-  console.log(playerTwoCode);
   eval(playerTwoCode);
 });
 
@@ -157,6 +154,13 @@ function draw() {
   textAlign(LEFT);
   playerOne.display();
   playerTwo.display();
+
+  //Draw Code
+  const playerOneCode = genExecCodeString(playerOneCodeStack, 1);
+  const playerTwoCode = genExecCodeString(playerTwoCodeStack, 2);
+  textSize(18);
+  text(playerOneCode, 40, 220);
+  text(playerTwoCode, width/2 + 40, 220);
 }
 
 function keyPressed() {
