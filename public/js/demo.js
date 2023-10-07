@@ -10,6 +10,75 @@ let playerOneShotArray = [];
 let playerTwoShotArray = [];
 let kaiso;
 
+let playerOneCodeStack = [];
+let playerTwoCodeStack = [];
+const textDict = {
+  'こうげき': { 'code': 'shot();', 'codeType': 'action' },
+  'ためる': { 'code': 'charge();', 'codeType': 'action' },
+  'うえにうごく': { 'code': 'moveUp();', 'codeType': 'action' },
+  'したにうごく': { 'code': 'moveDown();', 'codeType': 'action' },
+  '止まる': { 'code': 'stop();', 'codeType': 'action' },
+  'もし  -  なら': { 'code': 'if () {', 'codeType': 'if-start' },
+  'もし  -  おわり': { 'code': '}', 'codeType': 'if-end' },
+};
+
+const conditionDict = {
+  'おなじたかさ': { 'code': 'player.position === enemy.position', 'codeType': 'condition' },
+  'あいてがこうげき': { 'code': 'enemy.isShooting === true', 'codeType': 'condition' },
+  'あいてがためる': { 'code': 'enemy.isCharging === true', 'codeType': 'condition' }
+};
+const socket = io();
+
+function convertIf(ifStatement) {
+  if (ifStatement.includes('おわり')) return '}';
+  const splitted = ifStatement.split('  ');
+  const condition = splitted[1];
+  const convertedCondition = conditionDict[condition].code;
+  const result = `if (${convertedCondition}) {`;
+  return result;
+}
+
+function genExecCodeString(codeStack, playerId) {
+  if(codeStack.length === 0) return;
+  const playerObj = playerId === 1 ? 'playerOne.': 'playerTwo.';
+  let result = '';
+  codeStack.forEach((codeText, i) => {
+    let codeLine = '';
+    if (codeText.includes('もし')) {
+      codeLine = convertIf(codeText);
+    } else {
+      codeLine = playerObj + textDict[codeText].code;
+    }
+    result += '\n' + codeLine;
+  });
+  return result;
+}
+//Process related to Socket.io 
+socket.on('connection', () => {
+  console.log('connected to server: main');
+
+});
+
+socket.on('playerOne', (msg) => {
+  console.log('received: player1');
+  const receivedData = JSON.parse(JSON.stringify(msg, '')).map(v => v['codeText']);
+  playerOneCodeStack = receivedData;
+  const playerOneCode = genExecCodeString(playerOneCodeStack, 1);
+  console.log(playerOneCode);
+  eval(playerOneCode);
+});
+
+socket.on('playerTwo', (msg) => {
+  console.log('received: player2');
+  const receivedData = JSON.parse(JSON.stringify(msg, '')).map(v => v['codeText']);
+  playerTwoCodeStack = receivedData;
+  console.log(playerTwoCodeStack);
+  const playerTwoCode = genExecCodeString(playerTwoCodeStack, 2);
+  console.log(playerTwoCode);
+  eval(playerTwoCode);
+});
+
+
 function preload() {
   kaiso = loadFont('../font/kaiso_up/Kaisotai-Next-UP-B.otf');
 }

@@ -3,11 +3,11 @@ socket.on('connection', () => {
   console.log('connected to server: player1');
 });
 const textDict = {
-  'こうげき': { 'code': 'player.shot();', 'codeType': 'action' },
-  'ためる': { 'code': 'player.charge();', 'codeType': 'action' },
-  'うえにうごく': { 'code': 'player.moveUp();', 'codeType': 'action' },
-  'したにうごく': { 'code': 'player.moveDown();', 'codeType': 'action' },
-  '止まる': { 'code': 'player.stop();', 'codeType': 'action' },
+  'こうげき': { 'code': 'shot();', 'codeType': 'action' },
+  'ためる': { 'code': 'charge();', 'codeType': 'action' },
+  'うえにうごく': { 'code': 'moveUp();', 'codeType': 'action' },
+  'したにうごく': { 'code': 'moveDown();', 'codeType': 'action' },
+  '止まる': { 'code': 'stop();', 'codeType': 'action' },
   'もし  -  なら': { 'code': 'if () {', 'codeType': 'if-start' },
   'もし  -  おわり': { 'code': '}', 'codeType': 'if-end' },
   'おなじたかさ': { 'code': 'player.position === enemy.position', 'codeType': 'condition' },
