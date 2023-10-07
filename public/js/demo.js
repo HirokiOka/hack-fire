@@ -9,6 +9,7 @@ let playerTwo;
 let playerOneShotArray = [];
 let playerTwoShotArray = [];
 let kaiso;
+let roundCount = 1;
 
 let playerOneCodeStack = [];
 let playerTwoCodeStack = [];
@@ -23,7 +24,7 @@ const textDict = {
 };
 
 const conditionDict = {
-  'おなじたかさ': { 'code': 'player.position === enemy.position', 'codeType': 'condition' },
+  'おなじたかさ': { 'code': 'playerOne.y === playerTwo.y', 'codeType': 'condition' },
   'あいてがこうげき': { 'code': 'enemy.isShooting === true', 'codeType': 'condition' },
   'あいてがためる': { 'code': 'enemy.isCharging === true', 'codeType': 'condition' }
 };
@@ -58,14 +59,47 @@ function genExecCodeString(codeStack, playerId) {
   return result;
 }
 
+function genExecCodeLine(codeLineString, playerId) {
+  let codeLine = '';
+  const playerObj = (playerId === 1) ? 'playerOne.': 'playerTwo.';
+  if (codeLineString.includes('もし')) {
+    codeLine = convertIf(codeText);
+  } else {
+    codeLine = playerObj + textDict[codeLineString].code;
+  }
+  return codeLine;
+}
+
 //Process related to Socket.io 
 socket.on('connection', () => {
   console.log('connected to server: main');
 });
 
+let exeCount = 20;
+setInterval(() => {
+  if (!isGameRunning) return;
+  const playerOneExeIndex = (20 - exeCount) % playerOneCodeStack.length;
+  const p1CodeLineString = playerOneCodeStack[playerOneExeIndex];
+  const p1ExecCodeLine = genExecCodeLine(p1CodeLineString, 1);
+  const playerTwoExeIndex = (20 - exeCount) % playerOneCodeStack.length;
+  const p2CodeLineString = playerTwoCodeStack[playerTwoExeIndex];
+  const p2ExecCodeLine = genExecCodeLine(p2CodeLineString, 2);
+  eval(p1ExecCodeLine);
+  eval(p2ExecCodeLine);
+  exeCount--;
+  if (exeCount < 0) {
+    isGameRunning = false;
+    isPlayerOneReady = false;
+    isPlayerTwoReady = false;
+    exeCount = 20;
+    roundCount++;
+  }
+}, 1000);
+
+
 function runGame(p1CodeStack, p2CodeStack) {
-  const playerOneCode = genExecCodeString(playerOneCodeStack, 1);
-  const playerTwoCode = genExecCodeString(playerTwoCodeStack, 2);
+  const playerOneCode = genExecCodeString(p1CodeStack, 1);
+  const playerTwoCode = genExecCodeString(p2CodeStack, 2);
   eval(playerOneCode);
   eval(playerTwoCode);
   isPlayerOneReady = false;
@@ -78,7 +112,8 @@ socket.on('playerOne', (msg) => {
   playerOneCodeStack = receivedData;
   isPlayerOneReady = true;
   if (isPlayerOneReady && isPlayerTwoReady && !isGameRunning) {
-    runGame(playerOneCodeStack, playerTwoCodeStack);
+    //runGame(playerOneCodeStack, playerTwoCodeStack);
+    isGameRunning = true;
   }
 });
 
@@ -88,7 +123,8 @@ socket.on('playerTwo', (msg) => {
   playerTwoCodeStack = receivedData;
   isPlayerTwoReady = true;
   if (isPlayerOneReady && isPlayerTwoReady && !isGameRunning) {
-    runGame(playerOneCodeStack, playerTwoCodeStack);
+    //runGame(playerOneCodeStack, playerTwoCodeStack);
+    isGameRunning = true;
   }
 });
 
@@ -153,7 +189,7 @@ function draw() {
   fill('black')
   textSize(24);
   textAlign(CENTER);
-  text('Round 1', width/2, barOffset*3/4);
+  text(`Round ${roundCount}`, width/2, barOffset*3/4);
 
   strokeWeight(1);
   stroke('white');
@@ -164,7 +200,7 @@ function draw() {
 
   fill('white');
   textSize(28);
-  text('10', width/2, barOffset + offY/3);
+  text(exeCount, width/2, barOffset + offY/3);
 
   //Draw Characters
   textFont('Georgia');
@@ -208,7 +244,6 @@ class Character {
         this.vector = createVector(0.0, -1.0);
         this.width = w;
         this.height = h;
-        this.life = 100;
         this.ready = false;
     }
 
@@ -310,16 +345,16 @@ class Player extends Character {
   }
 
   shot() {
-      if (this.shotCheckCounter >= 0) {
-          for (let i = 0; i < this.shotArray.length; i++) {
-              if (this.shotArray[i].life <= 0) {
-                  this.shotArray[i].set(this._x, this._y);
-                  this.shotArray[i].setVectorFromAngle(this.angle);
-                  this.shotCheckCounter = -this.shotInterval;
-                  break;
-              }
-          }
+    if (this.shotCheckCounter >= 0) {
+      for (let i = 0; i < this.shotArray.length; i++) {
+        if (this.shotArray[i].life <= 0) {
+          this.shotArray[i].set(this._x, this._y);
+          this.shotArray[i].setVectorFromAngle(this.angle);
+          this.shotCheckCounter = -this.shotInterval;
+          break;
+        }
       }
+    }
   }
 
   explode() {
@@ -382,7 +417,7 @@ class Shot extends Character {
     }
 
     update() {
-      if (this.life <= 0) { return; }
+      if (this.life <= 0) return;
       if (this.position.x + this.width < 0 || this.position.x + this.width > width) {
           this.life = 0;
       }
@@ -392,7 +427,6 @@ class Shot extends Character {
       let dist = this.position.dist(createVector(this.target._x, this.target._y));
       
       if (this.target._life > 0 && dist <= (this.width + this.target.width) / 3) {
-          
           this.target.reduceLife(this.power);
           
           if (this.target._life < 0) {
