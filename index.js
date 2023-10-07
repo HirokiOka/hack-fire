@@ -13,13 +13,11 @@ io.on('connection', (socket) => {
   console.log('client connected');
 
   socket.on('playerOne', (data) => {
-    console.log(data);
     io.emit('playerOne', data);
     console.log('emmitted');
   });
 
   socket.on('playerTwo', (data) => {
-    console.log(data);
     io.emit('playerTwo', data);
     console.log('emmitted');
   });
@@ -29,6 +27,10 @@ io.on('connection', (socket) => {
 
 app.get('/', (req, res) => {
   res.sendFile(__dirname + '/index.html');
+});
+
+app.get('/demo', (req, res) => {
+  res.sendFile(__dirname + '/public/demo.html');
 });
 
 app.get('/display', (req, res) => {

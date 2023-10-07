@@ -7,21 +7,27 @@ const textDict = {
   'ためる': { 'code': 'player.charge();', 'codeType': 'action' },
   'うえにうごく': { 'code': 'player.moveUp();', 'codeType': 'action' },
   'したにうごく': { 'code': 'player.moveDown();', 'codeType': 'action' },
+  '止まる': { 'code': 'player.stop();', 'codeType': 'action' },
   'もし  -  なら': { 'code': 'if () {', 'codeType': 'if-start' },
   'もし  -  おわり': { 'code': '}', 'codeType': 'if-end' },
-  'あいてとおなじたかさ': { 'code': 'player.position === enemy.position', 'codeType': 'condition' },
-  'あいてがこうげきしていたら': { 'code': 'enemy.isShooting === true', 'codeType': 'condition' },
-  'あいてがためていたら': { 'code': 'enemy.isCharging === true', 'codeType': 'condition' }
+  'おなじたかさ': { 'code': 'player.position === enemy.position', 'codeType': 'condition' },
+  'あいてがこうげき': { 'code': 'enemy.isShooting === true', 'codeType': 'condition' },
+  'あいてがためる': { 'code': 'enemy.isCharging === true', 'codeType': 'condition' }
 };
 
 const textXOffset = 10;
 const textYOffset = 3;
-const programFontSize = 16;
+const programFontSize = 20;
 let codeStack = [];
 let exeButton, delButton;
 let showProgram = false;
 let insertMode = 'normal';
 let buttons = [];
+let kaiso;
+
+function preload() {
+  kaiso = loadFont('../font/kaiso_up/Kaisotai-Next-UP-B.otf');
+}
 
 function setup() {
   createCanvas(820, 740);
@@ -30,21 +36,31 @@ function setup() {
   // Initialize buttons
   initButtons();
 
-  exeButton = createStyledButton('OK', 'none', 'orange', width * 3/4 + 10, height - 80, toggleProgramView);
-  delButton = createStyledButton('1つけす','none', 'red', width / 2 - 80, 10, deleteLine);
+  exeButton = createStyledButton('OK', 'none', 'green', width * 3/4 + 10, height - 80, toggleProgramView);
+  delButton = createStyledButton('1つけす','none', 'red', width / 2 - 100, 50, deleteLine);
+  textFont(kaiso);
 }
 
+
 function draw() {
-  background('white');
+  background('navy');
   drawUI();
   drawProgram();
 }
 
 function initButtons() {
+  const buttonPositions = [
+    [20, 60], [120, 60],
+    [20, 120], [160, 120], [300, 120],
+    [20, 180],
+    [20, 240],
+    [20, 300], [160, 300],
+    [20, 360],
+  ];
   Object.keys(textDict).forEach((codeText, i) => {
     const { codeType, code } = textDict[codeText];
     const bgColor = getTypeColor(codeType);
-    const position = [i * 10 % 3, (i * 100 / 3) + 30];
+    const position = buttonPositions[i];
     const handler = getButtonHandler(codeType);
 
     buttons.push(createStyledButton(codeText, codeType, bgColor, ...position, handler));
@@ -55,7 +71,10 @@ function createStyledButton(label, codeType, bgColor, x, y, mousePressedHandler)
   const btn = createButton(label);
   btn.value(codeType)
      .style('color', 'white')
+     .style('border-radius', '8px')
      .style('background-color', bgColor)
+     .style('padding', '10px')
+     .style('font-family', kaiso)
      .position(x, y)
      .mousePressed(mousePressedHandler);
   return btn;
@@ -66,9 +85,9 @@ function getTypeColor(codeType) {
     case 'start': return 'skyblue';
     case 'end': return 'skyblue';
     case 'action': return 'cornflowerblue';
-    case 'if-start':return 'steelblue';
-    case 'if-end': return 'steelblue';
-    case 'condition': return 'lightsteelblue';
+    case 'if-start':return 'purple';
+    case 'if-end': return 'purple';
+    case 'condition': return 'violet';
   }
 }
 
@@ -82,37 +101,48 @@ function getButtonHandler(codeType) {
 }
 
 function drawUI() {
-  textSize(24);
   stroke(0);
-  line(width / 2, 0, width / 2, height);
-  noStroke();
-  fill('blue');
+  //Center line
+  //line(width/2, 0, width/2, height);
+  textSize(24);
+  noFill();
+  strokeWeight(3);
+  stroke('gold');
+  rect(10, 40, width/2-20, height-60);
+  fill('white');
+  stroke('gold');
   text("コードブロック", width/4 - 70, 10);
-  fill('cornsilk');
-  rect(width/2, 0, width, height);
-  fill('lightyellow');
-  rect(width/2 + 50, 50, 300, 550);
-  fill('red');
+
+  noFill();
+  stroke('tomato');
+  rect(width/2+10, 40, width/2-20, height-60);
+
+  fill('white');
   text("プログラム", width*3/4 - 50, 10);
   textSize(18);
+  noStroke();
+  strokeWeight(1);
 }
 
 function drawProgram() {
   if (!codeStack.length) return;
   textSize(programFontSize);
 
+  const indentWidth = 30;
   codeStack.forEach((element, idx) => {
     const { codeType, codeText } = element;
     const viewCode = showProgram ? textDict[codeText].code : codeText;
-    const x = width / 2 + 10 + 20 * calcIndentNum(codeStack.slice(0, idx));
-    const y = idx * 25 + 30;
+    let indentNum = calcIndentNum(codeStack.slice(0, idx));
+    if (codeType === 'if-end') indentNum--;
+    const x = width / 2 + 20 + indentWidth * indentNum;
+    const y = idx * 30 + 60;
     const rectWidth = textWidth(viewCode) * 4 / 3;
 
     if (showProgram) {
       fill(0);
     } else {
       fill(getTypeColor(codeType));
-      rect(x, y, rectWidth, 20, 20);
+      rect(x, y, rectWidth, 24, 20);
       fill(255);
     }
 
