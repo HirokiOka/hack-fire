@@ -1,12 +1,11 @@
 class Character {
-    constructor(x, y, w, h, life, imagePath) {
+    constructor(x, y, w, h, life) {
         this.position = createVector(x, y);
         this.vector = createVector(0.0, -1.0);
         this.width = w;
         this.height = h;
         this.life = life;
         this.ready = false;
-        this.image = loadImage(imagePath);
     }
 
     setVector(x, y) {
@@ -26,31 +25,26 @@ class Character {
         push();
         translate(this.position.x, this.position.y);
         rotate(this.angle);
-        image(this.image, - offsetX, - offsetY,this.width, this.height);
+        text('O', - offsetX, - offsetY);
         pop();   
     }
 }
 
 class Player extends Character {
-
-    constructor(x, y, w, h, clock, power, imagePath) {
-        super(x, y, w, h, 0, imagePath);
+    constructor(x, y, w, h) {
+        super(x, y, w, h, 0);
         this._x = this.position.x;
         this._y = this.position.y;
-        this._clock = clock;
-        this._power = power;
-        this.direction = 'top';
+        this._power = 40;
         this.shotCheckCounter = 0;
         this.shotInterval = 10;
         this.shotArray = null;
         this._life = 100;
-        this.password = 'password';
         this.code = null;
         this.isMoved = false;
-        this.sound = null;
     }
 
-    //getter
+    //Getter
     get x() {
         return this._x;
     }
@@ -63,57 +57,34 @@ class Player extends Character {
         return this._life;
     }
 
-    get clock() {
-        return this._clock;
-    }
-
     get power() {
         return this._power;
     }
 
-    //setter
+    //Setter
     set x(value) {
-        if (isStart) {
-            throw Error("Parameters cannot be changed");
-        }
+        if (isStart) throw Error("Parameters cannot be changed");
         this._x = value;
     }
 
     set y(value) {
-        if (isStart) {
-            throw Error("Parameters cannot be changed");
-        }
+        if (isStart) throw Error("Parameters cannot be changed");
         this._y = value;
     }
 
     set life(value) {
-        if (isStart) {
-            throw Error("Parameters cannot be changed");
-        }
+        if (isStart) throw Error("Parameters cannot be changed");
         this._life = value;
     }
 
-    set clock(value) {
-        if (isStart) {
-            throw Error("Parameters cannot be changed");
-        }
-        this._clock = value;
-    }
-
     set power(value) {
-        if (isStart) {
-            throw Error("Parameters cannot be changed");
-        }
+        if (isStart) throw Error("Parameters cannot be changed");
         this._power = value;
     }
 
-    setSound(sound) {
-        this.sound = sound;
-    }
-
-    //methods
-    reduceLife(power) {
-        this._life -= power;
+    //Methods
+    reduceLife() {
+        this._life -= this.power;
         if (this._life < 0) this._life = 0;
     }
 
@@ -131,43 +102,14 @@ class Player extends Character {
 
     moveUp () {
         if (this.isMoved) return;
-        this._y -= 25;
-        this.direction = 'top';
+        this._y -= 100;
         this.isMoved = true;
     }
 
     moveDown () {
         if (this.isMoved) return;
-        this._y += 25;
-        this.direction = 'bottom';
+        this._y += 100;
         this.isMoved = true;
-    }
-
-    randomMove() {
-        randomSeed(floor(Date.now()) * this.id);
-        let r = random();
-        if (r < 1/2) {
-            this.moveUp();
-        } else {
-            this.moveDown();
-        }
-    }
-
-    enemySearch() {
-        if (this._y === this.target._y) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    isDanger() {
-        this.target.shotArray.forEach((e) => {
-            if (e.position.y === this.position.y) {
-                return true;
-            }
-        });
-        return false;
     }
 
     shot() {
@@ -182,26 +124,6 @@ class Player extends Character {
             }
         }
     }
-    //攻撃テンプレートメソッド
-    randomAttack() {
-        this.randomMove();
-        this.shot();
-    }
-
-    upDownAttack() {
-        if (this.direction === 'top') {
-            this.moveUp();
-        } else if (this.direction === 'bottom') {
-            this.moveDown();
-        }
-        
-        if (this._y <= 48) {
-            this.direction = 'bottom';
-        } else if (this._y >= 432) {
-            this.direction = 'top';
-        }
-        this.shot();
-    }
 
     explode() {
         push();
@@ -215,13 +137,19 @@ class Player extends Character {
     }
 
     draw() {
-        let offsetX = this.width / 2;
-        let offsetY = this.height / 2;
-        push();
-        translate(this._x, this._y);
-        rotate(this.angle);
-        image(this.image, - offsetX, - offsetY,this.width, this.height);
-        pop();   
+      /*
+      let offsetX = this.width / 2;
+      let offsetY = this.height / 2;
+      push();
+      translate(this._x, this._y);
+      rotate(this.angle);
+      text('O', - offsetX, - offsetY);
+      pop();   
+      */
+      textSize(this.size);
+      textAlign(CENTER, CENTER)
+      text('O', this._x, this._y);
+      textAlign(LEFT, BOTTOM);
     }
 
     update() {
@@ -236,76 +164,10 @@ class Player extends Character {
     }
 }
 
-class BaseFighter1 extends Player {
-    constructor() {
-        super(40, height / 2, 64, 64, 20, 20, '/img/player1.png');
-    }
-}
-
-//x, y, w, h, clock, power, imagePath
-class BaseFighter2 extends Player {
-    constructor() {
-        super(width - 40, height / 2, 64, 64, 25, 20, '/img/player2.png');
-    }
-}
-
-class TextFighter1 extends Player {
-    constructor() {
-        super(40, height / 2, 64, 64, 20, 20, '/img/player1.png');
-        this.size = 64;
-        this.id = 1;
-    }
-
-    draw() {
-        textSize(this.size);
-        textAlign(CENTER, CENTER)
-        text(this.appearance, this._x, this._y);
-        textAlign(LEFT, BOTTOM);
-    }
-}
-
-class TextFighter2 extends Player {
-    constructor() {
-        super(width - 40, height / 2, 64, 64, 25, 20, '/img/player2.png', player1);
-        this.size = 64;
-        this.id = 2;
-    }
-
-    draw() {
-        textSize(this.size);
-        textAlign(CENTER, CENTER)
-        text(this.appearance, this._x, this._y);
-        textAlign(LEFT, BOTTOM);
-    }
-}
-
-class Fighter extends BaseFighter1 {
-    constructor() {
-        super();
-        this._life = 100;
-        this._clock = 25;
-        this._power = 25;
-        this.confidentiality = 25;
-        this.password = 'pass';
-    }
-}
-
-class Fighter2 extends TextFighter2 {
-    constructor() {
-        super();
-        this.appearance = "🐉";
-        this._life = 50 * 5;
-        this._clock = 25;
-        this._power = 25;
-        // this.password = 'pass';
-    }
-}
-
-
 class Shot extends Character {
-    constructor(x, y, w, h, imagePath) {
-        super(x, y, w, h, 0, imagePath);
-        this.clock = 7;
+    constructor(x, y, w, h) {
+        super(x, y, w, h, 0);
+        this.speed = 7;
         this.power = 20;
         this.target = null;
         this.sound = null;
@@ -334,8 +196,8 @@ class Shot extends Character {
         if (this.position.x + this.width < 0 || this.position.x + this.width > width) {
             this.life = 0;
         }
-        this.position.x += this.vector.x * this.clock;
-        this.position.y += this.vector.y * this.clock;
+        this.position.x += this.vector.x * this.speed;
+        this.position.y += this.vector.y * this.speed;
 
         let dist = this.position.dist(createVector(this.target._x, this.target._y));
         
@@ -363,21 +225,16 @@ class Shot extends Character {
         this.draw();
     }
 
-    newMethod() {
-        console.log("ex sound played");
-    }
-
     isCaptured() {
-        if (this.position.y === this.target._y) {
-            return true;
-        }
+        if (this.position.y === this.target._y) return true;
     }
 }
 
+/*
 class BackgroundStar {
-    constructor(size, clock, color="#ffffff") {
+    constructor(size, speed, color="#ffffff") {
         this.size = size;
-        this.clock = clock;
+        this.speed = speed;
         this.color = color;
         this.position = null;
     }
@@ -388,7 +245,7 @@ class BackgroundStar {
 
     update() {
         fill(this.color);
-        this.position.x += this.clock;
+        this.position.x += this.speed;
         square(this.position.x - this.size / 2, this.position.y - this.size / 2, this.size);
 
         if (this.position.x + this.size > width) {
@@ -397,4 +254,4 @@ class BackgroundStar {
         
     }
 }
-
+*/
