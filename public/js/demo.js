@@ -27,6 +27,10 @@ const conditionDict = {
   'あいてがこうげき': { 'code': 'enemy.isShooting === true', 'codeType': 'condition' },
   'あいてがためる': { 'code': 'enemy.isCharging === true', 'codeType': 'condition' }
 };
+
+let isPlayerOneReady = false;
+let isPlayerTwoReady = false;
+let isGameRunning = false;
 const socket = io();
 
 function convertIf(ifStatement) {
@@ -53,26 +57,39 @@ function genExecCodeString(codeStack, playerId) {
   });
   return result;
 }
+
 //Process related to Socket.io 
 socket.on('connection', () => {
   console.log('connected to server: main');
-
 });
+
+function runGame(p1CodeStack, p2CodeStack) {
+  const playerOneCode = genExecCodeString(playerOneCodeStack, 1);
+  const playerTwoCode = genExecCodeString(playerTwoCodeStack, 2);
+  eval(playerOneCode);
+  eval(playerTwoCode);
+  isPlayerOneReady = false;
+  isPlayerTwoReady = false;
+}
 
 socket.on('playerOne', (msg) => {
   console.log('received: player1');
   const receivedData = JSON.parse(JSON.stringify(msg, '')).map(v => v['codeText']);
   playerOneCodeStack = receivedData;
-  const playerOneCode = genExecCodeString(playerOneCodeStack, 1);
-  eval(playerOneCode);
+  isPlayerOneReady = true;
+  if (isPlayerOneReady && isPlayerTwoReady && !isGameRunning) {
+    runGame(playerOneCodeStack, playerTwoCodeStack);
+  }
 });
 
 socket.on('playerTwo', (msg) => {
   console.log('received: player2');
   const receivedData = JSON.parse(JSON.stringify(msg, '')).map(v => v['codeText']);
   playerTwoCodeStack = receivedData;
-  const playerTwoCode = genExecCodeString(playerTwoCodeStack, 2);
-  eval(playerTwoCode);
+  isPlayerTwoReady = true;
+  if (isPlayerOneReady && isPlayerTwoReady && !isGameRunning) {
+    runGame(playerOneCodeStack, playerTwoCodeStack);
+  }
 });
 
 
@@ -158,9 +175,11 @@ function draw() {
   //Draw Code
   const playerOneCode = genExecCodeString(playerOneCodeStack, 1);
   const playerTwoCode = genExecCodeString(playerTwoCodeStack, 2);
-  textSize(18);
-  text(playerOneCode, 40, 220);
-  text(playerTwoCode, width/2 + 40, 220);
+  if (playerOneCodeStack.length !== 0 && playerTwoCodeStack.length !== 0) {
+    textSize(18);
+    text(playerOneCode, 40, 220);
+    text(playerTwoCode, width/2 + 40, 220);
+  }
 }
 
 function keyPressed() {
@@ -180,8 +199,6 @@ function keyPressed() {
   } else if (keyCode === RETURN) {
     playerTwo.shot();
   }
-
-
   
 }
 

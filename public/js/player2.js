@@ -4,11 +4,11 @@ socket.on('connection', () => {
 });
 
 const textDict = {
-  'こうげき': { 'code': 'player.shot();', 'codeType': 'action' },
-  'ためる': { 'code': 'player.charge();', 'codeType': 'action' },
-  'うえにうごく': { 'code': 'player.moveUp();', 'codeType': 'action' },
-  'したにうごく': { 'code': 'player.moveDown();', 'codeType': 'action' },
-  '止まる': { 'code': 'player.stop();', 'codeType': 'action' },
+  'こうげき': { 'code': 'shot();', 'codeType': 'action' },
+  'ためる': { 'code': 'charge();', 'codeType': 'action' },
+  'うえにうごく': { 'code': 'moveUp();', 'codeType': 'action' },
+  'したにうごく': { 'code': 'moveDown();', 'codeType': 'action' },
+  '止まる': { 'code': 'stop();', 'codeType': 'action' },
   'もし  -  なら': { 'code': 'if () {', 'codeType': 'if-start' },
   'もし  -  おわり': { 'code': '}', 'codeType': 'if-end' },
   'おなじたかさ': { 'code': 'player.position === enemy.position', 'codeType': 'condition' },
@@ -33,11 +33,10 @@ function preload() {
 function setup() {
   createCanvas(820, 740);
   textAlign(LEFT, TOP);
-
   // Initialize buttons
   initButtons();
 
-  exeButton = createStyledButton('OK', 'none', 'green', width * 3/4 + 10, height - 80, toggleProgramView);
+  exeButton = createStyledButton('OK', 'none', 'green', width * 3/4 - 20, height - 80, toggleProgramView);
   delButton = createStyledButton('1つけす','none', 'red', width / 2 - 100, 50, deleteLine);
   textFont(kaiso);
 }
@@ -137,18 +136,29 @@ function drawProgram() {
     if (codeType === 'if-end') indentNum--;
     const x = width / 2 + 20 + indentWidth * indentNum;
     const y = idx * 30 + 60;
-    const rectWidth = textWidth(viewCode) * 4 / 3;
+    const rectWidth = textWidth(viewCode) * 5 / 3;
 
     if (showProgram) {
       fill(0);
     } else {
       fill(getTypeColor(codeType));
-      rect(x, y, rectWidth, 24, 20);
+      rect(x, y, rectWidth, 24, 16);
       fill(255);
     }
 
+    const codeIndex = idx + 1;
+    text(codeIndex + '. ' + viewCode, x + textXOffset, y + textYOffset);
 
-    text(viewCode, x + textXOffset, y + textYOffset);
+    if (codeType === 'if-start') {
+      const splittedCode = viewCode.split('  ');
+      const condOffsetX = 60;
+      if (1 < splittedCode[1].length) {
+        fill(getTypeColor('condition'));
+        rect(x + condOffsetX, y + 2, textWidth(splittedCode[1]) + 12, 20, 16);
+        fill(255);
+        text(splittedCode[1], x + textXOffset + condOffsetX, y + textYOffset);
+      }
+    }
   });
 }
 
@@ -159,12 +169,14 @@ function calcIndentNum(codeStackSlice) {
 }
 
 function insertCode() {
+  if (20 <= codeStack.length) return;
   if (insertMode === 'normal') {
     codeStack.push({ "codeType": this.value(), "codeText": this.html() });
   }
 }
 
 function handleIfStart() {
+  if (20 <= codeStack.length) return;
   if (insertMode === 'normal') {
     codeStack.push({ "codeType": this.value(), "codeText": this.html() });
     insertMode = 'condition';
@@ -172,6 +184,7 @@ function handleIfStart() {
 }
 
 function insertCondition() {
+  if (20 <= codeStack.length) return;
   if (insertMode === 'condition') {
     const replacedText = codeStack[codeStack.length-1].codeText.replace('-', this.html());
     codeStack[codeStack.length-1].codeText = replacedText;
@@ -181,6 +194,7 @@ function insertCondition() {
 }
 
 function handleIfEnd() {
+  if (20 <= codeStack.length) return;
   if (insertMode === 'normal' && calcIndentNum(codeStack) > 0) {
     codeStack.push({ "codeType": this.value(), "codeText": this.html() });
   }
