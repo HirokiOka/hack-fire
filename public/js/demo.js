@@ -15,6 +15,7 @@ let kaiso;
 let roundCount = 1;
 let playerOneExeIndex = 0;
 let playerTwoExeIndex = 0;
+let isGameover = false;
 
 let playerOneCodeStack = [];
 let playerTwoCodeStack = [];
@@ -107,6 +108,65 @@ socket.on('connection', () => {
 
 let exeCount = GAME_INTERVAL;
 
+class Sound {
+    constructor() {
+        this.ctx = new AudioContext();
+        this.source = null;
+    }
+
+    load(audioPath, callback) {
+        fetch(audioPath)
+            .then((response) => {
+                return response.arrayBuffer();
+            })
+            .then((buffer) => {
+                return this.ctx.decodeAudioData(buffer);
+            })
+            .then((decodeAudio) => {
+                this.source = decodeAudio;
+                callback();
+            })
+            .catch(() => {
+                callback('error!');
+            });
+    }
+
+    play() {
+        let node = new AudioBufferSourceNode(this.ctx, { buffer: this.source });
+        node.connect(this.ctx.destination);
+        node.addEventListener('ended', () => {
+            node.stop();
+            node.disconnect();
+            node = null;
+        }, false);
+        node.start();
+    }
+}
+
+let explodeSound = new Sound();
+explodeSound.load('../sound/explode.mp3', (error) => {
+    if (error != null) {
+        alert('ファイルの読み込みエラーです．');
+        return;
+    }
+});
+
+let shotSound = new Sound();
+shotSound.load('../sound/shot.mp3', (error) => {
+    if (error != null) {
+        alert('ファイルの読み込みエラーです．');
+        return;
+    }
+});
+
+let hitSound = new Sound();
+hitSound.load('../sound/hit.mp3', (error) => {
+    if (error != null) {
+        alert('ファイルの読み込みエラーです．');
+        return;
+    }
+});
+
 setInterval(() => {
   if (!isGameRunning) return;
   const playerOneExeIndex = (GAME_INTERVAL - exeCount) % playerOneCodeStack.length;
@@ -194,22 +254,28 @@ function draw() {
   playerTwoShotArray.map(v => v.update());
   textFont(kaiso);
   if (playerOne.life === 0 && playerTwo.life === 0) {
+    if (!isGameover) explodeSound.play();
+      isGameover = true;
       textSize(64);
       fill(255);
       text('Draw!', width / 2 - 200, height / 2);
       playerOne.explode();
       playerTwo.explode();
   } else if (playerOne.life === 0) {
+    if (!isGameover) explodeSound.play();
+      isGameover = true;
       textSize(64);
       fill('blue');
       text('Player2 Win!', width / 2 - 200, height / 2);
       playerOne.explode();
   } else if (playerTwo.life == 0) {
+    if (!isGameover) explodeSound.play();
+      isGameover = true;
       textSize(64);
       fill('red');
       text('Player1 Win!', width / 2 - 200 , height /2);
       playerTwo.explode();
-  }
+    }
 
 
   //Draw Parameters
@@ -393,8 +459,9 @@ class Player extends Character {
 
   //Methods
   reduceLife(value) {
-      this._life -= value;
-      if (this._life < 0) this._life = 0;
+    hitSound.play();
+    this._life -= value;
+    if (this._life < 0) this._life = 0;
   }
 
   setTarget(target) {
@@ -420,6 +487,7 @@ class Player extends Character {
   }
 
   shot() {
+    shotSound.play();
     this.state = 'shot';
     if (this.shotCheckCounter >= 0) {
       for (let i = 0; i < this.shotArray.length; i++) {
@@ -535,3 +603,4 @@ class Shot extends Character {
       if (this.position.y === this.target._y) return true;
     }
 }
+
