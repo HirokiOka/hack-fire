@@ -227,14 +227,16 @@ function setup() {
   playerTwo.setTarget(playerOne);
 
   for (let i = 0; i < SHOT_MAX_COUNT; i++) {
-    playerOneShotArray[i] = new Shot(0, 0, 32, 32);
+    playerOneShotArray[i] = new Shot(-100, -100, 32, 32);
     playerOneShotArray[i].setTarget(playerTwo);
+    playerOneShotArray[i].setOwner(playerOne);
     playerOneShotArray[i].setVectorFromAngle(HALF_PI);
     playerOneShotArray[i].setPower(playerOne.power);
     //playerOneShotArray[i].setSound(shotSound);
 
     playerTwoShotArray[i] = new Shot(0, 0, 32, 32);
     playerTwoShotArray[i].setTarget(playerOne);
+    playerOneShotArray[i].setOwner(playerTwo);
     playerTwoShotArray[i].setVectorFromAngle(-HALF_PI);
     playerTwoShotArray[i].setPower(playerTwo.power);
     //playerTwoShotArray[i].setSound(shotSound);
@@ -305,19 +307,6 @@ function draw() {
   textSize(28);
   text(exeCount, width/2, barOffset + offY/3);
 
-  //Draw Stage Line
-  /*
-  strokeWeight(3);
-  stroke('black');
-  line(0, topEdge, width, topEdge);
-  line(0, gameHeight/3 + topEdge, width, gameHeight/3 + topEdge);
-  line(0, gameHeight*2/3 + topEdge, width, gameHeight*2/3 + topEdge);
-  line(0, bottomEdge, width, bottomEdge);
-  strokeWeight(1);
-  stroke('white');
-  */
-
-
   //Draw Characters
   textFont('Georgia');
   textAlign(LEFT);
@@ -329,7 +318,6 @@ function draw() {
     fill('black');
     if (isPlayerOneReady) text('PlayerOne Ready', width/4 -40, height/2);
     if (isPlayerTwoReady) text('PlyaerTwo Ready', width*3/4-40, height/2);
-
   }
 
   //Draw Code
@@ -500,10 +488,21 @@ class Player extends Character {
       }
     }
     this.state = 'wait';
+    this.disCharge();
   }
 
+
   charge() {
-    this.power += 20;
+    this.power = 40;
+    this.appearance = "😡";
+    for (let i = 0; i < this.shotArray.length; i++) {
+      this.shotArray[i].setPower(this.power);
+    }
+  }
+
+  disCharge() {
+    this.power = 20;
+    this.appearance = "😀";
     for (let i = 0; i < this.shotArray.length; i++) {
       this.shotArray[i].setPower(this.power);
     }
@@ -529,7 +528,7 @@ class Player extends Character {
   }
 
   update() {
-      if (this.life <= 0) { return; }
+    if (this.life <= 0) { return; }
       let tx = constrain(this._x, 0, width);
       let ty = constrain(this._y, gameHeight/2 + topEdge - gameHeight/3, gameHeight/2 + topEdge + gameHeight/3);
       this._x = tx;
@@ -542,11 +541,12 @@ class Player extends Character {
 class Shot extends Character {
   constructor(x, y, w, h) {
     super(x, y, w, h);
-    this.size = 48;
+    this.size = 52;
     this.speed = 20;
     this.power = 20;
     this.sound = null;
-    this.appearance = "⚽️";
+    this.owner = null;
+    this.appearance = "🌟";
   }
     set(x, y) {
       this.position.set(x, y);
@@ -563,14 +563,23 @@ class Shot extends Character {
       }
     }
 
+  setOwner(owner) {
+    if (owner != null) {
+      this.owner = owner;
+    }
+  }
+
     setSound(sound) {
       this.sound = sound;
     }
 
     update() {
+      if (this.power > 20) {
+        this.appearance = "🪐";
+      }
       if (this.life <= 0) return;
       if (this.position.x + this.width < 0 || this.position.x + this.width > width) {
-          this.life = 0;
+        this.life = 0;
       }
       this.position.x += this.vector.x * this.speed;
       this.position.y += this.vector.y * this.speed;
@@ -583,14 +592,6 @@ class Shot extends Character {
             this.target._life = 0;
           }
           this.life = 0;
-
-          if (this.sound !== null && this.target.sound !== null) {
-            if (this.target._life === 0) {
-              this.target.sound.play();
-            } else {
-              this.sound.play();
-            }
-          } 
       }
     textSize(this.size);
     textAlign(CENTER, CENTER)
