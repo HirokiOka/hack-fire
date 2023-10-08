@@ -10,5 +10,14 @@
   </body>
   <script src="/socket.io/socket.io.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js" integrity="sha512-bcfltY+lNLlNxz38yBBm/HLaUB1gTV6I0e+fahbF9pS6roIdzUytozWdnFV8ZnM6cSAG5EbmO0ag0a/fLZSG4Q==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-  <script src="/js/player1.js"></script>
+  <script>
+    const socket = io();
+    socket.on('connection', () => {
+      console.log('connected to server: player1');
+    });
+    function sendMessage(message) {
+      socket.emit('playerOne', message);
+    }
+  </script>
+  <script src="/js/player.js"></script>
 </html>

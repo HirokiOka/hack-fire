@@ -1,7 +1,3 @@
-const socket = io();
-socket.on('connection', () => {
-  console.log('connected to server: player1');
-});
 const textDict = {
   'こうげき': { 'code': 'shot();', 'codeType': 'action' },
   'ためる': { 'code': 'charge();', 'codeType': 'action' },
@@ -204,8 +200,4 @@ function toggleProgramView() {
 
 function deleteLine() {
   codeStack.pop();
-}
-
-function sendMessage(message) {
-  socket.emit('playerOne', message);
 }
