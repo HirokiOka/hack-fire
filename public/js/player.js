@@ -30,7 +30,7 @@ function setup() {
   // Initialize buttons
   initButtons();
 
-  exeButton = createStyledButton('OK', 'none', 'green', width * 3/4 - 20, height - 80, toggleProgramView);
+  exeButton = createStyledButton('OK', 'none', 'green', width * 3/4 - 20, height - 80, submitCode);
   delButton = createStyledButton('1つけす','none', 'red', width / 2 - 100, width/2 + 100, deleteLine);
   textFont(kaiso);
 }
@@ -193,7 +193,19 @@ function handleIfEnd() {
   }
 }
 
-function toggleProgramView() {
+function submitCode() {
+  if (codeStack.length === 0) {
+    alert('プログラムがありません');
+    return;
+  }
+  if (calcIndentNum(codeStack) > 0) {
+    alert('[もし - おわり] がたりません');
+    return;
+  }
+  if (codeStack.map(v => v.codeType).findIndex(e => e === 'action') === -1) {
+    alert('キャラクターのうごきが入力されていません');
+    return;
+  }
   sendMessage(codeStack);
   //showProgram = !showProgram;
 }
