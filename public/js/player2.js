@@ -2,18 +2,15 @@ const socket = io();
 socket.on('connection', () => {
   console.log('connected to server: player2');
 });
-
 const textDict = {
   'こうげき': { 'code': 'shot();', 'codeType': 'action' },
   'ためる': { 'code': 'charge();', 'codeType': 'action' },
   'うえにうごく': { 'code': 'moveUp();', 'codeType': 'action' },
   'したにうごく': { 'code': 'moveDown();', 'codeType': 'action' },
-  '止まる': { 'code': 'stop();', 'codeType': 'action' },
   'もし  -  なら': { 'code': 'if () {', 'codeType': 'if-start' },
   'もし  -  おわり': { 'code': '}', 'codeType': 'if-end' },
-  'おなじたかさ': { 'code': 'player.position === enemy.position', 'codeType': 'condition' },
-  'あいてがこうげき': { 'code': 'enemy.isShooting === true', 'codeType': 'condition' },
-  'あいてがためる': { 'code': 'enemy.isCharging === true', 'codeType': 'condition' }
+  'おなじたかさ': { 'code': 'playerOne.y === playerTwo.y', 'codeType': 'condition' },
+  'ちがうたかさ': { 'code': 'playerOne.y !== playerTwo.y', 'codeType': 'condition' }
 };
 
 const textXOffset = 10;
@@ -51,11 +48,10 @@ function draw() {
 function initButtons() {
   const buttonPositions = [
     [20, 60], [120, 60],
-    [20, 120], [160, 120], [300, 120],
+    [20, 120], [160, 120],
     [20, 180],
     [20, 240],
     [20, 300], [160, 300],
-    [20, 360],
   ];
   Object.keys(textDict).forEach((codeText, i) => {
     const { codeType, code } = textDict[codeText];
@@ -208,7 +204,6 @@ function toggleProgramView() {
 function deleteLine() {
   codeStack.pop();
 }
-
 
 function sendMessage(message) {
   socket.emit('playerTwo', message);

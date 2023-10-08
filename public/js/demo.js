@@ -4,6 +4,7 @@ const barWidth = 40;
 const barLength = 300;
 const topEdge = 100;
 const bottomEdge = 600;
+const gameHeight = bottomEdge - topEdge;
 const SHOT_MAX_COUNT = 10;
 const GAME_INTERVAL = 20;
 let playerOne;
@@ -22,15 +23,13 @@ const textDict = {
   'ためる': { 'code': 'charge();', 'codeType': 'action' },
   'うえにうごく': { 'code': 'moveUp();', 'codeType': 'action' },
   'したにうごく': { 'code': 'moveDown();', 'codeType': 'action' },
-  '止まる': { 'code': 'stop();', 'codeType': 'action' },
   'もし  -  なら': { 'code': 'if () {', 'codeType': 'if-start' },
   'もし  -  おわり': { 'code': '}', 'codeType': 'if-end' },
 };
 
 const conditionDict = {
   'おなじたかさ': { 'code': 'playerOne.y === playerTwo.y', 'codeType': 'condition' },
-  'あいてがこうげき': { 'code': 'enemy.isShooting === true', 'codeType': 'condition' },
-  'あいてがためる': { 'code': 'enemy.isCharging === true', 'codeType': 'condition' }
+  'ちがうたかさ': { 'code': 'playerOne.y !== playerTwo.y', 'codeType': 'condition' }
 };
 
 let isPlayerOneReady = false;
@@ -83,7 +82,6 @@ function getExecSnippet(codeStack, playerId) {
   }else if (targetString.includes('もし')) {
     const condString = targetString.split('  ')[1];
     const cond = conditionDict[condString].code;
-    console.log(cond);
     if (eval(cond)) {
       const updatedIndex = (exeIndex + 1) % codeStack.length;
       updateExeIndex(playerId, updatedIndex)
@@ -101,25 +99,13 @@ function getExecSnippet(codeStack, playerId) {
   return snippet;
 }
 
-//codeStackを渡す？
-function genExecCodeLine(codeLineString, playerId) {
-  let codeLine = '';
-  const playerObj = (playerId === 1) ? 'playerOne.': 'playerTwo.';
-  //ifの時の処理
-  if (codeLineString.includes('もし')) {
-    const cond = codeLineString.spllit('  ')[1];
-  } else {
-    codeLine = playerObj + textDict[codeLineString].code;
-  }
-  return codeLine;
-}
-
 //Process related to Socket.io 
 socket.on('connection', () => {
   console.log('connected to server: main');
 });
 
 let exeCount = GAME_INTERVAL;
+
 setInterval(() => {
   if (!isGameRunning) return;
   const playerOneExeIndex = (GAME_INTERVAL - exeCount) % playerOneCodeStack.length;
@@ -141,22 +127,12 @@ setInterval(() => {
 }, 1000);
 
 
-function runGame(p1CodeStack, p2CodeStack) {
-  const playerOneCode = genExecCodeString(p1CodeStack, 1);
-  const playerTwoCode = genExecCodeString(p2CodeStack, 2);
-  eval(playerOneCode);
-  eval(playerTwoCode);
-  isPlayerOneReady = false;
-  isPlayerTwoReady = false;
-}
-
 socket.on('playerOne', (msg) => {
   console.log('received: player1');
   const receivedData = JSON.parse(JSON.stringify(msg, '')).map(v => v['codeText']);
   playerOneCodeStack = receivedData;
   isPlayerOneReady = true;
   if (isPlayerOneReady && isPlayerTwoReady && !isGameRunning) {
-    //runGame(playerOneCodeStack, playerTwoCodeStack);
     isGameRunning = true;
   }
 });
@@ -167,7 +143,6 @@ socket.on('playerTwo', (msg) => {
   playerTwoCodeStack = receivedData;
   isPlayerTwoReady = true;
   if (isPlayerOneReady && isPlayerTwoReady && !isGameRunning) {
-    //runGame(playerOneCodeStack, playerTwoCodeStack);
     isGameRunning = true;
   }
 });
@@ -183,11 +158,11 @@ function setup() {
   background('darkslateblue');
 
   //Init Players
-  playerOne = new Player("🐮👉", barOffset*3, height/2, 40, 40);
+  playerOne = new Player("🐮👉", barOffset*3, gameHeight/2 + topEdge, 40, 40);
   playerOne.setVectorFromAngle(HALF_PI);
   playerOne.setTarget(playerTwo);
 
-  playerTwo = new Player("🤞🐮", width-barOffset*3, height/2, 40, 40);
+  playerTwo = new Player("🤞🐮", width-barOffset*3, gameHeight/2 + topEdge, 40, 40);
   playerTwo.setVectorFromAngle(-HALF_PI);
   playerTwo.setTarget(playerOne);
 
@@ -245,6 +220,19 @@ function draw() {
   fill('white');
   textSize(28);
   text(exeCount, width/2, barOffset + offY/3);
+
+  //Draw Stage Line
+  /*
+  strokeWeight(3);
+  stroke('black');
+  line(0, topEdge, width, topEdge);
+  line(0, gameHeight/3 + topEdge, width, gameHeight/3 + topEdge);
+  line(0, gameHeight*2/3 + topEdge, width, gameHeight*2/3 + topEdge);
+  line(0, bottomEdge, width, bottomEdge);
+  strokeWeight(1);
+  stroke('white');
+  */
+
 
   //Draw Characters
   textFont('Georgia');
@@ -326,14 +314,14 @@ class Player extends Character {
     super(x, y, w, h);
     this._x = this.position.x;
     this._y = this.position.y;
-    this._power = 40;
+    this._power = 20;
     this.shotCheckCounter = 0;
     this.shotInterval = 10;
     this.shotArray = null;
     this._life = 100;
     this.code = null;
     this.size = 108;
-    this.appearance = appearance;
+    this._appearance = appearance;
   }
 
   //Getter
@@ -370,6 +358,10 @@ class Player extends Character {
       this._power = value;
   }
 
+  set appearance(value) {
+    this._appearance = value;
+  }
+
   //Methods
   reduceLife() {
       this._life -= this.power;
@@ -389,11 +381,11 @@ class Player extends Character {
   }
 
   moveUp () {
-      this._y -= width/4;
+    this._y -= gameHeight/3;
   }
 
   moveDown () {
-      this._y += width/4;
+    this._y += gameHeight/3;
   }
 
   shot() {
@@ -423,15 +415,14 @@ class Player extends Character {
   display() {
     textSize(this.size);
     textAlign(CENTER, CENTER)
-    text(this.appearance, this._x, this._y);
+    text(this._appearance, this._x, this._y);
     textAlign(LEFT, BOTTOM);
   }
 
   update() {
       if (this.life <= 0) { return; }
       let tx = constrain(this._x, 0, width);
-      let ty = constrain(this._y, topEdge, bottomEdge);
-      // this.position.set(tx, ty);
+      let ty = constrain(this._y, gameHeight/2 + topEdge - gameHeight/3, gameHeight/2 + topEdge + gameHeight/3);
       this._x = tx;
       this._y = ty;
       this.display();
@@ -443,7 +434,7 @@ class Shot extends Character {
   constructor(x, y, w, h) {
     super(x, y, w, h);
     this.size = 48;
-    this.speed = 7;
+    this.speed = 20;
     this.power = 20;
     this.target = null;
     this.sound = null;
@@ -502,6 +493,6 @@ class Shot extends Character {
     }
 
     isCaptured() {
-        if (this.position.y === this.target._y) return true;
+      if (this.position.y === this.target._y) return true;
     }
 }
