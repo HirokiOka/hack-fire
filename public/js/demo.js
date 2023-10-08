@@ -21,6 +21,7 @@ let playerTwoCodeStack = [];
 const textDict = {
   'こうげき': { 'code': 'shot();', 'codeType': 'action' },
   'ためる': { 'code': 'charge();', 'codeType': 'action' },
+  'カウンター': { 'code': 'counterAttack();', 'codeType': 'action' },
   'うえにうごく': { 'code': 'moveUp();', 'codeType': 'action' },
   'したにうごく': { 'code': 'moveDown();', 'codeType': 'action' },
   'もし  -  なら': { 'code': 'if () {', 'codeType': 'if-start' },
@@ -109,11 +110,10 @@ let exeCount = GAME_INTERVAL;
 setInterval(() => {
   if (!isGameRunning) return;
   const playerOneExeIndex = (GAME_INTERVAL - exeCount) % playerOneCodeStack.length;
-  const p1CodeLineString = playerOneCodeStack[playerOneExeIndex];
   const p1ExecCodeLine = getExecSnippet(playerOneCodeStack, 1);
   const playerTwoExeIndex = (GAME_INTERVAL - exeCount) % playerOneCodeStack.length;
-  const p2CodeLineString = playerTwoCodeStack[playerTwoExeIndex];
   const p2ExecCodeLine = getExecSnippet(playerTwoCodeStack, 2);
+  console.log(p1ExecCodeLine, playerOneExeIndex);
   eval(p1ExecCodeLine);
   eval(p2ExecCodeLine);
   exeCount--;
@@ -155,7 +155,7 @@ function preload() {
 function setup() {
   let canvas = createCanvas(820, 640, P2D);
   canvas.parent('canvas');
-  background('darkslateblue');
+  background('#3b4279');
 
   //Init Players
   playerOne = new Player("🐮👉", barOffset*3, gameHeight/2 + topEdge, 40, 40);
@@ -184,7 +184,7 @@ function setup() {
 }
 
 function draw() {
-  background('darkslateblue');
+  background('#3b4279');
 
   //Update Characters
   textFont('Georgia');
@@ -253,8 +253,15 @@ function draw() {
   const playerTwoCode = genExecCodeString(playerTwoCodeStack, 2);
   if (playerOneCodeStack.length !== 0 && playerTwoCodeStack.length !== 0) {
     textSize(18);
-    text(playerOneCode, 40, 220);
-    text(playerTwoCode, width/2 + 40, 220);
+    noStroke();
+    playerOneCode.split('\n').forEach((codeLine, i) => {
+      //playerOneExeIndex === i ? fill('red') : fill('black');
+      text(codeLine, 40, 200 + i *20)
+    });
+    playerTwoCode.split('\n').forEach((codeLine, i) => {
+      //playerTwoExeIndex === i ? fill('red') : fill('black');
+      text(codeLine, width/2 + 40, 200 + i *20)
+    });
   }
 }
 
@@ -263,9 +270,10 @@ function keyPressed() {
     playerOne.moveUp();
   } else if (keyCode === 83) {
     playerOne.moveDown();
+    playerOne.charge();
   } else if (keyCode === 32) {
     playerOne.shot();
-  }
+  } 
 
 
   if (keyCode === UP_ARROW) {
@@ -321,6 +329,8 @@ class Player extends Character {
     this._life = 100;
     this.code = null;
     this.size = 108;
+    this.state = 'wait';
+    this.target = null;
     this._appearance = appearance;
   }
 
@@ -363,13 +373,15 @@ class Player extends Character {
   }
 
   //Methods
-  reduceLife() {
-      this._life -= this.power;
+  reduceLife(value) {
+      this._life -= value;
       if (this._life < 0) this._life = 0;
   }
 
   setTarget(target) {
-      this.target = target;
+    if (target != null) {
+        this.target = target;
+    }
   }
 
   setShotArray(shotArray) {
@@ -389,6 +401,7 @@ class Player extends Character {
   }
 
   shot() {
+    this.state = 'shot';
     if (this.shotCheckCounter >= 0) {
       for (let i = 0; i < this.shotArray.length; i++) {
         if (this.shotArray[i].life <= 0) {
@@ -398,6 +411,14 @@ class Player extends Character {
           break;
         }
       }
+    }
+    this.state = 'wait';
+  }
+
+  charge() {
+    this.power += 20;
+    for (let i = 0; i < this.shotArray.length; i++) {
+      this.shotArray[i].setPower(this.power);
     }
   }
 
@@ -436,7 +457,6 @@ class Shot extends Character {
     this.size = 48;
     this.speed = 20;
     this.power = 20;
-    this.target = null;
     this.sound = null;
     this.appearance = "⚽️";
   }
@@ -470,10 +490,9 @@ class Shot extends Character {
       let dist = this.position.dist(createVector(this.target._x, this.target._y));
       
       if (this.target._life > 0 && dist <= (this.width + this.target.width) / 3) {
-          this.target.reduceLife(this.power);
-          
+        this.target.reduceLife(this.power);
           if (this.target._life < 0) {
-              this.target._life = 0;
+            this.target._life = 0;
           }
           this.life = 0;
 

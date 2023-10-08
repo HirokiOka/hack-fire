@@ -5,6 +5,7 @@ socket.on('connection', () => {
 const textDict = {
   'こうげき': { 'code': 'shot();', 'codeType': 'action' },
   'ためる': { 'code': 'charge();', 'codeType': 'action' },
+  'カウンター': { 'code': 'counterAttack();', 'codeType': 'action' },
   'うえにうごく': { 'code': 'moveUp();', 'codeType': 'action' },
   'したにうごく': { 'code': 'moveDown();', 'codeType': 'action' },
   'もし  -  なら': { 'code': 'if () {', 'codeType': 'if-start' },
@@ -34,20 +35,20 @@ function setup() {
   initButtons();
 
   exeButton = createStyledButton('OK', 'none', 'green', width * 3/4 - 20, height - 80, toggleProgramView);
-  delButton = createStyledButton('1つけす','none', 'red', width / 2 - 100, 50, deleteLine);
+  delButton = createStyledButton('1つけす','none', 'red', width / 2 - 100, width/2 + 100, deleteLine);
   textFont(kaiso);
 }
 
 
 function draw() {
-  background('navy');
+  background('#3b4279');
   drawUI();
   drawProgram();
 }
 
 function initButtons() {
   const buttonPositions = [
-    [20, 60], [120, 60],
+    [20, 60], [120, 60], [220, 60],
     [20, 120], [160, 120],
     [20, 180],
     [20, 240],
@@ -80,10 +81,10 @@ function getTypeColor(codeType) {
   switch (codeType) {
     case 'start': return 'skyblue';
     case 'end': return 'skyblue';
-    case 'action': return 'cornflowerblue';
-    case 'if-start':return 'purple';
-    case 'if-end': return 'purple';
-    case 'condition': return 'violet';
+    case 'action': return '#6f9efd';
+    case 'if-start':return '#7122fa';
+    case 'if-end': return '#7122fa';
+    case 'condition': return '#ffacfc';
   }
 }
 
@@ -103,10 +104,10 @@ function drawUI() {
   textSize(24);
   noFill();
   strokeWeight(3);
-  stroke('gold');
+  stroke('#d05af0');
   rect(10, 40, width/2-20, height-60);
   fill('white');
-  stroke('gold');
+  stroke('#d05af0');
   text("コードブロック", width/4 - 70, 10);
 
   noFill();
@@ -204,6 +205,7 @@ function toggleProgramView() {
 function deleteLine() {
   codeStack.pop();
 }
+
 
 function sendMessage(message) {
   socket.emit('playerTwo', message);
