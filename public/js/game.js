@@ -494,7 +494,6 @@ class Player extends Character {
 
   charge() {
     this.power = 40;
-    this.appearance = "😡";
     for (let i = 0; i < this.shotArray.length; i++) {
       this.shotArray[i].setPower(this.power);
     }
@@ -502,7 +501,6 @@ class Player extends Character {
 
   disCharge() {
     this.power = 20;
-    this.appearance = "😀";
     for (let i = 0; i < this.shotArray.length; i++) {
       this.shotArray[i].setPower(this.power);
     }
