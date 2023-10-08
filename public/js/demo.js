@@ -12,6 +12,8 @@ let playerOneShotArray = [];
 let playerTwoShotArray = [];
 let kaiso;
 let roundCount = 1;
+let playerOneExeIndex = 0;
+let playerTwoExeIndex = 0;
 
 let playerOneCodeStack = [];
 let playerTwoCodeStack = [];
@@ -47,7 +49,7 @@ function convertIf(ifStatement) {
 function genExecCodeString(codeStack, playerId) {
   if(codeStack.length === 0) return;
   let result = '';
-  const playerObj = playerId === 1 ? 'playerOne.': 'playerTwo.';
+  const playerObj = (playerId === 1) ? 'playerOne.': 'playerTwo.';
   codeStack.forEach((codeText, i) => {
     let codeLine = '';
     if (codeText.includes('もし')) {
@@ -60,11 +62,52 @@ function genExecCodeString(codeStack, playerId) {
   return result;
 }
 
+function updateExeIndex(playerId, updatedValue) {
+  if (playerId === 1) {
+    playerOneExeIndex = updatedValue;
+  } else if (playerId === 2){
+    playerTwoExeIndex = updatedValue;
+  }
+}
+
+function getExecSnippet(codeStack, playerId) {
+  let snippet = '';
+  const playerObj = (playerId === 1) ? 'playerOne.': 'playerTwo.';
+  const exeIndex = (playerId === 1) ? playerOneExeIndex : playerTwoExeIndex;
+  const targetString = codeStack[exeIndex];
+
+  if (targetString.includes('おわり')) {
+    const updatedIndex = (exeIndex + 1) % codeStack.length;
+    updateExeIndex(playerId, updatedIndex)
+    return getExecSnippet(codeStack, exeIndex, playerId);
+  }else if (targetString.includes('もし')) {
+    const condString = targetString.split('  ')[1];
+    const cond = conditionDict[condString].code;
+    console.log(cond);
+    if (eval(cond)) {
+      const updatedIndex = (exeIndex + 1) % codeStack.length;
+      updateExeIndex(playerId, updatedIndex)
+      return getExecSnippet(codeStack, exeIndex, playerId);
+    } else {
+      const updatedIndex = (codeStack.findIndex(v => v.includes('おわり')) + 1) % codeStack.length;
+      updateExeIndex(playerId, updatedIndex)
+      return getExecSnippet(codeStack, exeIndex, playerId);
+    }
+  } else {
+    const updatedIndex = (exeIndex + 1) % codeStack.length;
+    updateExeIndex(playerId, updatedIndex)
+    snippet = playerObj + textDict[targetString].code;
+  }
+  return snippet;
+}
+
+//codeStackを渡す？
 function genExecCodeLine(codeLineString, playerId) {
   let codeLine = '';
   const playerObj = (playerId === 1) ? 'playerOne.': 'playerTwo.';
+  //ifの時の処理
   if (codeLineString.includes('もし')) {
-    codeLine = convertIf(codeText);
+    const cond = codeLineString.spllit('  ')[1];
   } else {
     codeLine = playerObj + textDict[codeLineString].code;
   }
@@ -81,10 +124,10 @@ setInterval(() => {
   if (!isGameRunning) return;
   const playerOneExeIndex = (GAME_INTERVAL - exeCount) % playerOneCodeStack.length;
   const p1CodeLineString = playerOneCodeStack[playerOneExeIndex];
-  const p1ExecCodeLine = genExecCodeLine(p1CodeLineString, 1);
+  const p1ExecCodeLine = getExecSnippet(playerOneCodeStack, 1);
   const playerTwoExeIndex = (GAME_INTERVAL - exeCount) % playerOneCodeStack.length;
   const p2CodeLineString = playerTwoCodeStack[playerTwoExeIndex];
-  const p2ExecCodeLine = genExecCodeLine(p2CodeLineString, 2);
+  const p2ExecCodeLine = getExecSnippet(playerTwoCodeStack, 2);
   eval(p1ExecCodeLine);
   eval(p2ExecCodeLine);
   exeCount--;
