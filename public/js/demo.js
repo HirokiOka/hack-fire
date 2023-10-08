@@ -193,6 +193,24 @@ function draw() {
   playerOneShotArray.map(v => v.update());
   playerTwoShotArray.map(v => v.update());
   textFont(kaiso);
+  if (playerOne.life === 0 && playerTwo.life === 0) {
+      textSize(64);
+      fill(255);
+      text('Draw!', width / 2 - 200, height / 2);
+      playerOne.explode();
+      playerTwo.explode();
+  } else if (playerOne.life === 0) {
+      textSize(64);
+      fill('blue');
+      text('Player2 Win!', width / 2 - 200, height / 2);
+      playerOne.explode();
+  } else if (playerTwo.life == 0) {
+      textSize(64);
+      fill('red');
+      text('Player1 Win!', width / 2 - 200 , height /2);
+      playerTwo.explode();
+  }
+
 
   //Draw Parameters
   stroke('white');
@@ -331,6 +349,7 @@ class Player extends Character {
     this.size = 108;
     this.state = 'wait';
     this.target = null;
+    this.r = 0;
     this._appearance = appearance;
   }
 
@@ -423,14 +442,15 @@ class Player extends Character {
   }
 
   explode() {
-      push();
-      fill('red');
-      translate(this._x, this._y);
-      for (let i = 0; i < TWO_PI; i+= radians(30)) {
-          square(r * cos(i), r * sin(i), 20);
-      }
-      r+=2;
-      pop();
+    push();
+    fill('red');
+    translate(this._x, this._y);
+    for (let i = 0; i < TWO_PI; i+= radians(30)) {
+      square(this.r * cos(i), this.r * sin(i), 20);
+    }
+    this.r+=2;
+    this.appearance = '';
+    pop();
   }
 
   display() {
