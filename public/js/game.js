@@ -275,29 +275,34 @@ function draw() {
   playerOneShotArray.map(v => v.update());
   playerTwoShotArray.map(v => v.update());
   textFont(kaiso);
+  textAlign(CENTER);
   if (playerOne.life === 0 && playerTwo.life === 0) {
     if (!isGameover) explodeSound.play();
       isGameover = true;
+      isGameRunning = false;
       textSize(64);
       fill(255);
-      text('Draw!', width / 2 - 200, height / 2);
+      text('Draw!', width / 2, height / 2);
       playerOne.explode();
       playerTwo.explode();
   } else if (playerOne.life === 0) {
     if (!isGameover) explodeSound.play();
       isGameover = true;
+      isGameRunning = false;
       textSize(64);
       fill('blue');
-      text('Player2 Win!', width / 2 - 200, height / 2);
+      text('Player2 Win!', width / 2, height / 2);
       playerOne.explode();
   } else if (playerTwo.life == 0) {
     if (!isGameover) explodeSound.play();
       isGameover = true;
+      isGameRunning = false;
       textSize(64);
       fill('red');
-      text('Player1 Win!', width / 2 - 200 , height /2);
+      text('Player1 Win!', width / 2, height /2);
       playerTwo.explode();
     }
+  textAlign(LEFT);
 
 
   //Draw Parameters
@@ -333,11 +338,19 @@ function draw() {
   playerOne.display();
   playerTwo.display();
 
-  if (!isGameRunning) {
+  if (!isGameRunning && !isGameover) {
     textSize(24);
-    fill('black');
-    if (isPlayerOneReady) text('PlayerOne Ready', width/4 -40, height/2);
-    if (isPlayerTwoReady) text('PlyaerTwo Ready', width*3/4-40, height/2);
+    textAlign(CENTER);
+    noStroke();
+    if (isPlayerOneReady) {
+      fill('red');
+      text('PlayerOne Ready', width/4 -40, height/2);
+    }
+    if (isPlayerTwoReady) {
+      fill('blue');
+      text('PlyaerTwo Ready', width*3/4-40, height/2);
+    }
+    textAlign(LEFT);
   }
 
   //Draw Code
