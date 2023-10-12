@@ -77,28 +77,37 @@ function getExecSnippet(codeStack, playerId) {
   const exeIndex = (playerId === 1) ? playerOneExeIndex : playerTwoExeIndex;
   const targetString = codeStack[exeIndex];
 
-  if (targetString.includes('おわり')) {
-    const updatedIndex = (exeIndex + 1) % codeStack.length;
-    updateExeIndex(playerId, updatedIndex)
-    return getExecSnippet(codeStack, exeIndex, playerId);
-  }else if (targetString.includes('もし')) {
-    const condString = targetString.split('  ')[1];
-    const cond = conditionDict[condString].code;
-    if (eval(cond)) {
-      const updatedIndex = (exeIndex + 1) % codeStack.length;
-      updateExeIndex(playerId, updatedIndex)
-      return getExecSnippet(codeStack, exeIndex, playerId);
-    } else {
-      const updatedIndex = (codeStack.findIndex(v => v.includes('おわり')) + 1) % codeStack.length;
-      updateExeIndex(playerId, updatedIndex)
-      return getExecSnippet(codeStack, exeIndex, playerId);
-    }
-  } else {
+  //actionの処理
+  if (!targetString.includes('もし')) {
     const updatedIndex = (exeIndex + 1) % codeStack.length;
     updateExeIndex(playerId, updatedIndex)
     snippet = playerObj + textDict[targetString].code;
+    return snippet;
   }
-  return snippet;
+
+  //if-endの処理
+  if (targetString.includes('おわり')) {
+    //ifブロックのみのとき，無限再帰になる
+    const updatedIndex = (exeIndex + 1) % codeStack.length;
+    updateExeIndex(playerId, updatedIndex)
+    return getExecSnippet(codeStack, playerId);
+  }
+
+  //ifの時の処理
+  const condString = targetString.split('  ')[1];
+  const cond = conditionDict[condString].code;
+  if (eval(cond)) {
+    //conditionがtrueのとき
+    const updatedIndex = (exeIndex + 1) % codeStack.length;
+    updateExeIndex(playerId, updatedIndex)
+    return getExecSnippet(codeStack, playerId);
+  } else {
+    //conditionがfaleのとき
+    //怪しい
+    const updatedIndex = (codeStack.findIndex(v => v.includes('おわり')) + 1) % codeStack.length;
+    updateExeIndex(playerId, updatedIndex)
+    return getExecSnippet(codeStack, playerId);
+  }
 }
 
 //Process related to Socket.io 
@@ -169,13 +178,24 @@ hitSound.load('../sound/hit.mp3', (error) => {
 
 setInterval(() => {
   if (!isGameRunning) return;
-  const playerOneExeIndex = (GAME_INTERVAL - exeCount) % playerOneCodeStack.length;
-  const p1ExecCodeLine = getExecSnippet(playerOneCodeStack, 1);
-  const playerTwoExeIndex = (GAME_INTERVAL - exeCount) % playerOneCodeStack.length;
-  const p2ExecCodeLine = getExecSnippet(playerTwoCodeStack, 2);
-  console.log(p1ExecCodeLine, playerOneExeIndex);
-  eval(p1ExecCodeLine);
-  eval(p2ExecCodeLine);
+  try {
+    const playerOneExeIndex = (GAME_INTERVAL - exeCount) % playerOneCodeStack.length;
+    const p1ExecCodeLine = getExecSnippet(playerOneCodeStack, 1);
+    eval(p1ExecCodeLine);
+    console.log('[p1]', p1ExecCodeLine);
+  } catch (e) {
+    console.log(e);
+  }
+
+  try {
+    const playerTwoExeIndex = (GAME_INTERVAL - exeCount) % playerOneCodeStack.length;
+    const p2ExecCodeLine = getExecSnippet(playerTwoCodeStack, 2);
+    eval(p2ExecCodeLine);
+    console.log('[p2]', p2ExecCodeLine);
+  } catch (e) {
+    console.log(e);
+  }
+
   exeCount--;
   if (exeCount < 0) {
     isGameRunning = false;
@@ -327,11 +347,9 @@ function draw() {
     textSize(18);
     noStroke();
     playerOneCode.split('\n').forEach((codeLine, i) => {
-      //playerOneExeIndex === i ? fill('red') : fill('black');
       text(codeLine, 40, 200 + i *20)
     });
     playerTwoCode.split('\n').forEach((codeLine, i) => {
-      //playerTwoExeIndex === i ? fill('red') : fill('black');
       text(codeLine, width/2 + 40, 200 + i *20)
     });
   }

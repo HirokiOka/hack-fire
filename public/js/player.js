@@ -1,7 +1,7 @@
 const textDict = {
   'こうげき': { 'code': 'shot();', 'codeType': 'action' },
   'ためる': { 'code': 'charge();', 'codeType': 'action' },
-  'カウンター': { 'code': 'counterAttack();', 'codeType': 'action' },
+  //'カウンター': { 'code': 'counterAttack();', 'codeType': 'action' },
   'うえにうごく': { 'code': 'moveUp();', 'codeType': 'action' },
   'したにうごく': { 'code': 'moveDown();', 'codeType': 'action' },
   'もし  -  なら': { 'code': 'if () {', 'codeType': 'if-start' },
@@ -44,7 +44,8 @@ function draw() {
 
 function initButtons() {
   const buttonPositions = [
-    [20, 60], [120, 60], [220, 60],
+    [20, 60], [120, 60], 
+    //[220, 60],
     [20, 120], [160, 120],
     [20, 180],
     [20, 240],
