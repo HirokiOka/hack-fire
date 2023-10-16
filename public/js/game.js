@@ -193,7 +193,7 @@ setInterval(() => {
     eval(p2ExecCodeLine);
     console.log('[p2]', p2ExecCodeLine);
   } catch (e) {
-    console.log(e, p1ExecCodeLine);
+    console.log(e, p2ExecCodeLine);
   }
 
   exeCount--;
