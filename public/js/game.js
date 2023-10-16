@@ -356,6 +356,7 @@ function draw() {
   //Draw Code
   const playerOneCode = genExecCodeString(playerOneCodeStack, 1);
   const playerTwoCode = genExecCodeString(playerTwoCodeStack, 2);
+  fill('white');
   if (playerOneCodeStack.length !== 0 && playerTwoCodeStack.length !== 0) {
     textSize(18);
     noStroke();
