@@ -14,7 +14,7 @@ const textXOffset = 10;
 const textYOffset = 3;
 const programFontSize = 20;
 let codeStack = [];
-let exeButton, delButton;
+let exeButton, delButton, resetButton;
 let showProgram = false;
 let insertMode = 'normal';
 let buttons = [];
@@ -30,8 +30,9 @@ function setup() {
   // Initialize buttons
   initButtons();
 
-  exeButton = createStyledButton('OK', 'none', 'green', width * 3/4 - 20, height - 80, submitCode);
-  delButton = createStyledButton('1つけす','none', 'red', width / 2 - 100, width/2 + 100, deleteLine);
+  exeButton = createStyledButton('かんせい', 'none', 'green', width * 3/4 - 20, height - 80, submitCode);
+  delButton = createStyledButton('1つけす','none', 'tomato', width / 2 - 100, height*2/3, deleteLine);
+  resetButton = createStyledButton('ぜんぶけす','none', 'red', width / 2 - 120, height*3/4, deleteAll);
   textFont(kaiso);
 }
 
@@ -213,4 +214,8 @@ function submitCode() {
 
 function deleteLine() {
   codeStack.pop();
+}
+
+function deleteAll() {
+  codeStack.splice(0);
 }
