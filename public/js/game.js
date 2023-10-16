@@ -184,7 +184,7 @@ setInterval(() => {
     eval(p1ExecCodeLine);
     console.log('[p1]', p1ExecCodeLine);
   } catch (e) {
-    console.log(e);
+    console.log(e, p1ExecCodeLine);
   }
 
   try {
@@ -193,7 +193,7 @@ setInterval(() => {
     eval(p2ExecCodeLine);
     console.log('[p2]', p2ExecCodeLine);
   } catch (e) {
-    console.log(e);
+    console.log(e, p1ExecCodeLine);
   }
 
   exeCount--;
@@ -341,7 +341,7 @@ function draw() {
   if (!isGameRunning && !isGameover) {
     textSize(24);
     textAlign(CENTER);
-    noStroke();
+    stroke('white')
     if (isPlayerOneReady) {
       fill('red');
       text('PlayerOne Ready', width/4 -40, height/2);
