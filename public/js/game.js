@@ -178,18 +178,20 @@ hitSound.load('../sound/hit.mp3', (error) => {
 
 setInterval(() => {
   if (!isGameRunning) return;
+  let p1ExecCodeLine = '';
   try {
     const playerOneExeIndex = (GAME_INTERVAL - exeCount) % playerOneCodeStack.length;
-    const p1ExecCodeLine = getExecSnippet(playerOneCodeStack, 1);
+    p1ExecCodeLine = getExecSnippet(playerOneCodeStack, 1);
     eval(p1ExecCodeLine);
     console.log('[p1]', p1ExecCodeLine);
   } catch (e) {
     console.log(e, p1ExecCodeLine);
   }
 
+  let p2ExecCodeLine = '';
   try {
     const playerTwoExeIndex = (GAME_INTERVAL - exeCount) % playerOneCodeStack.length;
-    const p2ExecCodeLine = getExecSnippet(playerTwoCodeStack, 2);
+    p2ExecCodeLine = getExecSnippet(playerTwoCodeStack, 2);
     eval(p2ExecCodeLine);
     console.log('[p2]', p2ExecCodeLine);
   } catch (e) {
