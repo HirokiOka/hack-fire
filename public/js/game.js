@@ -373,11 +373,9 @@ function keyPressed() {
     playerOne.moveUp();
   } else if (keyCode === 83) {
     playerOne.moveDown();
-    playerOne.charge();
   } else if (keyCode === 32) {
     playerOne.shot();
   } 
-
 
   if (keyCode === UP_ARROW) {
     playerTwo.moveUp();

@@ -29,12 +29,8 @@ app.get('/', (req, res) => {
   res.sendFile(__dirname + '/index.html');
 });
 
-app.get('/demo', (req, res) => {
-  res.sendFile(__dirname + '/public/demo.html');
-});
-
-app.get('/display', (req, res) => {
-  res.sendFile(__dirname + '/public/display.html');
+app.get('/game', (req, res) => {
+  res.sendFile(__dirname + '/public/game.html');
 });
 
 app.get('/player1', (req, res) => {
