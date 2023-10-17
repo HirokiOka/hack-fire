@@ -109,13 +109,60 @@ function getExecSnippet(codeStack, playerId) {
     updateExeIndex(playerId, updatedIndex)
     return getExecSnippet(codeStack, playerId);
   } else {
-    //conditionがfaleのとき
+    //conditionがfalseのとき
     //怪しい
     const updatedIndex = (codeStack.findIndex(v => v.includes('おわり')) + 1) % codeStack.length;
     updateExeIndex(playerId, updatedIndex)
     return getExecSnippet(codeStack, playerId);
   }
 }
+
+setInterval(() => {
+  if (!isGameRunning) return;
+  //ifの時は際に両者の条件を比較してから実行する
+  /*
+  const p1EvalTarget = playerOneCodeStack[playerOneExeIndex];
+  const p2EvalTarget = playerTwoCodeStack[playerTwoExeIndex];
+  if ((!p1EvalTarget.includes('おわり') && p1EvalTarget.includes('もし'))
+    || (!p2EvalTarget.includes('おわり') && p2EvalTarget.includes('もし'))) {
+    //conditionの評価をしてactionを決める
+    const p1CondString = p1EvalTarget.split('  ')[1];
+    const p2CondString = p2EvalTarget.split('  ')[1];
+    const p1Cond = conditionDict[p1CondString].code;
+    const p2Cond = conditionDict[p2CondString].code;
+  }
+  */
+
+
+  let p1ExecCodeLine = '';
+  try {
+    p1ExecCodeLine = getExecSnippet(playerOneCodeStack, 1);
+    eval(p1ExecCodeLine);
+    console.log('[p1]', playerOneExeIndex);
+    console.log('[p1]', p1ExecCodeLine);
+  } catch (e) {
+    console.log(e, p1ExecCodeLine);
+  }
+
+  let p2ExecCodeLine = '';
+  try {
+    p2ExecCodeLine = getExecSnippet(playerTwoCodeStack, 2);
+    eval(p2ExecCodeLine);
+    console.log('[p1]', playerTwoExeIndex);
+    console.log('[p2]', p2ExecCodeLine);
+  } catch (e) {
+    console.log(e, p2ExecCodeLine);
+  }
+
+  exeCount--;
+  if (exeCount < 0) {
+    isGameRunning = false;
+    isPlayerOneReady = false;
+    isPlayerTwoReady = false;
+    exeCount = GAME_INTERVAL;
+    roundCount++;
+  }
+}, 1000);
 
 //Process related to Socket.io 
 socket.on('connection', () => {
@@ -183,38 +230,6 @@ hitSound.load('../sound/hit.mp3', (error) => {
     }
 });
 
-setInterval(() => {
-  if (!isGameRunning) return;
-  let p1ExecCodeLine = '';
-  //ifの時は際に両者の条件を比較してから実行する
-  try {
-    const playerOneExeIndex = (GAME_INTERVAL - exeCount) % playerOneCodeStack.length;
-    p1ExecCodeLine = getExecSnippet(playerOneCodeStack, 1);
-    eval(p1ExecCodeLine);
-    console.log('[p1]', p1ExecCodeLine);
-  } catch (e) {
-    console.log(e, p1ExecCodeLine);
-  }
-
-  let p2ExecCodeLine = '';
-  try {
-    const playerTwoExeIndex = (GAME_INTERVAL - exeCount) % playerOneCodeStack.length;
-    p2ExecCodeLine = getExecSnippet(playerTwoCodeStack, 2);
-    eval(p2ExecCodeLine);
-    console.log('[p2]', p2ExecCodeLine);
-  } catch (e) {
-    console.log(e, p2ExecCodeLine);
-  }
-
-  exeCount--;
-  if (exeCount < 0) {
-    isGameRunning = false;
-    isPlayerOneReady = false;
-    isPlayerTwoReady = false;
-    exeCount = GAME_INTERVAL;
-    roundCount++;
-  }
-}, 1000);
 
 
 socket.on('playerOne', (msg) => {
