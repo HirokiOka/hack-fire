@@ -7,6 +7,9 @@ const bottomEdge = 600;
 const gameHeight = bottomEdge - topEdge;
 const SHOT_MAX_COUNT = 10;
 const GAME_INTERVAL = 20;
+const TOP = gameHeight/2 + topEdge - gameHeight/3;
+const BOTTOM = gameHeight/2 + topEdge + gameHeight/3;
+
 let playerOne;
 let playerTwo;
 let playerOneShotArray = [];
@@ -30,6 +33,8 @@ const textDict = {
 };
 
 const conditionDict = {
+  'おなじたかさ': { 'code': 'playerOne.y === playerTwo.y', 'codeType': 'condition' },
+  'ちがうたかさ': { 'code': 'playerOne.y !== playerTwo.y', 'codeType': 'condition' },
   'おなじたかさ': { 'code': 'playerOne.y === playerTwo.y', 'codeType': 'condition' },
   'ちがうたかさ': { 'code': 'playerOne.y !== playerTwo.y', 'codeType': 'condition' }
 };
@@ -179,6 +184,7 @@ hitSound.load('../sound/hit.mp3', (error) => {
 setInterval(() => {
   if (!isGameRunning) return;
   let p1ExecCodeLine = '';
+  //ifの時は際に両者の条件を比較してから実行する
   try {
     const playerOneExeIndex = (GAME_INTERVAL - exeCount) % playerOneCodeStack.length;
     p1ExecCodeLine = getExecSnippet(playerOneCodeStack, 1);
