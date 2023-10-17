@@ -25,7 +25,6 @@ function preload() {
 }
 
 function setup() {
-  //createCanvas(820, 740);
   createCanvas(1024, 600);
   textAlign(LEFT, TOP);
   // Initialize buttons

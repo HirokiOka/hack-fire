@@ -1,6 +1,4 @@
 const socket = io();
-const barOffset = 40;
-const barWidth = 40;
 const barLength = 300;
 const topEdge = 100;
 const bottomEdge = 600;
@@ -9,11 +7,15 @@ const SHOT_MAX_COUNT = 10;
 const GAME_INTERVAL = 20;
 const TOP = gameHeight/2 + topEdge - gameHeight/3;
 const BOTTOM = gameHeight/2 + topEdge + gameHeight/3;
+const BACKGROUND_STAR_MAX_COUNT = 100;
+const BACKGROUND_STAR_MAX_SIZE = 3;
+const BACKGROUND_STAR_MAX_SPEED = 4;
 
 let playerOne;
 let playerTwo;
 let playerOneShotArray = [];
 let playerTwoShotArray = [];
+let backgroundStarArray = [];
 let kaiso;
 let roundCount = 1;
 let playerOneExeIndex = 0;
@@ -240,17 +242,23 @@ function preload() {
   kaiso = loadFont('../font/kaiso_up/Kaisotai-Next-UP-B.otf');
 }
 
+let barOffset;
+let barWidth;
 function setup() {
-  let canvas = createCanvas(820, 640, P2D);
+  //let canvas = createCanvas(820, 640, P2D);
+  let canvas = createCanvas(1080, 720, P2D);
+  //let canvas = createCanvas(1920, 1080, P2D);
   canvas.parent('canvas');
   background('#3b4279');
+  barOffset = width/24;
+  barWidth = width/24;
 
   //Init Players
-  playerOne = new Player("🐮👉", barOffset*3, gameHeight/2 + topEdge, 40, 40);
+  playerOne = new Player("🚀", barOffset*3, gameHeight/2 + topEdge, 40, 40);
   playerOne.setVectorFromAngle(HALF_PI);
   playerOne.setTarget(playerTwo);
 
-  playerTwo = new Player("🤞🐮", width-barOffset*3, gameHeight/2 + topEdge, 40, 40);
+  playerTwo = new Player("👾", width-barOffset*3, gameHeight/2 + topEdge, 40, 40);
   playerTwo.setVectorFromAngle(-HALF_PI);
   playerTwo.setTarget(playerOne);
 
@@ -271,6 +279,17 @@ function setup() {
   }
   playerOne.setShotArray(playerOneShotArray);
   playerTwo.setShotArray(playerTwoShotArray);
+
+  for (let i = 0; i < BACKGROUND_STAR_MAX_COUNT; i++) {
+      let size = random(1, BACKGROUND_STAR_MAX_SIZE);
+      let speed = random(1, BACKGROUND_STAR_MAX_SPEED);
+
+      backgroundStarArray[i] = new BackgroundStar(size, speed);
+
+      let x = random(width);
+      let y = random(height);
+      backgroundStarArray[i].set(x, y);
+  }
 }
 
 function draw() {
@@ -313,32 +332,43 @@ function draw() {
   textAlign(LEFT);
 
 
+  //Draw Start
+  backgroundStarArray.map((v) => v.update());
+
   //Draw Parameters
+  //Player1 HP
   stroke('white');
+  fill('dimgray')
+  rect(barOffset, barOffset, 100 * (width / 260), barWidth);
   fill('red');
-  rect(barOffset, barOffset, playerOne.life*3, barWidth);
+  rect(barOffset, barOffset, playerOne.life * (width / 260), barWidth);
 
+  //Player2 HP
   stroke('white');
+  fill('dimgray')
+  rect(width - barOffset, barOffset, -100 * (width / 260), barWidth);
   fill('blue');
-  rect(width/2 + barOffset*3/2 + 300 - playerTwo.life*3, barOffset, playerTwo.life*3, barWidth);
+  rect(width - barOffset, barOffset, -playerTwo.life * (width / 260), barWidth);
 
+  //Round
   stroke('mediumpurple');
   strokeWeight(3);
   fill('black')
-  textSize(24);
+  textSize(32);
   textAlign(CENTER);
   text(`Round ${roundCount}`, width/2, barOffset*3/4);
 
   strokeWeight(1);
   stroke('white');
   fill('black');
-  const offX = 40;
-  const offY = 80;
+  const offX = barOffset;
+  const offY = barOffset*2;
   quad(width/2 - offX, offY/2, width/2 - offX/2, offY, width/2 + offX/2, offY, width/2 + offX, offY/2);
 
   fill('white');
-  textSize(28);
+  textSize(30);
   text(exeCount, width/2, barOffset + offY/3);
+
 
   //Draw Characters
   textFont('Georgia');
@@ -352,11 +382,11 @@ function draw() {
     stroke('white')
     if (isPlayerOneReady) {
       fill('red');
-      text('PlayerOne Ready', width/4 -40, height/2);
+      text('Player1 Ready', width/4 -40, height/2);
     }
     if (isPlayerTwoReady) {
       fill('blue');
-      text('PlyaerTwo Ready', width*3/4-40, height/2);
+      text('Plyaer2 Ready', width*3/4-40, height/2);
     }
     textAlign(LEFT);
   }
@@ -638,6 +668,28 @@ class Shot extends Character {
 
     isCaptured() {
       if (this.position.y === this.target._y) return true;
+    }
+}
+
+class BackgroundStar {
+    constructor(size, speed) {
+        this.size = size;
+        this.speed = speed;
+        this.color = "#ffffff";
+        this.position = null;
+    }
+
+    set(x, y) {
+        this.position = createVector(x, y);
+    }
+
+    update() {
+        fill(this.color);
+        this.position.x += this.speed;
+        square(this.position.x - this.size / 2, this.position.y - this.size / 2, this.size);
+
+        if (this.position.x + this.size > width) this.position.x = -this.size;
+        
     }
 }
 
