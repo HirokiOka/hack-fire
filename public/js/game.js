@@ -377,7 +377,7 @@ function draw() {
   playerTwo.display();
 
   if (!isGameRunning && !isGameover) {
-    textSize(24);
+    textSize(48);
     textAlign(CENTER);
     stroke('white')
     if (isPlayerOneReady) {
@@ -386,7 +386,7 @@ function draw() {
     }
     if (isPlayerTwoReady) {
       fill('blue');
-      text('Plyaer2 Ready', width*3/4-40, height/2);
+      text('Player2 Ready', width*3/4-40, height/2);
     }
     textAlign(LEFT);
   }
