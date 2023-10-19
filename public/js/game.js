@@ -1,12 +1,13 @@
 const socket = io();
-const barLength = 300;
+/*
 const topEdge = 100;
 const bottomEdge = 600;
 const gameHeight = bottomEdge - topEdge;
-const SHOT_MAX_COUNT = 10;
-const GAME_INTERVAL = 20;
 const TOP = gameHeight/2 + topEdge - gameHeight/3;
 const BOTTOM = gameHeight/2 + topEdge + gameHeight/3;
+*/
+const SHOT_MAX_COUNT = 10;
+const GAME_INTERVAL = 20;
 const BACKGROUND_STAR_MAX_COUNT = 100;
 const BACKGROUND_STAR_MAX_SIZE = 3;
 const BACKGROUND_STAR_MAX_SPEED = 4;
@@ -259,14 +260,29 @@ function preload() {
 
 let barOffset;
 let barWidth;
+//let topEdge = 100;
+//let bottomEdge = 600;
+let topEdge = 0;
+let bottomEdge = 0;
+//let gameHeight = bottomEdge - topEdge;
+//let TOP = gameHeight/2 + topEdge - gameHeight/3;
+//let BOTTOM = gameHeight/2 + topEdge + gameHeight/3;
+let gameHeight = 0;
+let TOP = 0;
+let BOTTOM = 0;
 function setup() {
   //let canvas = createCanvas(820, 640, P2D);
-  let canvas = createCanvas(1080, 720, P2D);
-  //let canvas = createCanvas(1920, 1080, P2D);
-  canvas.parent('canvas');
-  background('#3b4279');
+  //let canvas = createCanvas(1080, 720, P2D);
+  let canvas = createCanvas(1920, 1080, P2D);
   barOffset = width/24;
   barWidth = width/24;
+  topEdge = height / 3 + barOffset;
+  bottomEdge = height * 2 / 3 + barOffset;
+  gameHeight = bottomEdge - topEdge;
+  TOP = gameHeight/2 + topEdge - gameHeight/3;
+  BOTTOM = gameHeight/2 + topEdge + gameHeight/3;
+  canvas.parent('canvas');
+  background('#3b4279');
 
   //Init Players
   playerOne = new Player("🚀", barOffset*3, gameHeight/2 + topEdge, 40, 40);
