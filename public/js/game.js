@@ -385,7 +385,7 @@ function draw() {
   stroke('mediumpurple');
   strokeWeight(3);
   fill('black')
-  textSize(32);
+  textSize(48);
   textAlign(CENTER);
   text(`Round ${roundCount}`, width/2, barOffset*3/4);
 
@@ -397,7 +397,7 @@ function draw() {
   quad(width/2 - offX, offY/2, width/2 - offX/2, offY, width/2 + offX/2, offY, width/2 + offX, offY/2);
 
   fill('white');
-  textSize(30);
+  textSize(42);
   text(exeCount, width/2, barOffset + offY/3);
 
 
@@ -427,13 +427,13 @@ function draw() {
   const playerTwoCode = genExecCodeString(playerTwoCodeStack, 2);
   fill('white');
   if (playerOneCodeStack.length !== 0 && playerTwoCodeStack.length !== 0) {
-    textSize(18);
+    textSize(32);
     noStroke();
     playerOneCode.split('\n').forEach((codeLine, i) => {
-      text(codeLine, 40, 200 + i *20)
+      text(codeLine, 40, 200 + i * 32)
     });
     playerTwoCode.split('\n').forEach((codeLine, i) => {
-      text(codeLine, width/2 + 40, 200 + i *20)
+      text(codeLine, width/2 + 40, 200 + i * 32)
     });
   }
 }
@@ -639,7 +639,7 @@ class Shot extends Character {
   constructor(x, y, w, h) {
     super(x, y, w, h);
     this.size = 52;
-    this.speed = 20;
+    this.speed = 60;
     this.power = 20;
     this.sound = null;
     this.owner = null;
