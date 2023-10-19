@@ -254,13 +254,8 @@ function preload() {
 
 let barOffset;
 let barWidth;
-//let topEdge = 100;
-//let bottomEdge = 600;
 let topEdge = 0;
 let bottomEdge = 0;
-//let gameHeight = bottomEdge - topEdge;
-//let TOP = gameHeight/2 + topEdge - gameHeight/3;
-//let BOTTOM = gameHeight/2 + topEdge + gameHeight/3;
 let gameHeight = 0;
 let TOP = 0;
 let BOTTOM = 0;
@@ -273,8 +268,6 @@ function setup() {
   topEdge = height / 3 - barOffset;
   bottomEdge = height * 2 / 3 + barOffset;
   gameHeight = bottomEdge - topEdge;
-  //TOP = gameHeight/2 + topEdge - gameHeight/3;
-  //BOTTOM = gameHeight/2 + topEdge + gameHeight/3;
   canvas.parent('canvas');
   background('#3b4279');
 
@@ -357,7 +350,7 @@ function draw() {
   textAlign(LEFT);
 
 
-  //Draw Start
+  //Draw Stars
   backgroundStarArray.map((v) => v.update());
 
   //Draw Parameters
@@ -402,7 +395,8 @@ function draw() {
   playerTwo.display();
 
   if (!isGameRunning && !isGameover) {
-    textSize(48);
+    textFont(kaiso);
+    textSize(64);
     textAlign(CENTER);
     stroke('white')
     if (isPlayerOneReady) {
@@ -619,9 +613,6 @@ class Player extends Character {
   update() {
     if (this.life <= 0) { return; }
       let tx = constrain(this._x, 0, width);
-      //let ty = constrain(this._y, gameHeight/2 + topEdge - gameHeight/3, gameHeight/2 + topEdge + gameHeight/3);
-      //topEdge = height / 3 - barOffset;
-      //bottomEdge = height * 2 / 3 + barOffset;
       let ty = constrain(this._y, topEdge, bottomEdge);
       this._x = tx;
       this._y = ty;

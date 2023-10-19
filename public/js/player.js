@@ -214,8 +214,10 @@ function submitCode() {
 
 function deleteLine() {
   codeStack.pop();
+  insertMode = 'normal';
 }
 
 function deleteAll() {
   codeStack.splice(0);
+  insertMode = 'normal';
 }
