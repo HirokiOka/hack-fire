@@ -426,15 +426,13 @@ function draw() {
   const playerOneCode = genExecCodeString(playerOneCodeStack, 1);
   const playerTwoCode = genExecCodeString(playerTwoCodeStack, 2);
   fill('white');
-  if (playerOneCodeStack.length !== 0 && playerTwoCodeStack.length !== 0) {
-    textSize(32);
-    noStroke();
-    playerOneCode.split('\n').forEach((codeLine, i) => {
-      text(codeLine, 40, 200 + i * 32)
-    });
-    playerTwoCode.split('\n').forEach((codeLine, i) => {
-      text(codeLine, width/2 + 40, 200 + i * 32)
-    });
+  if (isGameRunning) {
+    if (playerOneCodeStack.length !== 0 && playerTwoCodeStack.length !== 0) {
+      textSize(32);
+      noStroke();
+      playerOneCode.split('\n').forEach((codeLine, i) => text(codeLine, 40, 200 + i * 32));
+      playerTwoCode.split('\n').forEach((codeLine, i) => text(codeLine, width/2 + 40, 200 + i * 32));
+    }
   }
 }
 
