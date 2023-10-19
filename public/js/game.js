@@ -1,11 +1,9 @@
 const socket = io();
-/*
-const topEdge = 100;
-const bottomEdge = 600;
-const gameHeight = bottomEdge - topEdge;
-const TOP = gameHeight/2 + topEdge - gameHeight/3;
-const BOTTOM = gameHeight/2 + topEdge + gameHeight/3;
-*/
+//Process related to Socket.io 
+socket.on('connection', () => {
+  console.log('connected to server: main');
+});
+
 const SHOT_MAX_COUNT = 10;
 const GAME_INTERVAL = 20;
 const BACKGROUND_STAR_MAX_COUNT = 100;
@@ -165,10 +163,6 @@ setInterval(() => {
   }
 }, 1000);
 
-//Process related to Socket.io 
-socket.on('connection', () => {
-  console.log('connected to server: main');
-});
 
 let exeCount = GAME_INTERVAL;
 
@@ -276,11 +270,11 @@ function setup() {
   let canvas = createCanvas(1920, 1080, P2D);
   barOffset = width/24;
   barWidth = width/24;
-  topEdge = height / 3 + barOffset;
+  topEdge = height / 3 - barOffset;
   bottomEdge = height * 2 / 3 + barOffset;
   gameHeight = bottomEdge - topEdge;
-  TOP = gameHeight/2 + topEdge - gameHeight/3;
-  BOTTOM = gameHeight/2 + topEdge + gameHeight/3;
+  //TOP = gameHeight/2 + topEdge - gameHeight/3;
+  //BOTTOM = gameHeight/2 + topEdge + gameHeight/3;
   canvas.parent('canvas');
   background('#3b4279');
 
@@ -564,11 +558,11 @@ class Player extends Character {
   }
 
   moveUp () {
-    this._y -= gameHeight/3;
+    this._y -= (bottomEdge - topEdge) / 2;
   }
 
   moveDown () {
-    this._y += gameHeight/3;
+    this._y += (bottomEdge - topEdge) / 2;
   }
 
   shot() {
@@ -625,7 +619,10 @@ class Player extends Character {
   update() {
     if (this.life <= 0) { return; }
       let tx = constrain(this._x, 0, width);
-      let ty = constrain(this._y, gameHeight/2 + topEdge - gameHeight/3, gameHeight/2 + topEdge + gameHeight/3);
+      //let ty = constrain(this._y, gameHeight/2 + topEdge - gameHeight/3, gameHeight/2 + topEdge + gameHeight/3);
+      //topEdge = height / 3 - barOffset;
+      //bottomEdge = height * 2 / 3 + barOffset;
+      let ty = constrain(this._y, topEdge, bottomEdge);
       this._x = tx;
       this._y = ty;
       this.display();
