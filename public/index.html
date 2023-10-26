@@ -1,29 +1,32 @@
 <!doctype html>
 <html>
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link href="output.css" rel="stylesheet">
-  <title>Slash Shot</title>
-</head>
-<body>
-  <div class="font-mono">
-    <h1 class="text-3xl font-bold underline"></h1>
-  </div>
-  <div id="game">
-    <div id="canvas"></div>
-    <div id="editors">
-      <div id="editor1">
-        <code><pre id="player1-editor"></pre></code>
-      </div>
-      <div id="editor2">
-        <code><pre id="player2-editor"></pre></code>
-      </div>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="output.css" rel="stylesheet">
+    <title>Slash Shot</title>
+  </head>
+  <body>
+    <div class="font-mono">
+      <h1 class="text-3xl font-bold underline"></h1>
     </div>
-</body>
-<script src="/socket.io/socket.io.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js" integrity="sha512-bcfltY+lNLlNxz38yBBm/HLaUB1gTV6I0e+fahbF9pS6roIdzUytozWdnFV8ZnM6cSAG5EbmO0ag0a/fLZSG4Q==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/ace.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/ext-language_tools.js"></script>
-<script src="/js/game.js"></script>
+    <div id="game">
+      <div id="canvas"></div>
+      <div id="editors">
+        <div id="editor1">
+          <code><pre id="player1-editor"></pre></code>
+        </div>
+        <div id="editor2">
+          <code><pre id="player2-editor"></pre></code>
+        </div>
+      </div>
+  </body>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js" integrity="sha512-bcfltY+lNLlNxz38yBBm/HLaUB1gTV6I0e+fahbF9pS6roIdzUytozWdnFV8ZnM6cSAG5EbmO0ag0a/fLZSG4Q==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/ace.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/ext-language_tools.js"></script>
+  <script src="/js/Sound.js"></script>
+  <script src="/js/Character.js"></script>
+  <script src="/js/BackgroundStar.js"></script>
+  <script src="/js/game.js"></script>
 </html>

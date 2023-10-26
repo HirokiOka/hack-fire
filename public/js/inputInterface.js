@@ -1,7 +1,6 @@
 const textDict = {
   'こうげき': { 'code': 'shot();', 'codeType': 'action' },
   'ためる': { 'code': 'charge();', 'codeType': 'action' },
-  //'カウンター': { 'code': 'counterAttack();', 'codeType': 'action' },
   'うえにうごく': { 'code': 'moveUp();', 'codeType': 'action' },
   'したにうごく': { 'code': 'moveDown();', 'codeType': 'action' },
   'もし  -  なら': { 'code': 'if () {', 'codeType': 'if-start' },
@@ -31,9 +30,12 @@ function setup() {
   // Initialize buttons
   initButtons();
 
-  exeButton = createStyledButton('かんせい', 'none', 'green', width * 3/4 - 20, height - 80, submitCode);
-  delButton = createStyledButton('1つけす','none', 'tomato', width / 2 - 100, height*2/3, deleteLine);
-  resetButton = createStyledButton('ぜんぶけす','none', 'red', width / 2 - 120, height*3/4, deleteAll);
+  exeButton = createStyledButton('かんせい', 'none', 'green',
+    width * 3/4 - 20, height - 80, submitCode);
+  delButton = createStyledButton('1つけす','none', 'tomato',
+    width / 2 - 100, height*2/3, deleteLine);
+  resetButton = createStyledButton('ぜんぶけす','none', 'red',
+    width / 2 - 120, height*3/4, deleteAll);
   textFont(kaiso);
 }
 
@@ -183,7 +185,6 @@ function insertCondition() {
   if (insertMode === 'condition') {
     const replacedText = codeStack[codeStack.length-1].codeText.replace('-', this.html());
     codeStack[codeStack.length-1].codeText = replacedText;
-    //codeStack.push({ "codeType": this.value(), "codeText": this.html() });
     insertMode = 'normal';
   }
 }
