@@ -20,6 +20,9 @@ let roundCount = 1;
 let playerOneExeIndex = 0;
 let playerTwoExeIndex = 0;
 let isGameover = false;
+let isPlayerOneReady = false;
+let isPlayerTwoReady = false;
+let isGameRunning = false;
 
 let playerOneCodeStack = [];
 let playerTwoCodeStack = [];
@@ -40,35 +43,6 @@ const conditionDict = {
   'ちがうたかさ': { 'code': 'playerOne.y !== playerTwo.y', 'codeType': 'condition' }
 };
 
-let isPlayerOneReady = false;
-let isPlayerTwoReady = false;
-let isGameRunning = false;
-
-function convertIf(ifStatement) {
-  if (ifStatement.includes('おわり')) return '}';
-  const splitted = ifStatement.split('  ');
-  const condition = splitted[1];
-  const convertedCondition = conditionDict[condition].code;
-  const result = `if (${convertedCondition}) {`;
-  return result;
-}
-
-function genExecCodeString(codeStack, playerId) {
-  if(codeStack.length === 0) return;
-  let result = '';
-  const playerObj = (playerId === 1) ? 'playerOne.': 'playerTwo.';
-  codeStack.forEach((codeText, i) => {
-    let codeLine = '';
-    if (codeText.includes('もし')) {
-      codeLine = convertIf(codeText);
-    } else {
-      codeLine = playerObj + textDict[codeText].code;
-    }
-    result += '\n' + codeLine;
-  });
-  return result;
-}
-
 function updateExeIndex(playerId, updatedValue) {
   if (playerId === 1) {
     playerOneExeIndex = updatedValue;
@@ -81,18 +55,19 @@ function getExecSnippet(codeStack, playerId) {
   let snippet = '';
   const playerObj = (playerId === 1) ? 'playerOne.': 'playerTwo.';
   const exeIndex = (playerId === 1) ? playerOneExeIndex : playerTwoExeIndex;
-  const targetString = codeStack[exeIndex];
+  const targetText = codeStack[exeIndex].codeText;
+  const targetType = codeStack[exeIndex].codeType;
 
   //actionの処理
-  if (!targetString.includes('もし')) {
+  if (targetType === 'action') {
     const updatedIndex = (exeIndex + 1) % codeStack.length;
     updateExeIndex(playerId, updatedIndex)
-    snippet = playerObj + textDict[targetString].code;
+    snippet = playerObj + textDict[targetText].code;
     return snippet;
   }
 
   //if-endの処理
-  if (targetString.includes('おわり')) {
+  if (targetType === 'if-end') {
     //ifブロックのみのとき，無限再帰になる
     const updatedIndex = (exeIndex + 1) % codeStack.length;
     updateExeIndex(playerId, updatedIndex)
@@ -100,7 +75,7 @@ function getExecSnippet(codeStack, playerId) {
   }
 
   //ifの時の処理
-  const condString = targetString.split('  ')[1];
+  const condString = targetText.split('  ')[1];
   const cond = conditionDict[condString].code;
   if (eval(cond)) {
     //conditionがtrueのとき
@@ -109,8 +84,8 @@ function getExecSnippet(codeStack, playerId) {
     return getExecSnippet(codeStack, playerId);
   } else {
     //conditionがfalseのとき
-    //怪しい
-    const updatedIndex = (codeStack.findIndex(v => v.includes('おわり')) + 1) % codeStack.length;
+    //if-endの次までindexを飛ばす
+    const updatedIndex = (codeStack.findIndex(v => v.codeType === 'if-end') + 1) % codeStack.length;
     updateExeIndex(playerId, updatedIndex)
     return getExecSnippet(codeStack, playerId);
   }
@@ -226,10 +201,10 @@ hitSound.load('../sound/hit.mp3', (error) => {
 });
 
 
-
 socket.on('playerOne', (msg) => {
   console.log('received: player1');
-  const receivedData = JSON.parse(JSON.stringify(msg, '')).map(v => v['codeText']);
+  //const receivedData = JSON.parse(JSON.stringify(msg, '')).map(v => v['codeText']);
+  const receivedData = JSON.parse(JSON.stringify(msg, ''));
   playerOneCodeStack = receivedData;
   isPlayerOneReady = true;
   if (isPlayerOneReady && isPlayerTwoReady && !isGameRunning) {
@@ -239,7 +214,8 @@ socket.on('playerOne', (msg) => {
 
 socket.on('playerTwo', (msg) => {
   console.log('received: player2');
-  const receivedData = JSON.parse(JSON.stringify(msg, '')).map(v => v['codeText']);
+  //const receivedData = JSON.parse(JSON.stringify(msg, '')).map(v => v['codeText']);
+  const receivedData = JSON.parse(JSON.stringify(msg, ''));
   playerTwoCodeStack = receivedData;
   isPlayerTwoReady = true;
   if (isPlayerOneReady && isPlayerTwoReady && !isGameRunning) {
@@ -325,7 +301,7 @@ function draw() {
     if (!isGameover) explodeSound.play();
       isGameover = true;
       isGameRunning = false;
-      textSize(64);
+      textSize(72);
       fill(255);
       text('Draw!', width / 2, height / 2);
       playerOne.explode();
@@ -334,7 +310,7 @@ function draw() {
     if (!isGameover) explodeSound.play();
       isGameover = true;
       isGameRunning = false;
-      textSize(64);
+      textSize(72);
       fill('blue');
       text('Player2 Win!', width / 2, height / 2);
       playerOne.explode();
@@ -342,7 +318,7 @@ function draw() {
     if (!isGameover) explodeSound.play();
       isGameover = true;
       isGameRunning = false;
-      textSize(64);
+      textSize(72);
       fill('red');
       text('Player1 Win!', width / 2, height /2);
       playerTwo.explode();
@@ -411,18 +387,42 @@ function draw() {
   }
 
   //Draw Code
-  const playerOneCode = genExecCodeString(playerOneCodeStack, 1);
-  const playerTwoCode = genExecCodeString(playerTwoCodeStack, 2);
+  const playerOneCode = getJSCodeString(playerOneCodeStack, 1);
+  const playerTwoCode = getJSCodeString(playerTwoCodeStack, 2);
   fill('white');
-  if (isGameRunning) {
-    if (playerOneCodeStack.length !== 0 && playerTwoCodeStack.length !== 0) {
-      textSize(32);
-      noStroke();
-      playerOneCode.split('\n').forEach((codeLine, i) => text(codeLine, 40, 200 + i * 32));
-      playerTwoCode.split('\n').forEach((codeLine, i) => text(codeLine, width/2 + 40, 200 + i * 32));
-    }
+  if (isGameRunning && playerOneCodeStack.length !== 0 && playerTwoCodeStack.length !== 0) {
+    textSize(32);
+    noStroke();
+    playerOneCode.split('\n').forEach((codeLine, i) => text(codeLine, 40, 200 + i * 32));
+    playerTwoCode.split('\n').forEach((codeLine, i) => text(codeLine, width/2 + 40, 200 + i * 32));
   }
 }
+
+function convertIf(ifStatement) {
+  if (ifStatement.includes('おわり')) return '}';
+  const splitted = ifStatement.split('  ');
+  const condition = splitted[1];
+  const convertedCondition = conditionDict[condition].code;
+  const result = `if (${convertedCondition}) {`;
+  return result;
+}
+
+function getJSCodeString(codeStack, playerId) {
+  if(codeStack.length === 0) return;
+  let result = '';
+  const playerObj = (playerId === 1) ? 'playerOne.': 'playerTwo.';
+  codeStack.forEach(({ codeType, codeText }, _) => {
+    let codeLine = '';
+    if (codeType === 'if-start') {
+      codeLine = convertIf(codeText);
+    } else {
+      codeLine = playerObj + textDict[codeText].code;
+    }
+    result += '\n' + codeLine;
+  });
+  return result;
+}
+
 
 function keyPressed() {
   if (keyCode === 87) {

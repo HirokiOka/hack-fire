@@ -10,6 +10,7 @@ const textDict = {
   'ちがうたかさ': { 'code': 'playerOne.y !== playerTwo.y', 'codeType': 'condition' }
 };
 
+const maxCodeStackLength = 15;
 const textXOffset = 10;
 const textYOffset = 3;
 const programFontSize = 20;
@@ -98,7 +99,6 @@ function getButtonHandler(codeType) {
 function drawUI() {
   stroke(0);
   //Center line
-  //line(width/2, 0, width/2, height);
   textSize(24);
   noFill();
   strokeWeight(3);
@@ -164,14 +164,14 @@ function calcIndentNum(codeStackSlice) {
 }
 
 function insertCode() {
-  if (20 <= codeStack.length) return;
+  if (maxCodeStackLength <= codeStack.length) return;
   if (insertMode === 'normal') {
     codeStack.push({ "codeType": this.value(), "codeText": this.html() });
   }
 }
 
 function handleIfStart() {
-  if (20 <= codeStack.length) return;
+  if (maxCodeStackLength <= codeStack.length) return;
   if (insertMode === 'normal') {
     codeStack.push({ "codeType": this.value(), "codeText": this.html() });
     insertMode = 'condition';
@@ -179,7 +179,7 @@ function handleIfStart() {
 }
 
 function insertCondition() {
-  if (20 <= codeStack.length) return;
+  if (maxCodeStackLength <= codeStack.length) return;
   if (insertMode === 'condition') {
     const replacedText = codeStack[codeStack.length-1].codeText.replace('-', this.html());
     codeStack[codeStack.length-1].codeText = replacedText;
@@ -189,7 +189,7 @@ function insertCondition() {
 }
 
 function handleIfEnd() {
-  if (20 <= codeStack.length) return;
+  if (maxCodeStackLength <= codeStack.length) return;
   if (insertMode === 'normal' && calcIndentNum(codeStack) > 0) {
     codeStack.push({ "codeType": this.value(), "codeText": this.html() });
   }
@@ -209,7 +209,7 @@ function submitCode() {
     return;
   }
   sendMessage(codeStack);
-  //showProgram = !showProgram;
+  console.log(codeStack);
 }
 
 function deleteLine() {
