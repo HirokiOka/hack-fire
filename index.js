@@ -25,6 +25,7 @@ io.on('connection', (socket) => {
 });
 
 
+//Game Display
 app.get('/', (req, res) => {
   res.sendFile(__dirname + '/index.html');
 });
@@ -33,10 +34,20 @@ app.get('/game', (req, res) => {
   res.sendFile(__dirname + '/public/game.html');
 });
 
+//Input Display
+//player1
+app.get('/p1_title', (req, res) => {
+  res.sendFile(__dirname + '/public/p1_title.html');
+});
+
 app.get('/player1', (req, res) => {
   res.sendFile(__dirname + '/public/player1.html');
 });
 
+//player2
+app.get('/p2_title', (req, res) => {
+  res.sendFile(__dirname + '/public/p2_title.html');
+});
 app.get('/player2', (req, res) => {
   res.sendFile(__dirname + '/public/player2.html');
 });
