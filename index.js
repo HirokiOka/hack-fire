@@ -34,10 +34,18 @@ app.get('/game', (req, res) => {
   res.sendFile(__dirname + '/public/game.html');
 });
 
+app.get('/description', (req, res) => {
+  res.sendFile(__dirname + '/public/description.html');
+});
+
 //Input Display
 //player1
 app.get('/p1_title', (req, res) => {
   res.sendFile(__dirname + '/public/p1_title.html');
+});
+
+app.get('/p1_desc', (req, res) => {
+  res.sendFile(__dirname + '/public/p1_desc.html');
 });
 
 app.get('/player1', (req, res) => {
@@ -48,6 +56,11 @@ app.get('/player1', (req, res) => {
 app.get('/p2_title', (req, res) => {
   res.sendFile(__dirname + '/public/p2_title.html');
 });
+
+app.get('/p2_desc', (req, res) => {
+  res.sendFile(__dirname + '/public/p2_desc.html');
+});
+
 app.get('/player2', (req, res) => {
   res.sendFile(__dirname + '/public/player2.html');
 });
