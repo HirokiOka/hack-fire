@@ -15,9 +15,19 @@
     socket.on('connection', () => {
       console.log('connected to server: player1');
     });
+
     function sendMessage(message) {
       socket.emit('playerOne', message);
     }
+
+    socket.on('gameOver', (msg) => {
+      if (window.confirm('リトライしますか？')) {
+        sendMessage('p1_retry');
+        window.location.reload();
+      } else {
+        window.location.href = '/p1_title';
+      }
+    });
   </script>
   <script src="/js/inputInterface.js"></script>
 </html>

@@ -13,13 +13,18 @@ io.on('connection', (socket) => {
   console.log('client connected');
 
   socket.on('playerOne', (data) => {
+    console.log('[p1]', data);
     io.emit('playerOne', data);
-    console.log('emmitted');
   });
 
   socket.on('playerTwo', (data) => {
+    console.log('[p2]', data);
     io.emit('playerTwo', data);
-    console.log('emmitted');
+  });
+
+  socket.on('gameOver', (data) => {
+    console.log('game over');
+    io.emit('gameOver', data);
   });
 
 });

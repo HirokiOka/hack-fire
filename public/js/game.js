@@ -1,9 +1,14 @@
 const socket = io();
 
+const backTitleMilliSec = 30000;
+let reloadTimerCount = 30;
+let playerOneRetry = false;
+let playerTwoRetry = false;
+
 const SHOT_MAX_COUNT = 10;
 const GAME_INTERVAL = 20;
 const BACKGROUND_STAR_MAX_COUNT = 100;
-const BACKGROUND_STAR_MAX_SIZE = 3;
+const BACKGROUND_STAR_MAX_SIZE = 8;
 const BACKGROUND_STAR_MAX_SPEED = 4;
 let playerOne;
 let playerTwo;
@@ -53,9 +58,15 @@ socket.on('connection', () => {
   console.log('connected to server: main');
 });
 
+
 //Get and exec Codes
 socket.on('playerOne', (msg) => {
   console.log('received: player1');
+  if (msg === 'p1_retry') {
+    playerOneRetry = true;
+    if (playerOneRetry && playerTwoRetry) window.location.reload();
+  }
+  if (isGameRunning || isGameover) return;
   const receivedData = JSON.parse(JSON.stringify(msg, ''));
   playerOneCodeStack = receivedData;
   isPlayerOneReady = true;
@@ -67,6 +78,11 @@ socket.on('playerOne', (msg) => {
 
 socket.on('playerTwo', (msg) => {
   console.log('received: player2');
+  if (msg === 'p2_retry') {
+    playerTwoRetry = true;
+    if (playerOneRetry && playerTwoRetry) window.location.reload();
+  }
+  if (isGameRunning || isGameover) return;
   const receivedData = JSON.parse(JSON.stringify(msg, ''));
   playerTwoCodeStack = receivedData;
   playerTwoCode = getJSCodeString(playerTwoCodeStack, 2);
@@ -95,6 +111,14 @@ shotSound.load('../sound/shot.mp3', (error) => {
 
 let hitSound = new Sound();
 hitSound.load('../sound/hit.mp3', (error) => {
+    if (error != null) {
+        alert('ファイルの読み込みエラーです．');
+        return;
+    }
+});
+
+let scratchSound = new Sound();
+scratchSound.load('../sound/scratch_se.mp3', (error) => {
     if (error != null) {
         alert('ファイルの読み込みエラーです．');
         return;
@@ -167,8 +191,11 @@ function draw() {
 
   textFont(kaiso);
   textAlign(CENTER);
+  //Judge game over
   if (playerOne.life === 0 || playerTwo.life === 0) {
     if (!isGameover) {
+      socket.emit('gameOver', 'gameOver');
+      console.log('send');
       explodeSound.play();
       isGameover = true;
       isGameRunning = false;
@@ -189,6 +216,8 @@ function draw() {
       text('Player1 Win!', width / 2, height /2);
       playerTwo.explode();
     }
+    fill(255);
+    text(reloadTimerCount, width / 2, height /2 + 78);
   }
   textAlign(LEFT);
 
@@ -246,7 +275,7 @@ function draw() {
     }
     if (isPlayerTwoReady) {
       fill('blue');
-      text('Player2 Ready', width*3/4-40, height/2);
+      text('Player2 Ready', width*3/4 - 40, height/2);
     }
     textAlign(LEFT);
   }
@@ -254,17 +283,17 @@ function draw() {
   //Draw Code
   fill(255, 70);
   const codeTextSize = 32;
-  if (isGameRunning && playerOneCodeStack.length !== 0 && playerTwoCodeStack.length !== 0) {
+  if (isGameRunning && playerOneCode.length !== 0 && playerTwoCode.length !== 0) {
     textFont(hackgen);
     textSize(codeTextSize);
-    playerOneCode.forEach((codeLine, i) => {
-      (i+1) == playerOneExeIndex ? fill('red') : fill(255, 70);
-      const codeLineText = `${i+1} ${codeLine}`;
+    playerOneCode.forEach(({ codeText }, i) => {
+      ((i+1) % playerOneCode.length) == playerOneExeIndex ? fill('red') : fill(255, 70);
+      const codeLineText = `${i+1} ${codeText}`;
       text(codeLineText, barOffset, topEdge + i * codeTextSize);
     });
-    playerTwoCode.forEach((codeLine, i) => {
-      (i+1) == playerTwoExeIndex ? fill('blue') : fill(255, 70);
-      const codeLineText = `${i+1} ${codeLine}`;
+    playerTwoCode.forEach(({ codeText }, i) => {
+      ((i+1) % playerTwoCode.length) == playerTwoExeIndex ? fill('blue') : fill(255, 70);
+      const codeLineText = `${i+1} ${codeText}`;
       text(codeLineText, width/2 + barOffset * 2, topEdge + i * codeTextSize);
     });
   }
@@ -285,6 +314,7 @@ function getJSCodeString(codeStack, playerId) {
   if(codeStack.length === 0) return;
   let result = [];
   const playerObj = (playerId === 1) ? 'playerOne.': 'playerTwo.';
+
   codeStack.forEach(({ codeType, codeText }, _) => {
     let codeLine = '';
     if (codeType === 'if-start') {
@@ -294,9 +324,9 @@ function getJSCodeString(codeStack, playerId) {
     } else {
       codeLine = playerObj + textDict[codeText].code;
     }
-    result.push(codeLine);
+    result.push({ 'codeType': codeType, 'codeText': codeLine });
   });
-  console.log(result);
+
   return result;
 }
 
@@ -348,88 +378,73 @@ function getExecSnippet(codeStack, playerId) {
   }
 }
 
-//exec JSCode from Array
-function execPlayerCode(playerCode) {
-  let snippet = '';
-  const playerObj = (playerId === 1) ? 'playerOne.': 'playerTwo.';
-  const exeIndex = (playerId === 1) ? playerOneExeIndex : playerTwoExeIndex;
-  const targetText = codeStack[exeIndex].codeText;
-  const targetType = codeStack[exeIndex].codeType;
+//calc execCode and return [Index, jsCode]
+function calcExeCode(playerCode, codeIndex) {
+  const targetCodeText = playerCode[codeIndex].codeText;
+  const targetCodeType = playerCode[codeIndex].codeType;
 
-  //actionの処理
-  if (targetType === 'action') {
-    const updatedIndex = (exeIndex + 1) % codeStack.length;
-    updateExeIndex(playerId, updatedIndex)
-    snippet = playerObj + textDict[targetText].code;
-    return snippet;
+  if (targetCodeType === 'action') {
+    return { codeIndex, targetCodeText };
+
+  } else if (targetCodeType === 'if-end') {
+    const nextExeIndex = (codeIndex + 1) % playerCode.length;
+    return calcExeCode(playerCode, nextExeIndex);
+
+  } else if (targetCodeType === 'if-start') {
+    const condition = targetCodeText.split('(')[1].split(')')[0];
+    let nextCodeIndex = 0;
+
+    if (eval(condition)) {
+      nextCodeIndex = (codeIndex + 1) % playerCode.length;
+    } else {
+      nextCodeIndex = (playerCode.findIndex(v => v.codeType === 'if-end') + 1) % playerCode.length;
+      if (codeIndex === nextCodeIndex) {
+        return { 
+          codeIndex: nextCodeIndex, 
+          targetCodeText: 'console.log("wait");'
+        };
+      }
+    }
+    return calcExeCode(playerCode, nextExeIndex);
   }
 
-  //if-endの処理
-  if (targetType === 'if-end') {
-    //ifブロックのみのとき，無限再帰になる
-    const updatedIndex = (exeIndex + 1) % codeStack.length;
-    updateExeIndex(playerId, updatedIndex)
-    return getExecSnippet(codeStack, playerId);
-  }
-
-  //ifの時の処理
-  const condString = targetText.split('  ')[1];
-  const cond = conditionDict[condString].code;
-  if (eval(cond)) {
-    //conditionがtrueのとき
-    const updatedIndex = (exeIndex + 1) % codeStack.length;
-    updateExeIndex(playerId, updatedIndex)
-    return getExecSnippet(codeStack, playerId);
-  } else {
-    //conditionがfalseのとき
-    //if-endの次までindexを飛ばす
-    const updatedIndex = (codeStack.findIndex(v => v.codeType === 'if-end') + 1) % codeStack.length;
-    updateExeIndex(playerId, updatedIndex)
-    return getExecSnippet(codeStack, playerId);
-  }
 }
 
+
 setInterval(() => {
+  if (isGameover) {
+    reloadTimerCount--;
+    if (reloadTimerCount < 1) window.location.reload();
+  }
   if (!isGameRunning) return;
-  //ifの時は際に両者の条件を比較してから実行する
-  /*
-  const p1EvalTarget = playerOneCodeStack[playerOneExeIndex];
-  const p2EvalTarget = playerTwoCodeStack[playerTwoExeIndex];
-  if ((!p1EvalTarget.includes('おわり') && p1EvalTarget.includes('もし'))
-    || (!p2EvalTarget.includes('おわり') && p2EvalTarget.includes('もし'))) {
-    //conditionの評価をしてactionを決める
-    const p1CondString = p1EvalTarget.split('  ')[1];
-    const p2CondString = p2EvalTarget.split('  ')[1];
-    const p1Cond = conditionDict[p1CondString].code;
-    const p2Cond = conditionDict[p2CondString].code;
-  }
-  */
 
-
-  let p1ExecCodeLine = '';
   try {
-    p1ExecCodeLine = getExecSnippet(playerOneCodeStack, 1);
-    console.log('[p1]', playerOneExeIndex, p1ExecCodeLine);
-    eval(p1ExecCodeLine);
+    const { codeIndex, targetCodeText } = calcExeCode(playerOneCode, playerOneExeIndex);
+    console.log('[p1]', codeIndex, targetCodeText);
+    eval(targetCodeText);
+    playerOneExeIndex = (codeIndex + 1) % playerOneCode.length;
   } catch (e) {
-    console.log(e, p1ExecCodeLine);
+    console.log(e);
   }
 
-  let p2ExecCodeLine = '';
   try {
-    p2ExecCodeLine = getExecSnippet(playerTwoCodeStack, 2);
-    eval(p2ExecCodeLine);
+    const { codeIndex, targetCodeText } = calcExeCode(playerTwoCode, playerTwoExeIndex);
+    eval(targetCodeText);
+    playerTwoExeIndex = (codeIndex + 1) % playerTwoCode.length;
   } catch (e) {
-    console.log(e, p2ExecCodeLine);
+    console.log(e);
   }
 
   exeCount--;
   if (exeCount < 0) {
+    scratchSound.play();
     isGameRunning = false;
     isPlayerOneReady = false;
     isPlayerTwoReady = false;
     exeCount = GAME_INTERVAL;
     roundCount++;
+    playerOneExeIndex = 0;
+    playerTwoExeIndex = 0;
   }
 }, 1000);
 

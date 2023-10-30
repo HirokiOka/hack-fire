@@ -6,27 +6,32 @@
     <link href="output.css" rel="stylesheet">
     <title>Slash Shot</title>
   </head>
-  <body>
-    <div class="font-mono">
-      <h1 class="text-3xl font-bold underline"></h1>
+  <body class="bg-indigo-900 h-screen m-0 flex items-center justify-center font-sans">
+    <div class="text-white">
+      <img src="/image/pink2.png" alt="SlashShot-logo" />
+      <h2 class="text-center text-3xl"></h2>
     </div>
-    <div id="game">
-      <div id="canvas"></div>
-      <div id="editors">
-        <div id="editor1">
-          <code><pre id="player1-editor"></pre></code>
-        </div>
-        <div id="editor2">
-          <code><pre id="player2-editor"></pre></code>
-        </div>
-      </div>
   </body>
   <script src="/socket.io/socket.io.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js" integrity="sha512-bcfltY+lNLlNxz38yBBm/HLaUB1gTV6I0e+fahbF9pS6roIdzUytozWdnFV8ZnM6cSAG5EbmO0ag0a/fLZSG4Q==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/ace.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/ext-language_tools.js"></script>
-  <script src="/js/Sound.js"></script>
-  <script src="/js/Character.js"></script>
-  <script src="/js/BackgroundStar.js"></script>
-  <script src="/js/game.js"></script>
+  <script>
+    const socket = io();
+    let playerOneJoin = false;
+    let playerTwoJoin = false;
+
+    socket.on('connection', () => {
+      console.log('connected to server: title');
+    });
+
+    socket.on('playerOne', (msg) => {
+      playerOneJoin = true;
+      console.log('[p1]', msg);
+      if (playerOneJoin && playerTwoJoin) window.location.href = '/game';
+    });
+
+    socket.on('playerTwo', (msg) => {
+      playerTwoJoin = true;
+      console.log('[p2]', msg);
+      if (playerOneJoin && playerTwoJoin) window.location.href = '/game';
+    });
+  </script>
 </html>
