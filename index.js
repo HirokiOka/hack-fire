@@ -15,11 +15,13 @@ io.on('connection', (socket) => {
   socket.on('playerOne', (data) => {
     console.log('[p1]', data);
     io.emit('playerOne', data);
+    if (data === 'cancel') io.emit('cancel', data);
   });
 
   socket.on('playerTwo', (data) => {
     console.log('[p2]', data);
     io.emit('playerTwo', data);
+    if (data === 'cancel') io.emit('cancel', data);
   });
 
   socket.on('gameOver', (data) => {

@@ -62,6 +62,10 @@ socket.on('connection', () => {
 //Get and exec Codes
 socket.on('playerOne', (msg) => {
   console.log('received: player1');
+  if (msg === 'join') return;
+  if (msg === 'cancel') {
+    window.location.href = '/';
+  }
   if (msg === 'p1_retry') {
     playerOneRetry = true;
     if (playerOneRetry && playerTwoRetry) window.location.reload();
@@ -78,6 +82,10 @@ socket.on('playerOne', (msg) => {
 
 socket.on('playerTwo', (msg) => {
   console.log('received: player2');
+  if (msg === 'join') return;
+  if (msg === 'cancel') {
+    window.location.href = '/';
+  }
   if (msg === 'p2_retry') {
     playerTwoRetry = true;
     if (playerOneRetry && playerTwoRetry) window.location.reload();

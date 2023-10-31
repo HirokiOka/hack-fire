@@ -25,8 +25,13 @@
         sendMessage('p1_retry');
         window.location.reload();
       } else {
+        sendMessage('cancel');
         window.location.href = '/p1_title';
       }
+    });
+
+    socket.on('cancel', (msg) => {
+      window.location.href = '/p1_title';
     });
   </script>
   <script src="/js/inputInterface.js"></script>
