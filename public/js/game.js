@@ -24,6 +24,8 @@ let isPlayerOneReady = false;
 let isPlayerTwoReady = false;
 let isGameRunning = false;
 let exeCount = GAME_INTERVAL;
+let isPlayerOneJoin = false;
+let isPlayerTwoJoin = false;
 
 let barOffset;
 let barWidth;
@@ -61,15 +63,20 @@ socket.on('connection', () => {
 
 //Get and exec Codes
 socket.on('playerOne', (msg) => {
-  console.log('received: player1');
-  if (msg === 'join') return;
+  console.log('[p1]:', msg);
+  if (msg === 'join') {
+    isPlayerOneJoin = true;
+    if (isPlayerOneJoin && isPlayerTwoJoin) socket.emit('coding', 'coding');
+    return;
+  }
   if (msg === 'cancel') {
     window.location.href = '/';
   }
   if (msg === 'p1_retry') {
     playerOneRetry = true;
-    if (playerOneRetry && playerTwoRetry) window.location.reload();
+    if (isPlayerOneJoin && isPlayerTwoJoin) socket.emit('coding', 'coding');
   }
+
   if (isGameRunning || isGameover) return;
   const receivedData = JSON.parse(JSON.stringify(msg, ''));
   playerOneCodeStack = receivedData;
@@ -81,8 +88,12 @@ socket.on('playerOne', (msg) => {
 });
 
 socket.on('playerTwo', (msg) => {
-  console.log('received: player2');
-  if (msg === 'join') return;
+  console.log('[p2]:', msg);
+  if (msg === 'join') {
+    isPlayerTwoJoin = true;
+    if (isPlayerOneJoin && isPlayerTwoJoin) socket.emit('coding', 'coding');
+    return;
+  }
   if (msg === 'cancel') {
     window.location.href = '/';
   }
@@ -90,6 +101,7 @@ socket.on('playerTwo', (msg) => {
     playerTwoRetry = true;
     if (playerOneRetry && playerTwoRetry) window.location.reload();
   }
+
   if (isGameRunning || isGameover) return;
   const receivedData = JSON.parse(JSON.stringify(msg, ''));
   playerTwoCodeStack = receivedData;
@@ -422,7 +434,7 @@ function calcExeCode(playerCode, codeIndex) {
 setInterval(() => {
   if (isGameover) {
     reloadTimerCount--;
-    if (reloadTimerCount < 1) window.location.reload();
+    if (reloadTimerCount < 1) window.location.href = '/';
   }
   if (!isGameRunning) return;
 
@@ -453,6 +465,7 @@ setInterval(() => {
     roundCount++;
     playerOneExeIndex = 0;
     playerTwoExeIndex = 0;
+    socket.emit('coding', 'coding');
   }
 }, 1000);
 

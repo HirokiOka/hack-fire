@@ -29,6 +29,13 @@ io.on('connection', (socket) => {
     io.emit('gameOver', data);
   });
 
+  socket.on('coding', (data) => {
+    console.log('coding');
+    setTimeout(() => {
+      io.emit('coding', data);
+    }, 1000);
+  });
+
 });
 
 

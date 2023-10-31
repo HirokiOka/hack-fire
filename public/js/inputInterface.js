@@ -9,20 +9,33 @@ const textDict = {
   'ちがうたかさ': { 'code': 'playerOne.y !== playerTwo.y', 'codeType': 'condition' }
 };
 
+const TIME_LIMIT = 60; 
 const maxCodeStackLength = 15;
 const textXOffset = 10;
 const textYOffset = 3;
 const programFontSize = 20;
+let isSubmitted = false;
+let isCodingMode = false;
 let codeStack = [];
 let exeButton, delButton, resetButton;
 let showProgram = false;
 let insertMode = 'normal';
 let buttons = [];
 let kaiso;
+let timerCount = 0; 
 
 function preload() {
   kaiso = loadFont('../font/kaiso_up/Kaisotai-Next-UP-B.otf');
 }
+
+setInterval(() => {
+  if (!isCodingMode) return;
+  if (timerCount >= TIME_LIMIT) {
+    if (!isSubmitted) submitCode();
+    return;
+  }
+  timerCount++;
+}, 1000);
 
 function setup() {
   createCanvas(1024, 600);
@@ -109,6 +122,16 @@ function drawUI() {
   fill('white');
   stroke('#d05af0');
   text("コードブロック", width/4 - 70, 10);
+
+  noStroke();
+  fill(0);
+  rect(width/2 - 30, 0, 60, 34);
+  fill('white');
+  if (timerCount > 50) fill('red');
+  textAlign(CENTER);
+  textSize(32);
+  text(TIME_LIMIT - timerCount, width/2, 0);
+  textAlign(LEFT);
 
   noFill();
   stroke('tomato');
@@ -209,8 +232,9 @@ function submitCode() {
     alert('キャラクターのうごきが入力されていません');
     return;
   }
+  isSubmitted = true;
+  isCodingMode = false;
   sendMessage(codeStack);
-  console.log(codeStack);
 }
 
 function deleteLine() {
@@ -222,3 +246,10 @@ function deleteAll() {
   codeStack.splice(0);
   insertMode = 'normal';
 }
+
+socket.on('coding', (msg) => {
+  console.log(msg);
+  isCodingMode = true;
+  isSubmitted = false;
+  timerCount = 0;
+});
