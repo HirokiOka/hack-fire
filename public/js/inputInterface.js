@@ -220,6 +220,12 @@ function handleIfEnd() {
 }
 
 function submitCode() {
+  if (timerCount >= TIME_LIMIT) {
+    isSubmitted = true;
+    isCodingMode = false;
+    sendMessage([]);
+    return;
+  }
   if (codeStack.length === 0) {
     alert('プログラムがありません');
     return;

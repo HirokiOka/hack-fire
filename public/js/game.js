@@ -303,19 +303,24 @@ function draw() {
   //Draw Code
   fill(255, 70);
   const codeTextSize = 32;
-  if (isGameRunning && playerOneCode.length !== 0 && playerTwoCode.length !== 0) {
+  if (isGameRunning) {
     textFont(hackgen);
     textSize(codeTextSize);
-    playerOneCode.forEach(({ codeText }, i) => {
-      ((i+1) % playerOneCode.length) == playerOneExeIndex ? fill('red') : fill(255, 70);
-      const codeLineText = `${i+1} ${codeText}`;
-      text(codeLineText, barOffset, topEdge + i * codeTextSize);
-    });
-    playerTwoCode.forEach(({ codeText }, i) => {
-      ((i+1) % playerTwoCode.length) == playerTwoExeIndex ? fill('blue') : fill(255, 70);
-      const codeLineText = `${i+1} ${codeText}`;
-      text(codeLineText, width/2 + barOffset * 2, topEdge + i * codeTextSize);
-    });
+    if (playerOneCode.length !== 0) {
+      playerOneCode.forEach(({ codeText }, i) => {
+        ((i+1) % playerOneCode.length) == playerOneExeIndex ? fill('red') : fill(255, 70);
+        const codeLineText = `${i+1} ${codeText}`;
+        text(codeLineText, barOffset, topEdge + i * codeTextSize);
+      });
+    }
+
+    if (playerTwoCode.length !== 0) {
+      playerTwoCode.forEach(({ codeText }, i) => {
+        ((i+1) % playerTwoCode.length) == playerTwoExeIndex ? fill('blue') : fill(255, 70);
+        const codeLineText = `${i+1} ${codeText}`;
+        text(codeLineText, width/2 + barOffset * 2, topEdge + i * codeTextSize);
+      });
+    }
   }
   fill(255, 255);
 }
@@ -331,7 +336,7 @@ function convertIf(ifStatement) {
 
 //Get JS Code String from codeStack
 function getJSCodeString(codeStack, playerId) {
-  if(codeStack.length === 0) return;
+  if(codeStack.length === 0) return [];
   let result = [];
   const playerObj = (playerId === 1) ? 'playerOne.': 'playerTwo.';
 
@@ -438,21 +443,25 @@ setInterval(() => {
   }
   if (!isGameRunning) return;
 
-  try {
-    const { codeIndex, targetCodeText } = calcExeCode(playerOneCode, playerOneExeIndex);
-    console.log('[p1]', codeIndex, targetCodeText);
-    eval(targetCodeText);
-    playerOneExeIndex = (codeIndex + 1) % playerOneCode.length;
-  } catch (e) {
-    console.log(e);
+  if (playerOneCode.length !== 0) {
+    try {
+      const { codeIndex, targetCodeText } = calcExeCode(playerOneCode, playerOneExeIndex);
+      console.log('[p1]', codeIndex, targetCodeText);
+      eval(targetCodeText);
+      playerOneExeIndex = (codeIndex + 1) % playerOneCode.length;
+    } catch (e) {
+      console.log(e);
+    }
   }
 
-  try {
-    const { codeIndex, targetCodeText } = calcExeCode(playerTwoCode, playerTwoExeIndex);
-    eval(targetCodeText);
-    playerTwoExeIndex = (codeIndex + 1) % playerTwoCode.length;
-  } catch (e) {
-    console.log(e);
+  if (playerTwoCode.length !== 0) {
+    try {
+      const { codeIndex, targetCodeText } = calcExeCode(playerTwoCode, playerTwoExeIndex);
+      eval(targetCodeText);
+      playerTwoExeIndex = (codeIndex + 1) % playerTwoCode.length;
+    } catch (e) {
+      console.log(e);
+    }
   }
 
   exeCount--;
