@@ -30,6 +30,7 @@ let isPlayerTwoJoin = false;
 let barOffset;
 let barWidth;
 let topEdge = 0;
+let centerY = 0;
 let bottomEdge = 0;
 let gameHeight = 0;
 let TOP = 0;
@@ -158,15 +159,16 @@ function setup() {
   topEdge = height / 3 - barOffset;
   bottomEdge = height * 2 / 3 + barOffset;
   gameHeight = bottomEdge - topEdge;
+  centerY = gameHeight/2 + topEdge;
   canvas.parent('canvas');
   background('#3b4279');
 
   //Init Players
-  playerOne = new Player("🚀", barOffset*3, gameHeight/2 + topEdge, 40, 40);
+  playerOne = new Player("🚀", barOffset*3, centerY, 40, 40);
   playerOne.setVectorFromAngle(HALF_PI);
   playerOne.setTarget(playerTwo);
 
-  playerTwo = new Player("👾", width-barOffset*3, gameHeight/2 + topEdge, 40, 40);
+  playerTwo = new Player("👾", width-barOffset*3, centerY, 40, 40);
   playerTwo.setVectorFromAngle(-HALF_PI);
   playerTwo.setTarget(playerOne);
 
@@ -277,6 +279,23 @@ function draw() {
   fill('white');
   textSize(42);
   text(exeCount, width/2, barOffset + offY/3);
+
+
+  //Draw Area
+  noFill();
+  const areaS = 180;
+  stroke('red');
+  strokeWeight(4);
+  rect(barOffset*3 - areaS/2, topEdge - areaS/2, areaS, areaS);
+  rect(barOffset*3 - areaS/2, centerY - areaS/2, areaS, areaS);
+  rect(barOffset*3 - areaS/2, bottomEdge - areaS/2, areaS, areaS);
+
+  stroke('blue');
+  rect(width-barOffset*3 - areaS/2, topEdge - areaS/2, areaS, areaS);
+  rect(width-barOffset*3 - areaS/2, centerY - areaS/2, areaS, areaS);
+  rect(width-barOffset*3 - areaS/2, bottomEdge - areaS/2, areaS, areaS);
+  fill(255);
+  strokeWeight(1);
 
   //Draw Characters
   textFont('Georgia');

@@ -17,9 +17,6 @@
     });
     sendMessage('join');
 
-    function sendMessage(message) {
-      socket.emit('playerTwo', message);
-    }
 
     socket.on('gameOver', (msg) => {
       if (window.confirm('リトライしますか？')) {
@@ -34,6 +31,15 @@
     socket.on('cancel', (msg) => {
       window.location.href = '/p2_title';
     });
+
+    function sendMessage(message) {
+      socket.emit('playerTwo', message);
+    }
+
+    function returnToTitle() {
+      sendMessage('cancel');
+      window.location.href = '/p2_title';
+    }
   </script>
   <script src="/js/inputInterface.js"></script>
 </html>

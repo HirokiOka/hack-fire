@@ -4,7 +4,7 @@ const { app, BrowserWindow } = require('electron');
 const deployUrl = "https://battlehacker.adaptable.app";
 const localUrl = "http://localhost:3000";
 
-app.whenRead().then(() => {
+app.whenReady().then(() => {
   const { screen } = require('electron');
   const displays = screen.getAllDisplays();
   let inputIdx = 1;
@@ -26,7 +26,7 @@ app.whenRead().then(() => {
       inputIdx++;
     }
 
-    if (d.label === 'PTWLD-22W') {
+    if (d.label === 'PTFWLD-22W') {
       const x = d.bounds.x;
       const y = d.bounds.y;
       const gameWindow = new BrowserWindow({

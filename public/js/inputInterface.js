@@ -17,7 +17,7 @@ const programFontSize = 20;
 let isSubmitted = false;
 let isCodingMode = false;
 let codeStack = [];
-let exeButton, delButton, resetButton;
+let exeButton, delButton, delAllButton, resetButton;
 let showProgram = false;
 let insertMode = 'normal';
 let buttons = [];
@@ -47,11 +47,12 @@ function setup() {
     width * 3/4 - 20, height - 80, submitCode);
   delButton = createStyledButton('1つけす','none', 'tomato',
     width / 2 - 100, height*2/3, deleteLine);
-  resetButton = createStyledButton('ぜんぶけす','none', 'red',
+  delAllButton = createStyledButton('ぜんぶけす','none', 'red',
     width / 2 - 120, height*3/4, deleteAll);
+  resetButton = createStyledButton('ゲームをやめる','none', 'black',
+    20, height*3/4, returnToTitle);
   textFont(kaiso);
 }
-
 
 function draw() {
   background('#3b4279');

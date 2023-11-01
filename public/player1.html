@@ -36,6 +36,11 @@
       socket.emit('playerOne', message);
     }
 
+    function returnToTitle() {
+      sendMessage('cancel');
+      window.location.href = '/p1_title';
+    }
+
   </script>
   <script src="/js/inputInterface.js"></script>
 </html>
