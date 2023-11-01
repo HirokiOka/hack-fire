@@ -30,7 +30,7 @@
 
         <div class="flex justify-center">
           <div class="text-center py-2 mx-8">
-            <button id="prevBtn" class="text-lg bg-gray-400 hover:bg-gray-700 text-black py-2 px-8 rounded invisible">
+            <button id="prevBtn" class="text-lg bg-gray-400 hover:bg-gray-700 text-black py-2 px-8 rounded hidden">
              まえへ 
             </button>
           </div>
@@ -60,9 +60,9 @@
     prevButton.addEventListener("click", (e) => {
       descEle.innerHTML = p1Html;
       rightImage.src = "/image/p1_play.png";
-      leftImage.classList.remove('invisible');
-      triSvg.classList.remove('invisible');
-      prevButton.classList.add('invisible');
+      leftImage.classList.remove('hidden');
+      triSvg.classList.remove('hidden');
+      prevButton.classList.add('hidden');
       nextButton.innerText = 'つぎへ';
     });
 
@@ -71,10 +71,10 @@
         window.location.href = '/player1';
       }
       descEle.innerHTML = p2Html;
-      leftImage.classList.add('invisible');
-      triSvg.classList.add('invisible');
+      leftImage.classList.add('hidden');
+      triSvg.classList.add('hidden');
       rightImage.src = "/image/input_example2.png";
-      prevButton.classList.remove('invisible');
+      prevButton.classList.remove('hidden');
       nextButton.innerText = 'はじめる';
     });
   </script>
