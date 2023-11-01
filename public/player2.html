@@ -14,8 +14,8 @@
     const socket = io();
     socket.on('connection', () => {
       console.log('connected to server: player2');
-      sendMessage('join');
     });
+    sendMessage('join');
 
     function sendMessage(message) {
       socket.emit('playerTwo', message);

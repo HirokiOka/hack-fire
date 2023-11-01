@@ -16,12 +16,14 @@ io.on('connection', (socket) => {
     console.log('[p1]', data);
     io.emit('playerOne', data);
     if (data === 'cancel') io.emit('cancel', data);
+    if (data === 'join') io.emit('join', data);
   });
 
   socket.on('playerTwo', (data) => {
     console.log('[p2]', data);
     io.emit('playerTwo', data);
     if (data === 'cancel') io.emit('cancel', data);
+    if (data === 'join') io.emit('join', data);
   });
 
   socket.on('gameOver', (data) => {
