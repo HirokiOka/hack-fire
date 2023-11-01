@@ -61,7 +61,6 @@ socket.on('connection', () => {
   console.log('connected to server: main');
 });
 
-
 //Get and exec Codes
 socket.on('playerOne', (msg) => {
   console.log('[p1]:', msg);
@@ -75,7 +74,7 @@ socket.on('playerOne', (msg) => {
   }
   if (msg === 'p1_retry') {
     playerOneRetry = true;
-    if (isPlayerOneJoin && isPlayerTwoJoin) socket.emit('coding', 'coding');
+    if (playerOneRetry && playerTwoRetry) window.location.reload();
   }
 
   if (isGameRunning || isGameover) return;

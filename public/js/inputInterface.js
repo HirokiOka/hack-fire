@@ -224,6 +224,7 @@ function submitCode() {
   if (timerCount >= TIME_LIMIT) {
     isSubmitted = true;
     isCodingMode = false;
+    sendMessage('join');
     sendMessage([]);
     return;
   }
@@ -241,6 +242,7 @@ function submitCode() {
   }
   isSubmitted = true;
   isCodingMode = false;
+  sendMessage('join');
   sendMessage(codeStack);
 }
 
