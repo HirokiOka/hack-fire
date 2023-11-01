@@ -23,7 +23,7 @@
               </svg>
             </div>
             <img id="gameImg" class="w-2/3 mx-8 p-4"
-              src="/image/game_play_example.png"
+              src="/image/p1_play.png"
               alt="game example image"
             />
         </div>
@@ -46,14 +46,6 @@
   </body>
   <script src="/socket.io/socket.io.js"></script>
   <script>
-    const socket = io();
-    socket.on('connection', () => {
-      console.log('connected to server: player1');
-    });
-
-    function sendMessage(message) {
-      socket.emit('playerTwo', message);
-    }
     const descEle = document.getElementById("desc");
     const nextButton = document.getElementById("nextBtn");
     const prevButton = document.getElementById("prevBtn");
@@ -66,7 +58,7 @@
 
     prevButton.addEventListener("click", (e) => {
       descEle.innerHTML = p1Html;
-      rightImage.src = "/image/game_play_example.png";
+      rightImage.src = "/image/p1_play.png";
       leftImage.classList.remove('invisible');
       triSvg.classList.remove('invisible');
       prevButton.classList.add('invisible');
@@ -75,7 +67,6 @@
 
     nextButton.addEventListener("click", (e) => {
       if (nextButton.innerText === 'はじめる') {
-        sendMessage('join');
         window.location.href = '/player2';
       }
       descEle.innerHTML = p2Html;
