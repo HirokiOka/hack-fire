@@ -426,9 +426,10 @@ function getExecSnippet(codeStack, playerId) {
 function calcExeCode(playerCode, codeIndex) {
   const targetCodeText = playerCode[codeIndex].codeText;
   const targetCodeType = playerCode[codeIndex].codeType;
+  let inc = 1;
 
   if (targetCodeType === 'action') {
-    return { codeIndex, targetCodeText };
+    return { codeIndex, targetCodeText , inc};
 
   } else if (targetCodeType === 'if-end') {
     const nextExeIndex = (codeIndex + 1) % playerCode.length;
@@ -445,13 +446,13 @@ function calcExeCode(playerCode, codeIndex) {
       if (codeIndex === nextCodeIndex) {
         return { 
           codeIndex: nextCodeIndex, 
-          targetCodeText: 'console.log("wait");'
+          targetCodeText: 'console.log("wait");',
+          inc: 0
         };
       }
     }
-    return calcExeCode(playerCode, nextExeIndex);
+    return calcExeCode(playerCode, nextCodeIndex, inc);
   }
-
 }
 
 
@@ -464,10 +465,10 @@ setInterval(() => {
 
   if (playerOneCode.length !== 0) {
     try {
-      const { codeIndex, targetCodeText } = calcExeCode(playerOneCode, playerOneExeIndex);
+      const { codeIndex, targetCodeText, inc } = calcExeCode(playerOneCode, playerOneExeIndex);
       console.log('[p1]', codeIndex, targetCodeText);
       eval(targetCodeText);
-      playerOneExeIndex = (codeIndex + 1) % playerOneCode.length;
+      playerOneExeIndex = (codeIndex + inc) % playerOneCode.length;
     } catch (e) {
       console.log(e);
     }
@@ -475,9 +476,9 @@ setInterval(() => {
 
   if (playerTwoCode.length !== 0) {
     try {
-      const { codeIndex, targetCodeText } = calcExeCode(playerTwoCode, playerTwoExeIndex);
+      const { codeIndex, targetCodeText, inc } = calcExeCode(playerTwoCode, playerTwoExeIndex);
       eval(targetCodeText);
-      playerTwoExeIndex = (codeIndex + 1) % playerTwoCode.length;
+      playerTwoExeIndex = (codeIndex + inc) % playerTwoCode.length;
     } catch (e) {
       console.log(e);
     }

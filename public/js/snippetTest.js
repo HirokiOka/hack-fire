@@ -1,3 +1,27 @@
+function calcExeCode(playerCode, currentIndex) {
+  while (currentIndex < playerCode.length) {
+    const targetCodeText = playerCode[currentIndex].codeText;
+    const targetCodeType = playerCode[currentIndex].codeType;
+    if (targetCodeType === 'if-start') {
+      const condition = targetCodeText.split('(')[1].split(')')[0];
+      if (eval(condition)) {
+        currentIndex++;
+        if (currentIndex < playerCodeArray.length && targetType !== 'if-end') {
+          return { code: playerCodeArray[currentIndex], index: currentIndex };
+        }
+      } else {
+        while (currentIndex < playerCodeArray.length && targetType !== 'if-end') {
+        currentIndex++;
+        }
+      }
+    } else if (targetCodeType !== 'if-end') {
+      return { code: targetCodeText, index: currentIndex };
+    }
+    currentIndex++; 
+  }
+  return null;
+}
+
 const textDict = {
   'こうげき': { 'code': 'shot();', 'codeType': 'action' },
   'ためる': { 'code': 'charge();', 'codeType': 'action' },
