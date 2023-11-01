@@ -321,6 +321,7 @@ function draw() {
 
   //Draw Code
   fill(255, 70);
+  stroke(255);
   const codeTextSize = 32;
   if (isGameRunning) {
     textFont(hackgen);
