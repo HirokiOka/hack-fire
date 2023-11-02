@@ -20,6 +20,7 @@ let codeStack = [];
 let exeButton, delButton, delAllButton, resetButton;
 let showProgram = false;
 let insertMode = 'normal';
+let textMessage = '';
 let buttons = [];
 let kaiso;
 let timerCount = 0; 
@@ -58,6 +59,23 @@ function draw() {
   background('#3b4279');
   drawUI();
   drawProgram();
+  if (textMessage !== '') {
+    strokeWeight(2);
+    stroke('white');
+    textSize(40);
+    textFont('Verdana');
+    fill('navy');
+    const rectWidth = 530;
+    const rectHeight = 110;
+    const x = width/2 - rectWidth/2;
+    const y = height/2 - rectHeight/2 - 60;
+    rect(x, y, rectWidth, rectHeight);
+    fill('white');
+    //textAlign(CENTER);
+    text(textMessage, width/2 - rectWidth/2, height/2-rectHeight/2-50);
+    textAlign(LEFT);
+  }
+  textFont(kaiso);
 }
 
 function initButtons() {
@@ -143,6 +161,8 @@ function drawUI() {
   textSize(18);
   noStroke();
   strokeWeight(1);
+
+
 }
 
 function drawProgram() {
@@ -224,7 +244,7 @@ function submitCode() {
   if (timerCount >= TIME_LIMIT) {
     isSubmitted = true;
     isCodingMode = false;
-    sendMessage('join');
+    sendMessage('submit');
     sendMessage([]);
     return;
   }
@@ -242,8 +262,9 @@ function submitCode() {
   }
   isSubmitted = true;
   isCodingMode = false;
-  sendMessage('join');
+  sendMessage('submit');
   sendMessage(codeStack);
+  textMessage = 'じゅんびOK！\nあいてをまっています.';
 }
 
 function deleteLine() {
@@ -256,8 +277,13 @@ function deleteAll() {
   insertMode = 'normal';
 }
 
+socket.on('gameStart', (msg) => {
+  textMessage = 'プログラムじっこうちゅう！\nまんなかのがめんをみてね！';
+});
+
 socket.on('coding', (msg) => {
   console.log(msg);
+  textMessage = '';
   isCodingMode = true;
   isSubmitted = false;
   timerCount = 0;

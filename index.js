@@ -26,6 +26,11 @@ io.on('connection', (socket) => {
     if (data === 'join') io.emit('join', data);
   });
 
+  socket.on('gameStart', (data) => {
+    console.log('gameStart');
+    io.emit('gameStart', data);
+  });
+
   socket.on('gameOver', (data) => {
     console.log('game over');
     io.emit('gameOver', data);

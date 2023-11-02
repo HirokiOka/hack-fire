@@ -84,6 +84,7 @@ socket.on('playerOne', (msg) => {
   playerOneCode = getJSCodeString(playerOneCodeStack, 1);
   if (isPlayerOneReady && isPlayerTwoReady && !isGameRunning) {
     isGameRunning = true;
+    socket.emit('gameStart', 'gameStart');
   }
 });
 
@@ -109,6 +110,7 @@ socket.on('playerTwo', (msg) => {
   isPlayerTwoReady = true;
   if (isPlayerOneReady && isPlayerTwoReady && !isGameRunning) {
     isGameRunning = true;
+    socket.emit('gameStart', 'gameStart');
   }
 });
 
