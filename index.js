@@ -47,42 +47,46 @@ io.on('connection', (socket) => {
 
 
 //Game Display
-app.get('/', (req, res) => {
+app.get('/', (_, res) => {
   res.sendFile(__dirname + '/index.html');
 });
 
-app.get('/game', (req, res) => {
+app.get('/game', (_, res) => {
   res.sendFile(__dirname + '/public/game.html');
 });
 
-app.get('/description', (req, res) => {
+app.get('/description', (_, res) => {
   res.sendFile(__dirname + '/public/description.html');
+});
+
+app.get('/mode_select', (_, res) => {
+  res.sendFile(__dirname + '/public/mode_select.html');
 });
 
 //Input Display
 //player1
-app.get('/p1_title', (req, res) => {
+app.get('/p1_title', (_, res) => {
   res.sendFile(__dirname + '/public/p1_title.html');
 });
 
-app.get('/p1_desc', (req, res) => {
+app.get('/p1_desc', (_, res) => {
   res.sendFile(__dirname + '/public/p1_desc.html');
 });
 
-app.get('/player1', (req, res) => {
+app.get('/player1', (_, res) => {
   res.sendFile(__dirname + '/public/player1.html');
 });
 
 //player2
-app.get('/p2_title', (req, res) => {
+app.get('/p2_title', (_, res) => {
   res.sendFile(__dirname + '/public/p2_title.html');
 });
 
-app.get('/p2_desc', (req, res) => {
+app.get('/p2_desc', (_, res) => {
   res.sendFile(__dirname + '/public/p2_desc.html');
 });
 
-app.get('/player2', (req, res) => {
+app.get('/player2', (_, res) => {
   res.sendFile(__dirname + '/public/player2.html');
 });
 

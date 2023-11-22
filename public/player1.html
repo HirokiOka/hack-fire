@@ -29,7 +29,7 @@
     });
 
     socket.on('cancel', (msg) => {
-      window.location.href = '/p1_title';
+        window.location.href = '/p1_title';
     });
 
     function sendMessage(message) {
@@ -37,8 +37,10 @@
     }
 
     function returnToTitle() {
-      sendMessage('cancel');
-      window.location.href = '/p1_title';
+      if (window.confirm('ゲームをやめてタイトルにもどります．\nよろしいですか？')) {
+        sendMessage('cancel');
+        window.location.href = '/p1_title';
+      }
     }
 
   </script>

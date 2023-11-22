@@ -37,8 +37,10 @@
     }
 
     function returnToTitle() {
-      sendMessage('cancel');
-      window.location.href = '/p2_title';
+      if (window.confirm('ゲームをやめてタイトルにもどります．\nよろしいですか？')) {
+        sendMessage('cancel');
+        window.location.href = '/p2_title';
+      }
     }
   </script>
   <script src="/js/inputInterface.js"></script>
