@@ -127,19 +127,22 @@ class Player extends Character {
         }
       }
     }
+    this.discharge();
     this.state = 'wait';
   }
 
 
   charge() {
     this.power += 10;
+    if (this.power > 60) return;
     for (let i = 0; i < this.shotArray.length; i++) {
       this.shotArray[i].setPower(this.power);
     }
   }
 
-  disCharge() {
-    this.power = 20;
+  discharge() {
+    this.power -= 5;
+    if (this.power <= 0) return;
     for (let i = 0; i < this.shotArray.length; i++) {
       this.shotArray[i].setPower(this.power);
     }
