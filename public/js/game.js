@@ -514,6 +514,7 @@ function keyPressed() {
     playerTwo.moveUp();
   } else if (keyCode === DOWN_ARROW) {
     playerTwo.moveDown();
+    playerTwo.charge();
   } else if (keyCode === RETURN) {
     playerTwo.shot();
   }
