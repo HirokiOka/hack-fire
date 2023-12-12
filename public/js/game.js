@@ -249,11 +249,14 @@ function draw() {
 
   //Draw Parameters
   //Player1 HP
+  textSize(64);
   stroke('white');
   fill('dimgray')
   rect(barOffset, barOffset, 100 * (width / 260), barWidth);
   fill('red');
   rect(barOffset, barOffset, playerOne.life * (width / 260), barWidth);
+  textAlign(CENTER);
+  text(playerOne.life, barOffset, barOffset, 100 * (width / 260));
 
   //Player2 HP
   stroke('white');
@@ -261,6 +264,7 @@ function draw() {
   rect(width - barOffset, barOffset, -100 * (width / 260), barWidth);
   fill('blue');
   rect(width - barOffset, barOffset, -playerTwo.life * (width / 260), barWidth);
+  text(playerTwo.life, width - barOffset, barOffset, -100 * (width / 260));
 
   //Round
   stroke('mediumpurple');
