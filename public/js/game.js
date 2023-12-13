@@ -154,7 +154,8 @@ function preload() {
 }
 
 function setup() {
-  let canvas = createCanvas(1920, 1080, P2D);
+  //let canvas = createCanvas(1920, 1080, P2D);
+  let canvas = createCanvas(1440, 900, P2D);
   barOffset = width/24;
   barWidth = width/24;
   topEdge = height / 3 - barOffset;
@@ -505,7 +506,8 @@ setInterval(() => {
 }, 1000);
 
 //For Debugging
-function keyPressed() {
+function keyPressed(e) {
+  e.preventDefault();
   if (keyCode === 87) {
     playerOne.moveUp();
   } else if (keyCode === 83) {
