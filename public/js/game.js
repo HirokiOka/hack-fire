@@ -243,7 +243,35 @@ function draw() {
     fill(255);
     text(reloadTimerCount, width / 2, height /2 + 78);
   }
+  
+  if (3 < roundCount && !isGameover) {
+      socket.emit('gameOver', 'gameOver');
+      console.log('send');
+      explodeSound.play();
+      isGameover = true;
+      isGameRunning = false;
+      textSize(72);
+  }
+
+  if (isGameover) {
+    if (playerOne.life === playerTwo.life || playerOne.life === 0 && playerTwo.life === 0) {
+        fill(255);
+        text('Draw!', width / 2, height / 2);
+        playerOne.explode();
+        playerTwo.explode();
+    } else if (playerOne.life === 0 || playerOne.life < playerTwo.life) {
+        fill('blue');
+        text('Player2 Win!', width / 2, height / 2);
+        playerOne.explode();
+    } else if (playerTwo.life === 0 || playerOne.life > playerTwo.life) {
+        fill('red');
+        text('Player1 Win!', width / 2, height /2);
+        playerTwo.explode();
+    }
+  }
+
   textAlign(LEFT);
+
 
   //Draw Stars
   backgroundStarArray.map((v) => v.update());
