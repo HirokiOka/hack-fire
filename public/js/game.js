@@ -131,6 +131,14 @@ shotSound.load('../sound/shot.mp3', (error) => {
     }
 });
 
+let chargeSound = new Sound();
+chargeSound.load('../sound/charge.mp3', (error) => {
+    if (error != null) {
+        alert('ファイルの読み込みエラーです．');
+        return;
+    }
+});
+
 let hitSound = new Sound();
 hitSound.load('../sound/hit.mp3', (error) => {
     if (error != null) {

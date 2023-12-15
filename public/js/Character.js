@@ -137,6 +137,7 @@ class Player extends Character {
   charge() {
     this.isCharging = true;
     this.power += 10;
+    chargeSound.play();
     if (this.power > 60) return;
     for (let i = 0; i < this.shotArray.length; i++) {
       this.shotArray[i].setPower(this.power);
@@ -229,9 +230,6 @@ class Shot extends Character {
     }
 
     update() {
-      if (this.power > 20) {
-        this.appearance = "🪐";
-      }
       if (this.life <= 0) return;
       if (this.position.x + this.width < 0 || this.position.x + this.width > width) {
         this.life = 0;
