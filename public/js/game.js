@@ -62,6 +62,7 @@ socket.on('connection', () => {
 });
 
 //Get and exec Codes
+////playerOne
 socket.on('playerOne', (msg) => {
   console.log('[p1]:', msg);
   if (msg === 'join') {
@@ -88,6 +89,7 @@ socket.on('playerOne', (msg) => {
   }
 });
 
+////playerTwo
 socket.on('playerTwo', (msg) => {
   console.log('[p2]:', msg);
   if (msg === 'join') {
@@ -246,7 +248,6 @@ function draw() {
   
   if (3 < roundCount && !isGameover) {
       socket.emit('gameOver', 'gameOver');
-      console.log('send');
       explodeSound.play();
       isGameover = true;
       isGameRunning = false;
@@ -391,6 +392,7 @@ function convertIf(ifStatement) {
 //Get JS Code String from codeStack
 function getJSCodeString(codeStack, playerId) {
   if(codeStack.length === 0) return [];
+  console.log('stack', codeStack);
   let result = [];
   const playerObj = (playerId === 1) ? 'playerOne.': 'playerTwo.';
 
@@ -464,7 +466,9 @@ function calcExeCode(playerCode, codeIndex) {
   let inc = 1;
 
   if (targetCodeType === 'action') {
-    return { codeIndex, targetCodeText , inc};
+    const res = { codeIndex, targetCodeText , inc};
+    console.log(res);
+    return res;
 
   } else if (targetCodeType === 'if-end') {
     const nextExeIndex = (codeIndex + 1) % playerCode.length;
@@ -479,11 +483,12 @@ function calcExeCode(playerCode, codeIndex) {
     } else {
       nextCodeIndex = (playerCode.findIndex(v => v.codeType === 'if-end') + 1) % playerCode.length;
       if (codeIndex === nextCodeIndex) {
-        return { 
+        const res = {
           codeIndex: nextCodeIndex, 
           targetCodeText: 'console.log("wait");',
           inc: 0
         };
+        return res;
       }
     }
     return calcExeCode(playerCode, nextCodeIndex, inc);
@@ -501,7 +506,7 @@ setInterval(() => {
   if (playerOneCode.length !== 0) {
     try {
       const { codeIndex, targetCodeText, inc } = calcExeCode(playerOneCode, playerOneExeIndex);
-      console.log('[p1]', codeIndex, targetCodeText);
+      console.log('[p1Code]', codeIndex, targetCodeText);
       eval(targetCodeText);
       playerOneExeIndex = (codeIndex + inc) % playerOneCode.length;
     } catch (e) {
