@@ -30,11 +30,12 @@ class Character {
 }
 
 class Player extends Character {
-  constructor(appearance, x, y, w, h) {
+  constructor(appearance, x, y, w, h, col) {
     super(x, y, w, h);
     this._x = this.position.x;
     this._y = this.position.y;
     this._power = 20;
+    this._col = col;
     this.shotCheckCounter = 0;
     this.shotInterval = 10;
     this.shotArray = null;
@@ -62,6 +63,10 @@ class Player extends Character {
 
   get power() {
       return this._power;
+  }
+  
+  get col() {
+    return this._col;
   }
 
   //Setter
@@ -155,7 +160,7 @@ class Player extends Character {
   explode() {
     this.isCharging = false;
     push();
-    fill('red');
+    fill(this._col);
     translate(this._x, this._y);
     for (let i = 0; i < TWO_PI; i+= radians(30)) {
       square(this.r * cos(i), this.r * sin(i), 20);

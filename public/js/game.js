@@ -174,11 +174,11 @@ function setup() {
   background('#3b4279');
 
   //Init Players
-  playerOne = new Player("🚀", barOffset*3, centerY, 40, 40);
+  playerOne = new Player("🚀", barOffset*3, centerY, 40, 40, 'red');
   playerOne.setVectorFromAngle(HALF_PI);
   playerOne.setTarget(playerTwo);
 
-  playerTwo = new Player("👾", width-barOffset*3, centerY, 40, 40);
+  playerTwo = new Player("👾", width-barOffset*3, centerY, 40, 40, 'blue');
   playerTwo.setVectorFromAngle(-HALF_PI);
   playerTwo.setTarget(playerOne);
 
@@ -239,11 +239,11 @@ function draw() {
       playerOne.explode();
       playerTwo.explode();
     } else if (playerOne.life === 0) {
-      fill('blue');
+      fill(playerTwo.col);
       text('Player2 Win!', width / 2, height / 2);
       playerOne.explode();
     } else {
-      fill('red');
+      fill(playerOne.col);
       text('Player1 Win!', width / 2, height /2);
       playerTwo.explode();
     }
@@ -266,11 +266,11 @@ function draw() {
         playerOne.explode();
         playerTwo.explode();
     } else if (playerOne.life === 0 || playerOne.life < playerTwo.life) {
-        fill('blue');
+        fill(playerTwo.col);
         text('Player2 Win!', width / 2, height / 2);
         playerOne.explode();
     } else if (playerTwo.life === 0 || playerOne.life > playerTwo.life) {
-        fill('red');
+        fill(playerOne.col);
         text('Player1 Win!', width / 2, height /2);
         playerTwo.explode();
     }
@@ -288,7 +288,7 @@ function draw() {
   stroke('white');
   fill('dimgray')
   rect(barOffset, barOffset, 100 * (width / 260), barWidth);
-  fill('red');
+  fill(playerOne.col);
   rect(barOffset, barOffset, playerOne.life * (width / 260), barWidth);
   textAlign(CENTER);
   text(playerOne.life, barOffset, barOffset, 100 * (width / 260));
@@ -297,7 +297,7 @@ function draw() {
   stroke('white');
   fill('dimgray')
   rect(width - barOffset, barOffset, -100 * (width / 260), barWidth);
-  fill('blue');
+  fill(playerTwo.col);
   rect(width - barOffset, barOffset, -playerTwo.life * (width / 260), barWidth);
   text(playerTwo.life, width - barOffset, barOffset, -100 * (width / 260));
 
@@ -324,13 +324,13 @@ function draw() {
   //Draw Area
   noFill();
   const areaS = 180;
-  stroke('red');
+  stroke(playerOne.col);
   strokeWeight(4);
   rect(barOffset*3 - areaS/2, topEdge - areaS/2, areaS, areaS);
   rect(barOffset*3 - areaS/2, centerY - areaS/2, areaS, areaS);
   rect(barOffset*3 - areaS/2, bottomEdge - areaS/2, areaS, areaS);
 
-  stroke('blue');
+  stroke(playerTwo.col);
   rect(width-barOffset*3 - areaS/2, topEdge - areaS/2, areaS, areaS);
   rect(width-barOffset*3 - areaS/2, centerY - areaS/2, areaS, areaS);
   rect(width-barOffset*3 - areaS/2, bottomEdge - areaS/2, areaS, areaS);
@@ -349,11 +349,11 @@ function draw() {
     textAlign(CENTER);
     stroke('white')
     if (isPlayerOneReady) {
-      fill('red');
+      fill(playerOne.col);
       text('Player1 Ready', width/4 -40, height/2);
     }
     if (isPlayerTwoReady) {
-      fill('blue');
+      fill(playerTwo.col);
       text('Player2 Ready', width*3/4 - 40, height/2);
     }
     textAlign(LEFT);
@@ -368,7 +368,7 @@ function draw() {
     textSize(codeTextSize);
     if (playerOneCode.length !== 0) {
       playerOneCode.forEach(({ codeText }, i) => {
-        ((i+1) % playerOneCode.length) == playerOneExeIndex ? fill('red') : fill(255, 70);
+        ((i+1) % playerOneCode.length) == playerOneExeIndex ? fill(playerOne.col) : fill(255, 70);
         const codeLineText = `${i+1} ${codeText}`;
         text(codeLineText, barOffset, topEdge + i * codeTextSize);
       });
@@ -376,7 +376,7 @@ function draw() {
 
     if (playerTwoCode.length !== 0) {
       playerTwoCode.forEach(({ codeText }, i) => {
-        ((i+1) % playerTwoCode.length) == playerTwoExeIndex ? fill('blue') : fill(255, 70);
+        ((i+1) % playerTwoCode.length) == playerTwoExeIndex ? fill(playerTwo.col) : fill(255, 70);
         const codeLineText = `${i+1} ${codeText}`;
         text(codeLineText, width/2 + barOffset * 2, topEdge + i * codeTextSize);
       });
@@ -549,6 +549,7 @@ function testCode() {
   ];
   */
 
+  /*
   playerOneCode = [
     { codeType: "action", codeText: "playerOne.moveUp();" },
     { codeType: "action", codeText: "playerOne.moveDown();" },
@@ -558,6 +559,15 @@ function testCode() {
 
   playerOneCode = [
     { codeType: "action", codeText: "playerOne.charge();" },
+  ];
+*/
+  playerOneCode = [
+    { codeType: "if-start", codeText: "if (playerOne.y === playerTwo.y) {" },
+    { codeType: "action", codeText: "playerOne.shot();" },
+    { codeType: "if-end", codeText: "}" },
+    { codeType: "if-start", codeText: "if (playerOne.y !== playerTwo.y) {" },
+    { codeType: "action", codeText: "playerOne.charge();" },
+    { codeType: "if-end", codeText: "}" },
   ];
 
   playerTwoCode = [
@@ -572,16 +582,17 @@ function testCode() {
   playerTwoCode = [
     { codeType: "action", codeText: "playerTwo.charge();" },
     { codeType: "action", codeText: "playerTwo.charge();" },
-    { codeType: "action", codeText: "playerTwo.shot();" },
     { codeType: "action", codeText: "playerTwo.charge();" },
   ];
   /*
   playerTwoCode = [
+    { codeType: "action", codeText: "playerTwo.moveDown();" },
+    { codeType: "action", codeText: "playerTwo.moveUp();" },
     { codeType: "action", codeText: "playerTwo.moveUp();" },
     { codeType: "action", codeText: "playerTwo.moveDown();" },
     { codeType: "action", codeText: "playerTwo.moveDown();" },
-    { codeType: "action", codeText: "playerTwo.moveUp();" },
   ];
+  /*
 
   playerTwoCode = [
     { codeType: "if-start", codeText: "if (playerOne.y === playerTwo.y) {" },
