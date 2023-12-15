@@ -33,8 +33,8 @@ let topEdge = 0;
 let centerY = 0;
 let bottomEdge = 0;
 let gameHeight = 0;
-let TOP = 0;
-let BOTTOM = 0;
+//let TOP = 0;
+//let BOTTOM = 0;
 
 let playerOneCodeStack = [];
 let playerTwoCodeStack = [];
@@ -52,8 +52,6 @@ const textDict = {
 const conditionDict = {
   'おなじたかさ': { 'code': 'playerOne.y === playerTwo.y', 'codeType': 'condition' },
   'ちがうたかさ': { 'code': 'playerOne.y !== playerTwo.y', 'codeType': 'condition' },
-  'おなじたかさ': { 'code': 'playerOne.y === playerTwo.y', 'codeType': 'condition' },
-  'ちがうたかさ': { 'code': 'playerOne.y !== playerTwo.y', 'codeType': 'condition' }
 };
 
 //Process related to Socket.io 
@@ -71,7 +69,8 @@ socket.on('playerOne', (msg) => {
     return;
   }
   if (msg === 'cancel') {
-    window.location.href = '/';
+    //for UWW2023
+    window.location.href = window.location.reload();
   }
   if (msg === 'p1_retry') {
     playerOneRetry = true;
@@ -419,55 +418,15 @@ function updateExeIndex(playerId, updatedValue) {
   }
 }
 
-function getExecSnippet(codeStack, playerId) {
-  let snippet = '';
-  const playerObj = (playerId === 1) ? 'playerOne.': 'playerTwo.';
-  const exeIndex = (playerId === 1) ? playerOneExeIndex : playerTwoExeIndex;
-  const targetText = codeStack[exeIndex].codeText;
-  const targetType = codeStack[exeIndex].codeType;
-
-  //actionの処理
-  if (targetType === 'action') {
-    const updatedIndex = (exeIndex + 1) % codeStack.length;
-    updateExeIndex(playerId, updatedIndex)
-    snippet = playerObj + textDict[targetText].code;
-    return snippet;
-  }
-
-  //if-endの処理
-  if (targetType === 'if-end') {
-    //ifブロックのみのとき，無限再帰になる
-    const updatedIndex = (exeIndex + 1) % codeStack.length;
-    updateExeIndex(playerId, updatedIndex)
-    return getExecSnippet(codeStack, playerId);
-  }
-
-  //ifの時の処理
-  const condString = targetText.split('  ')[1];
-  const cond = conditionDict[condString].code;
-  if (eval(cond)) {
-    //conditionがtrueのとき
-    const updatedIndex = (exeIndex + 1) % codeStack.length;
-    updateExeIndex(playerId, updatedIndex)
-    return getExecSnippet(codeStack, playerId);
-  } else {
-    //conditionがfalseのとき
-    //if-endの次までindexを飛ばす
-    const updatedIndex = (codeStack.findIndex(v => v.codeType === 'if-end') + 1) % codeStack.length;
-    updateExeIndex(playerId, updatedIndex)
-    return getExecSnippet(codeStack, playerId);
-  }
-}
-
-//calc execCode and return [Index, jsCode]
+//calc execCode and return [Index, jsCode, increment]
 function calcExeCode(playerCode, codeIndex) {
+  console.log(playerCode, codeIndex);
   const targetCodeText = playerCode[codeIndex].codeText;
   const targetCodeType = playerCode[codeIndex].codeType;
   let inc = 1;
 
   if (targetCodeType === 'action') {
     const res = { codeIndex, targetCodeText , inc};
-    console.log(res);
     return res;
 
   } else if (targetCodeType === 'if-end') {
@@ -479,8 +438,18 @@ function calcExeCode(playerCode, codeIndex) {
     let nextCodeIndex = 0;
 
     if (eval(condition)) {
+      //if condition is true
       nextCodeIndex = (codeIndex + 1) % playerCode.length;
     } else {
+      //if condition is false
+      for (let i = codeIndex; i < playerCode.length; i++) {
+        if (playerCode[i].codeType === 'if-end') {
+          nextCodeIndex = (i + 1) % playerCode.length;
+          break;
+        }
+      }
+      return calcExeCode(playerCode, nextCodeIndex);
+      /*
       nextCodeIndex = (playerCode.findIndex(v => v.codeType === 'if-end') + 1) % playerCode.length;
       if (codeIndex === nextCodeIndex) {
         const res = {
@@ -489,8 +458,12 @@ function calcExeCode(playerCode, codeIndex) {
           inc: 0
         };
         return res;
+      } else {
+        return calcExeCode(playerCode, nextCodeIndex);
       }
+      */
     }
+
     return calcExeCode(playerCode, nextCodeIndex, inc);
   }
 }
@@ -499,7 +472,7 @@ function calcExeCode(playerCode, codeIndex) {
 setInterval(() => {
   if (isGameover) {
     reloadTimerCount--;
-    if (reloadTimerCount < 1) window.location.href = '/';
+    if (reloadTimerCount < 1) window.location.href = '/game';
   }
   if (!isGameRunning) return;
 
@@ -538,6 +511,7 @@ setInterval(() => {
   }
 }, 1000);
 
+
 //For Debugging
 function keyPressed(e) {
   e.preventDefault();
@@ -555,6 +529,64 @@ function keyPressed(e) {
     playerTwo.moveDown();
     playerTwo.charge();
   } else if (keyCode === RETURN) {
-    playerTwo.shot();
+    //playerTwo.shot();
+    testCode();
   }
+}
+
+function testCode() {
+  playerOneCode = [
+    { codeType: "if-start", codeText: "if (playerOne.y === playerTwo.y) {" },
+    { codeType: "action", codeText: "playerOne.shot();" },
+    { codeType: "if-start", codeText: "if (playerOne.y === playerTwo.y) {" },
+    { codeType: "action", codeText: "playerOne.shot();" },
+    { codeType: "if-end", codeText: "}" },
+    { codeType: "if-start", codeText: "if (playerOne.y !== playerTwo.y) {" },
+    { codeType: "action", codeText: "playerOne.charge();" },
+    { codeType: "if-end", codeText: "}" },
+    { codeType: "if-end", codeText: "}" },
+    { codeType: "if-start", codeText: "if (playerOne.y !== playerTwo.y) {" },
+    { codeType: "action", codeText: "playerOne.charge();" },
+    { codeType: "if-end", codeText: "}" },
+  ];
+
+  /*
+  playerOneCode = [
+    { codeType: "action", codeText: "playerOne.moveUp();" },
+    { codeType: "action", codeText: "playerOne.moveDown();" },
+    { codeType: "action", codeText: "playerOne.moveDown();" },
+    { codeType: "action", codeText: "playerOne.moveUp();" },
+  ];
+  */
+
+  playerTwoCode = [
+    { codeType: "if-start", codeText: "if (playerOne.y === playerTwo.y) {" },
+    { codeType: "action", codeText: "playerTwo.shot();" },
+    { codeType: "if-end", codeText: "}" },
+    { codeType: "if-start", codeText: "if (playerOne.y !== playerTwo.y) {" },
+    { codeType: "action", codeText: "playerTwo.charge();" },
+    { codeType: "if-end", codeText: "}" },
+  ];
+  /*
+  playerTwoCode = [
+    { codeType: "action", codeText: "playerTwo.moveUp();" },
+    { codeType: "action", codeText: "playerTwo.moveDown();" },
+    { codeType: "action", codeText: "playerTwo.moveDown();" },
+    { codeType: "action", codeText: "playerTwo.moveUp();" },
+  ];
+
+  playerTwoCode = [
+    { codeType: "if-start", codeText: "if (playerOne.y === playerTwo.y) {" },
+    { codeType: "action", codeText: "playerTwo.shot();" },
+    { codeType: "if-start", codeText: "if (playerOne.y === playerTwo.y) {" },
+    { codeType: "action", codeText: "playerTwo.shot();" },
+    { codeType: "if-end", codeText: "}" },
+    { codeType: "if-end", codeText: "}" },
+    { codeType: "if-start", codeText: "if (playerOne.y !== playerTwo.y) {" },
+    { codeType: "action", codeText: "playerTwo.charge();" },
+    { codeType: "if-end", codeText: "}" },
+  ];
+  */
+  isGameRunning = true;
+  exeCode();
 }
