@@ -56,7 +56,7 @@ function setup() {
 }
 
 function draw() {
-  background('#3b4279');
+  background(playerColor);
   drawUI();
   drawProgram();
   if (textMessage !== '') {
