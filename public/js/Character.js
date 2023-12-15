@@ -41,7 +41,7 @@ class Player extends Character {
     this._life = 100;
     this.code = null;
     this.size = 108;
-    this.state = 'wait';
+    this.isCharging = false;
     this.target = null;
     this.r = 0;
     this._appearance = appearance;
@@ -81,6 +81,7 @@ class Player extends Character {
       this._power = value;
   }
 
+
   set appearance(value) {
     this._appearance = value;
   }
@@ -107,16 +108,18 @@ class Player extends Character {
   }
 
   moveUp () {
+    this.isCharging = false;
     this._y -= (bottomEdge - topEdge) / 2;
   }
 
   moveDown () {
+    this.isCharging = false;
     this._y += (bottomEdge - topEdge) / 2;
   }
 
   shot() {
+    this.isCharging = false;
     shotSound.play();
-    this.state = 'shot';
     if (this.shotCheckCounter >= 0) {
       for (let i = 0; i < this.shotArray.length; i++) {
         if (this.shotArray[i].life <= 0) {
@@ -128,11 +131,11 @@ class Player extends Character {
       }
     }
     this.discharge();
-    this.state = 'wait';
   }
 
 
   charge() {
+    this.isCharging = true;
     this.power += 10;
     if (this.power > 60) return;
     for (let i = 0; i < this.shotArray.length; i++) {
@@ -149,6 +152,7 @@ class Player extends Character {
   }
 
   explode() {
+    this.isCharging = false;
     push();
     fill('red');
     translate(this._x, this._y);
@@ -165,6 +169,17 @@ class Player extends Character {
     textAlign(CENTER, CENTER)
     text(this._appearance, this._x, this._y);
     textAlign(LEFT, BOTTOM);
+    if (this.isCharging) {
+      push();
+      translate(this.x, this.y);
+      stroke('orange');
+      strokeWeight(8);
+      rotate(frameCount * 0.04);
+      for (let i = 0; i <= 360; i+=12) {
+        point(cos(i) * this.size*3/4, sin(i) * this.size*3/4);
+      }
+      pop();
+    }
   }
 
   update() {

@@ -219,7 +219,6 @@ function draw() {
   if (playerOne.life === 0 || playerTwo.life === 0) {
     if (!isGameover) {
       socket.emit('gameOver', 'gameOver');
-      console.log('send');
       explodeSound.play();
       isGameover = true;
       isGameRunning = false;
@@ -376,6 +375,7 @@ function draw() {
     }
   }
   fill(255, 255);
+
 }
 
 function convertIf(ifStatement) {
@@ -448,19 +448,6 @@ function calcExeCode(playerCode, codeIndex) {
         }
       }
       return calcExeCode(playerCode, nextCodeIndex);
-      /*
-      nextCodeIndex = (playerCode.findIndex(v => v.codeType === 'if-end') + 1) % playerCode.length;
-      if (codeIndex === nextCodeIndex) {
-        const res = {
-          codeIndex: nextCodeIndex, 
-          targetCodeText: 'console.log("wait");',
-          inc: 0
-        };
-        return res;
-      } else {
-        return calcExeCode(playerCode, nextCodeIndex);
-      }
-      */
     }
 
     return calcExeCode(playerCode, nextCodeIndex, inc);
@@ -506,6 +493,8 @@ setInterval(() => {
     roundCount++;
     playerOneExeIndex = 0;
     playerTwoExeIndex = 0;
+    playerOne.isCharging = false;
+    playerTwo.isCharging = false;
     socket.emit('coding', 'coding');
   }
 }, 1000);
@@ -518,6 +507,7 @@ function keyPressed(e) {
     playerOne.moveUp();
   } else if (keyCode === 83) {
     playerOne.moveDown();
+    playerOne.charge();
   } else if (keyCode === 32) {
     playerOne.shot();
   } 
@@ -534,29 +524,33 @@ function keyPressed(e) {
 }
 
 function testCode() {
-  playerOneCode = [
-    { codeType: "if-start", codeText: "if (playerOne.y === playerTwo.y) {" },
-    { codeType: "action", codeText: "playerOne.shot();" },
-    { codeType: "if-start", codeText: "if (playerOne.y === playerTwo.y) {" },
-    { codeType: "action", codeText: "playerOne.shot();" },
-    { codeType: "if-end", codeText: "}" },
-    { codeType: "if-start", codeText: "if (playerOne.y !== playerTwo.y) {" },
-    { codeType: "action", codeText: "playerOne.charge();" },
-    { codeType: "if-end", codeText: "}" },
-    { codeType: "if-end", codeText: "}" },
-    { codeType: "if-start", codeText: "if (playerOne.y !== playerTwo.y) {" },
-    { codeType: "action", codeText: "playerOne.charge();" },
-    { codeType: "if-end", codeText: "}" },
-  ];
-
   /*
   playerOneCode = [
+    { codeType: "if-start", codeText: "if (playerOne.y === playerTwo.y) {" },
+    { codeType: "action", codeText: "playerOne.shot();" },
+    { codeType: "if-start", codeText: "if (playerOne.y === playerTwo.y) {" },
+    { codeType: "action", codeText: "playerOne.shot();" },
+    { codeType: "if-end", codeText: "}" },
+    { codeType: "if-start", codeText: "if (playerOne.y !== playerTwo.y) {" },
+    { codeType: "action", codeText: "playerOne.charge();" },
+    { codeType: "if-end", codeText: "}" },
+    { codeType: "if-end", codeText: "}" },
+    { codeType: "if-start", codeText: "if (playerOne.y !== playerTwo.y) {" },
+    { codeType: "action", codeText: "playerOne.charge();" },
+    { codeType: "if-end", codeText: "}" },
+  ];
+  */
+
+  playerOneCode = [
     { codeType: "action", codeText: "playerOne.moveUp();" },
     { codeType: "action", codeText: "playerOne.moveDown();" },
     { codeType: "action", codeText: "playerOne.moveDown();" },
     { codeType: "action", codeText: "playerOne.moveUp();" },
   ];
-  */
+
+  playerOneCode = [
+    { codeType: "action", codeText: "playerOne.charge();" },
+  ];
 
   playerTwoCode = [
     { codeType: "if-start", codeText: "if (playerOne.y === playerTwo.y) {" },
@@ -565,6 +559,13 @@ function testCode() {
     { codeType: "if-start", codeText: "if (playerOne.y !== playerTwo.y) {" },
     { codeType: "action", codeText: "playerTwo.charge();" },
     { codeType: "if-end", codeText: "}" },
+  ];
+
+  playerTwoCode = [
+    { codeType: "action", codeText: "playerTwo.charge();" },
+    { codeType: "action", codeText: "playerTwo.charge();" },
+    { codeType: "action", codeText: "playerTwo.shot();" },
+    { codeType: "action", codeText: "playerTwo.charge();" },
   ];
   /*
   playerTwoCode = [
@@ -587,5 +588,4 @@ function testCode() {
   ];
   */
   isGameRunning = true;
-  exeCode();
 }
