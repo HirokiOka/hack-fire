@@ -69,8 +69,7 @@ socket.on('playerOne', (msg) => {
     return;
   }
   if (msg === 'cancel') {
-    //for UWW2023
-    window.location.href = window.location.reload();
+    window.location.href = '/';
   }
   if (msg === 'p1_retry') {
     playerOneRetry = true;
