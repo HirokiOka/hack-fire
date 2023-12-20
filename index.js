@@ -5,6 +5,7 @@ const socketIo = require('socket.io');
 const server = http.createServer(app);
 const PORT = process.env.PORT || 3000;
 const io = socketIo(server);
+/*
 const { Client } = require('pg');
 
 const client = new Client({
@@ -16,6 +17,7 @@ const client = new Client({
 });
 
 client.connect().then(() => console.log('DB connected successfully'));
+*/
 
 app.use(express.static('public'));
 
