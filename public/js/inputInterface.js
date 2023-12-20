@@ -48,11 +48,11 @@ function setup() {
   exeButton = createStyledButton('かんせい', 'none', 'green',
     width * 3/4 - 20, height - 80, submitCode);
   delButton = createStyledButton('1つけす','none', 'tomato',
-    width / 2 - 100, height*2/3, deleteLine);
+    width / 2 - 100, height - 160, deleteLine);
   delAllButton = createStyledButton('ぜんぶけす','none', 'red',
-    width / 2 - 120, height*3/4, deleteAll);
+    width / 2 - 120, height - 80, deleteAll);
   resetButton = createStyledButton('ゲームをやめる','none', 'black',
-    20, height*3/4, returnToTitle);
+    20, height - 80, returnToTitle);
   textFont(kaiso);
 }
 
@@ -82,7 +82,6 @@ function draw() {
 function initButtons() {
   const buttonPositions = [
     [20, 60], [120, 60], 
-    //[220, 60],
     [20, 120], [160, 120],
     [20, 180],
     [20, 240],
