@@ -427,7 +427,6 @@ function updateExeIndex(playerId, updatedValue) {
 
 //calc execCode and return [Index, jsCode, increment]
 function calcExeCode(playerCode, codeIndex) {
-  console.log(playerCode, codeIndex);
   const targetCodeText = playerCode[codeIndex].codeText;
   const targetCodeType = playerCode[codeIndex].codeType;
   let inc = 1;
@@ -443,12 +442,9 @@ function calcExeCode(playerCode, codeIndex) {
   } else if (targetCodeType === 'if-start') {
     const condition = targetCodeText.split('(')[1].split(')')[0];
     let nextCodeIndex = 0;
-
     if (eval(condition)) {
-      //if condition is true
       nextCodeIndex = (codeIndex + 1) % playerCode.length;
     } else {
-      //if condition is false
       for (let i = codeIndex; i < playerCode.length; i++) {
         if (playerCode[i].codeType === 'if-end') {
           nextCodeIndex = (i + 1) % playerCode.length;
@@ -457,10 +453,11 @@ function calcExeCode(playerCode, codeIndex) {
       }
       return calcExeCode(playerCode, nextCodeIndex);
     }
-
-    return calcExeCode(playerCode, nextCodeIndex, inc);
+    return calcExeCode(playerCode, nextCodeIndex);
   }
 }
+
+
 
 
 setInterval(() => {
@@ -470,12 +467,13 @@ setInterval(() => {
   }
   if (!isGameRunning) return;
 
+  /*
   if (playerOneCode.length !== 0) {
     try {
-      const { codeIndex, targetCodeText, inc } = calcExeCode(playerOneCode, playerOneExeIndex);
-      console.log('[p1Code]', codeIndex, targetCodeText);
-      eval(targetCodeText);
-      playerOneExeIndex = (codeIndex + inc) % playerOneCode.length;
+    //eval Player1 Code
+      const p1ExeCode = calcExeCode(playerOneCode, playerOneExeIndex);
+      eval(p1ExeCode.targetCodeText);
+      playerOneExeIndex = (p1ExeCode.codeIndex + p1ExeCode.inc) % playerOneCode.length;
     } catch (e) {
       console.log(e);
     }
@@ -483,12 +481,46 @@ setInterval(() => {
 
   if (playerTwoCode.length !== 0) {
     try {
-      const { codeIndex, targetCodeText, inc } = calcExeCode(playerTwoCode, playerTwoExeIndex);
-      eval(targetCodeText);
-      playerTwoExeIndex = (codeIndex + inc) % playerTwoCode.length;
+    //eval Player2 Code
+      const p2ExeCode = calcExeCode(playerTwoCode, playerTwoExeIndex);
+      eval(p2ExeCode.targetCodeText);
+      playerTwoExeIndex = (p2ExeCode.codeIndex + p2ExeCode.inc) % playerTwoCode.length;
     } catch (e) {
       console.log(e);
     }
+  }
+  */
+
+  let p1ExeCode = {};
+  let p2ExeCode = {};
+  if (playerOneCode.length !== 0) {
+    try {
+      p1ExeCode = calcExeCode(playerOneCode, playerOneExeIndex);
+      playerOneExeIndex = (p1ExeCode.codeIndex + p1ExeCode.inc) % playerOneCode.length;
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
+  if (playerTwoCode.length !== 0) {
+    try {
+      p2ExeCode = calcExeCode(playerTwoCode, playerTwoExeIndex);
+      playerTwoExeIndex = (p2ExeCode.codeIndex + p2ExeCode.inc) % playerTwoCode.length;
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
+  try {
+    eval(p1ExeCode.targetCodeText);
+  } catch (e) {
+    console.log(e);
+  }
+
+  try {
+    eval(p2ExeCode.targetCodeText);
+  } catch (e) {
+    console.log(e);
   }
 
   exeCount--;
@@ -560,7 +592,6 @@ function testCode() {
   playerOneCode = [
     { codeType: "action", codeText: "playerOne.charge();" },
   ];
-*/
   playerOneCode = [
     { codeType: "if-start", codeText: "if (playerOne.y === playerTwo.y) {" },
     { codeType: "action", codeText: "playerOne.shot();" },
@@ -568,28 +599,48 @@ function testCode() {
     { codeType: "if-start", codeText: "if (playerOne.y !== playerTwo.y) {" },
     { codeType: "action", codeText: "playerOne.charge();" },
     { codeType: "if-end", codeText: "}" },
+    { codeType: "action", codeText: "playerOne.moveUp();" },
+    { codeType: "action", codeText: "playerOne.moveDown();" },
+  ];
+*/
+
+  playerOneCode = [
+    { codeType: "action", codeText: "playerOne.moveUp();" },
+    { codeType: "action", codeText: "playerOne.moveDown();" },
   ];
 
   playerTwoCode = [
-    { codeType: "if-start", codeText: "if (playerOne.y === playerTwo.y) {" },
-    { codeType: "action", codeText: "playerTwo.shot();" },
-    { codeType: "if-end", codeText: "}" },
     { codeType: "if-start", codeText: "if (playerOne.y !== playerTwo.y) {" },
     { codeType: "action", codeText: "playerTwo.charge();" },
     { codeType: "if-end", codeText: "}" },
+    { codeType: "if-start", codeText: "if (playerOne.y === playerTwo.y) {" },
+    { codeType: "action", codeText: "playerTwo.shot();" },
+    { codeType: "if-end", codeText: "}" },
   ];
+
+  playerOneCode = [
+    { codeType: "if-start", codeText: "if (playerOne.y !== playerTwo.y) {" },
+    { codeType: "action", codeText: "playerOne.charge();" },
+    { codeType: "if-end", codeText: "}" },
+    { codeType: "if-start", codeText: "if (playerOne.y === playerTwo.y) {" },
+    { codeType: "action", codeText: "playerOne.shot();" },
+    { codeType: "if-end", codeText: "}" },
+  ];
+
+  playerTwoCode = [
+    { codeType: "action", codeText: "playerTwo.moveUp();" },
+    { codeType: "action", codeText: "playerTwo.moveDown();" },
+  ];
+
 
   playerTwoCode = [
     { codeType: "action", codeText: "playerTwo.charge();" },
     { codeType: "action", codeText: "playerTwo.charge();" },
     { codeType: "action", codeText: "playerTwo.charge();" },
   ];
-  /*
   playerTwoCode = [
     { codeType: "action", codeText: "playerTwo.moveDown();" },
     { codeType: "action", codeText: "playerTwo.moveUp();" },
-    { codeType: "action", codeText: "playerTwo.moveUp();" },
-    { codeType: "action", codeText: "playerTwo.moveDown();" },
     { codeType: "action", codeText: "playerTwo.moveDown();" },
   ];
   /*
