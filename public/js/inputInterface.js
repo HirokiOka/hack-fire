@@ -39,7 +39,8 @@ setInterval(() => {
 }, 1000);
 
 function setup() {
-  createCanvas(1024, 600);
+  //createCanvas(1024, 600);
+  createCanvas(windowWidth, windowHeight);
   textAlign(LEFT, TOP);
   // Initialize buttons
   initButtons();
@@ -275,6 +276,10 @@ function deleteLine() {
 function deleteAll() {
   codeStack.splice(0);
   insertMode = 'normal';
+}
+
+function windowResized() {
+  resizeCanvas(windowWidth, windowHeight);
 }
 
 socket.on('gameStart', (msg) => {
