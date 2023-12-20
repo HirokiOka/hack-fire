@@ -150,8 +150,8 @@ class Player extends Character {
   }
 
   discharge() {
+    if (this.power <= 5) return;
     this.power -= 5;
-    if (this.power <= 0) return;
     for (let i = 0; i < this.shotArray.length; i++) {
       this.shotArray[i].setPower(this.power);
     }
