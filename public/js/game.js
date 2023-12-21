@@ -163,7 +163,8 @@ function preload() {
 
 function setup() {
   //let canvas = createCanvas(1920, 1080, P2D);
-  let canvas = createCanvas(1440, 900, P2D);
+  //let canvas = createCanvas(1440, 900, P2D);
+  let canvas = createCanvas(1920, 1200, P2D);
   barOffset = width/24;
   barWidth = width/24;
   topEdge = height / 3 - barOffset;
