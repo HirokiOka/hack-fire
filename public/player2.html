@@ -25,14 +25,17 @@
       if (window.confirm('リトライしますか？')) {
         sendMessage('p2_retry');
         window.location.reload();
-      } else {
+      } 
+      /*else {
         sendMessage('cancel');
         window.location.href = '/p2_title';
       }
+      */
     });
 
     socket.on('cancel', (msg) => {
-      window.location.href = '/p2_title';
+      //window.location.href = '/p2_title';
+      window.location.href = '/player2';
     });
 
     function sendMessage(message) {
@@ -42,7 +45,8 @@
     function returnToTitle() {
       if (window.confirm('ゲームをやめてタイトルにもどります．\nよろしいですか？')) {
         sendMessage('cancel');
-        window.location.href = '/p2_title';
+        //window.location.href = '/p2_title';
+        window.location.href = '/player2';
       }
     }
   </script>

@@ -69,7 +69,7 @@ socket.on('playerOne', (msg) => {
     return;
   }
   if (msg === 'cancel') {
-    window.location.href = window.location.reload();
+    window.location.href = '/game';
   }
   if (msg === 'p1_retry') {
     playerOneRetry = true;
@@ -96,7 +96,7 @@ socket.on('playerTwo', (msg) => {
     return;
   }
   if (msg === 'cancel') {
-    window.location.href = '/';
+    window.location.href = '/game';
   }
   if (msg === 'p2_retry') {
     playerTwoRetry = true;
