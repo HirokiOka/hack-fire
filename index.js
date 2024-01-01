@@ -1,4 +1,5 @@
 const express = require('express');
+const path = require('path');
 const app = express();
 const http = require('http');
 const socketIo = require('socket.io');
@@ -59,47 +60,48 @@ io.on('connection', (socket) => {
 
 
 //Game Display
+const viewPath = path.join(__dirname, '/public', '/views');
 app.get('/', (_, res) => {
-  res.sendFile(__dirname + '/index.html');
+  res.sendFile(viewPath + '/index.html');
 });
 
 app.get('/game', (_, res) => {
-  res.sendFile(__dirname + '/public/game.html');
+  res.sendFile(viewPath + '/public/game.html');
 });
 
 app.get('/description', (_, res) => {
-  res.sendFile(__dirname + '/public/description.html');
+  res.sendFile(viewPath + '/description.html');
 });
 
 app.get('/mode_select', (_, res) => {
-  res.sendFile(__dirname + '/public/mode_select.html');
+  res.sendFile(viewPath + '/mode_select.html');
 });
 
 //Input Display
 //player1
 app.get('/p1_title', (_, res) => {
-  res.sendFile(__dirname + '/public/p1_title.html');
+  res.sendFile(viewPath + '/p1_title.html');
 });
 
 app.get('/p1_desc', (_, res) => {
-  res.sendFile(__dirname + '/public/p1_desc.html');
+  res.sendFile(viewPath + '/p1_desc.html');
 });
 
 app.get('/player1', (_, res) => {
-  res.sendFile(__dirname + '/public/player1.html');
+  res.sendFile(viewPath + '/player1.html');
 });
 
 //player2
 app.get('/p2_title', (_, res) => {
-  res.sendFile(__dirname + '/public/p2_title.html');
+  res.sendFile(viewPath + '/p2_title.html');
 });
 
 app.get('/p2_desc', (_, res) => {
-  res.sendFile(__dirname + '/public/p2_desc.html');
+  res.sendFile(viewPath + '/p2_desc.html');
 });
 
 app.get('/player2', (_, res) => {
-  res.sendFile(__dirname + '/public/player2.html');
+  res.sendFile(viewPath + '/player2.html');
 });
 
 server.listen(PORT, () => {

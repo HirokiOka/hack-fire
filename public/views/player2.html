@@ -3,53 +3,53 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Player1</title>
+    <title>Player2</title>
     <link href="output.css" rel="stylesheet">
+    <link rel="icon" href="/image/favicon.ico" type="image/x-icon">
   </head>
-  <body class="">
+  <body>
   </body>
   <script src="/socket.io/socket.io.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js" integrity="sha512-bcfltY+lNLlNxz38yBBm/HLaUB1gTV6I0e+fahbF9pS6roIdzUytozWdnFV8ZnM6cSAG5EbmO0ag0a/fLZSG4Q==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   <script>
-    const canvasWidth = 1980;
-    const canvasHeight = 1080;
-    const playerColor = 'brown';
+    const canvasWidth = 2560;
+    const canvasHeight = 1600;
+    const playerColor = '#3b4279';
     const socket = io();
     socket.on('connection', () => {
-      console.log('connected to server: player1');
+      console.log('connected to server: player2');
     });
     sendMessage('join');
 
 
     socket.on('gameOver', (msg) => {
       if (window.confirm('リトライしますか？')) {
-        sendMessage('p1_retry');
+        sendMessage('p2_retry');
         window.location.reload();
       } 
       /*else {
         sendMessage('cancel');
-        window.location.href = '/p1_title';
+        window.location.href = '/p2_title';
       }
       */
     });
 
     socket.on('cancel', (msg) => {
-        //window.location.href = '/p1_title';
-        window.location.href = '/player1';
+      //window.location.href = '/p2_title';
+      window.location.href = '/player2';
     });
 
     function sendMessage(message) {
-      socket.emit('playerOne', message);
+      socket.emit('playerTwo', message);
     }
 
     function returnToTitle() {
       if (window.confirm('ゲームをやめてタイトルにもどります．\nよろしいですか？')) {
         sendMessage('cancel');
-        //window.location.href = '/p1_title';
-        window.location.href = '/player1';
+        //window.location.href = '/p2_title';
+        window.location.href = '/player2';
       }
     }
-
   </script>
   <script src="/js/inputInterface.js"></script>
 </html>
