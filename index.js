@@ -66,7 +66,7 @@ app.get('/', (_, res) => {
 });
 
 app.get('/game', (_, res) => {
-  res.sendFile(viewPath + '/public/game.html');
+  res.sendFile(viewPath + '/game.html');
 });
 
 app.get('/description', (_, res) => {

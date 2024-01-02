@@ -33,8 +33,6 @@ let topEdge = 0;
 let centerY = 0;
 let bottomEdge = 0;
 let gameHeight = 0;
-//let TOP = 0;
-//let BOTTOM = 0;
 
 let playerOneCodeStack = [];
 let playerTwoCodeStack = [];
@@ -53,6 +51,47 @@ const conditionDict = {
   'おなじたかさ': { 'code': 'playerOne.y === playerTwo.y', 'codeType': 'condition' },
   'ちがうたかさ': { 'code': 'playerOne.y !== playerTwo.y', 'codeType': 'condition' },
 };
+
+//Init Sounds
+let explodeSound = new Sound();
+explodeSound.load('../sound/explode.mp3', (error) => {
+    if (error != null) {
+        alert('ファイルの読み込みエラーです．');
+        return;
+    }
+});
+
+let shotSound = new Sound();
+shotSound.load('../sound/shot.mp3', (error) => {
+    if (error != null) {
+        alert('ファイルの読み込みエラーです．');
+        return;
+    }
+});
+
+let chargeSound = new Sound();
+chargeSound.load('../sound/charge.mp3', (error) => {
+    if (error != null) {
+        alert('ファイルの読み込みエラーです．');
+        return;
+    }
+});
+
+let hitSound = new Sound();
+hitSound.load('../sound/hit.mp3', (error) => {
+    if (error != null) {
+        alert('ファイルの読み込みエラーです．');
+        return;
+    }
+});
+
+let scratchSound = new Sound();
+scratchSound.load('../sound/scratch_se.mp3', (error) => {
+    if (error != null) {
+        alert('ファイルの読み込みエラーです．');
+        return;
+    }
+});
 
 //Process related to Socket.io 
 socket.on('connection', () => {
@@ -114,46 +153,6 @@ socket.on('playerTwo', (msg) => {
   }
 });
 
-//Init Sounds
-let explodeSound = new Sound();
-explodeSound.load('../sound/explode.mp3', (error) => {
-    if (error != null) {
-        alert('ファイルの読み込みエラーです．');
-        return;
-    }
-});
-
-let shotSound = new Sound();
-shotSound.load('../sound/shot.mp3', (error) => {
-    if (error != null) {
-        alert('ファイルの読み込みエラーです．');
-        return;
-    }
-});
-
-let chargeSound = new Sound();
-chargeSound.load('../sound/charge.mp3', (error) => {
-    if (error != null) {
-        alert('ファイルの読み込みエラーです．');
-        return;
-    }
-});
-
-let hitSound = new Sound();
-hitSound.load('../sound/hit.mp3', (error) => {
-    if (error != null) {
-        alert('ファイルの読み込みエラーです．');
-        return;
-    }
-});
-
-let scratchSound = new Sound();
-scratchSound.load('../sound/scratch_se.mp3', (error) => {
-    if (error != null) {
-        alert('ファイルの読み込みエラーです．');
-        return;
-    }
-});
 
 //p5.js Process
 function preload() {
@@ -161,20 +160,8 @@ function preload() {
   hackgen = loadFont('../font/HackNerdFont-Regular.ttf');
 }
 
-function setup() {
-  //let canvas = createCanvas(1920, 1080, P2D);
-  let canvas = createCanvas(1440, 900, P2D);
-  //let canvas = createCanvas(1920, 1200, P2D);
-  barOffset = width/24;
-  barWidth = width/24;
-  topEdge = height / 3 - barOffset;
-  bottomEdge = height * 2 / 3 + barOffset;
-  gameHeight = bottomEdge - topEdge;
-  centerY = gameHeight/2 + topEdge;
-  canvas.parent('canvas');
-  background('#3b4279');
+function initPlayers() {
 
-  //Init Players
   playerOne = new Player("🚀", barOffset*3, centerY, 40, 40, 'red');
   playerOne.setVectorFromAngle(HALF_PI);
   playerOne.setTarget(playerTwo);
@@ -189,17 +176,32 @@ function setup() {
     playerOneShotArray[i].setOwner(playerOne);
     playerOneShotArray[i].setVectorFromAngle(HALF_PI);
     playerOneShotArray[i].setPower(playerOne.power);
-    //playerOneShotArray[i].setSound(shotSound);
 
     playerTwoShotArray[i] = new Shot(0, 0, 32, 32);
     playerTwoShotArray[i].setTarget(playerOne);
     playerOneShotArray[i].setOwner(playerTwo);
     playerTwoShotArray[i].setVectorFromAngle(-HALF_PI);
     playerTwoShotArray[i].setPower(playerTwo.power);
-    //playerTwoShotArray[i].setSound(shotSound);
   }
   playerOne.setShotArray(playerOneShotArray);
   playerTwo.setShotArray(playerTwoShotArray);
+}
+
+function setup() {
+  let canvas = createCanvas(1920, 1080, P2D);
+  //let canvas = createCanvas(1440, 900, P2D);
+  //let canvas = createCanvas(1920, 1200, P2D);
+  barOffset = width/24;
+  barWidth = width/24;
+  topEdge = height / 3 - barOffset;
+  bottomEdge = height * 2 / 3 + barOffset;
+  gameHeight = bottomEdge - topEdge;
+  centerY = gameHeight/2 + topEdge;
+  canvas.parent('canvas');
+  background('#3b4279');
+
+  //Init Players
+  initPlayers();
 
   //Init Background Star
   for (let i = 0; i < BACKGROUND_STAR_MAX_COUNT; i++) {
@@ -278,7 +280,6 @@ function draw() {
   }
 
   textAlign(LEFT);
-
 
   //Draw Stars
   backgroundStarArray.map((v) => v.update());
@@ -384,7 +385,6 @@ function draw() {
     }
   }
   fill(255, 255);
-
 }
 
 function convertIf(ifStatement) {
@@ -459,38 +459,12 @@ function calcExeCode(playerCode, codeIndex) {
 }
 
 
-
-
 setInterval(() => {
   if (isGameover) {
     reloadTimerCount--;
     if (reloadTimerCount < 1) window.location.href = '/game';
   }
   if (!isGameRunning) return;
-
-  /*
-  if (playerOneCode.length !== 0) {
-    try {
-    //eval Player1 Code
-      const p1ExeCode = calcExeCode(playerOneCode, playerOneExeIndex);
-      eval(p1ExeCode.targetCodeText);
-      playerOneExeIndex = (p1ExeCode.codeIndex + p1ExeCode.inc) % playerOneCode.length;
-    } catch (e) {
-      console.log(e);
-    }
-  }
-
-  if (playerTwoCode.length !== 0) {
-    try {
-    //eval Player2 Code
-      const p2ExeCode = calcExeCode(playerTwoCode, playerTwoExeIndex);
-      eval(p2ExeCode.targetCodeText);
-      playerTwoExeIndex = (p2ExeCode.codeIndex + p2ExeCode.inc) % playerTwoCode.length;
-    } catch (e) {
-      console.log(e);
-    }
-  }
-  */
 
   let p1ExeCode = {};
   let p2ExeCode = {};
