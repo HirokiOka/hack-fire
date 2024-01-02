@@ -1,14 +1,3 @@
-const textDict = {
-  'こうげき': { 'code': 'shot();', 'codeType': 'action' },
-  'ためる': { 'code': 'charge();', 'codeType': 'action' },
-  'うえにうごく': { 'code': 'moveUp();', 'codeType': 'action' },
-  'したにうごく': { 'code': 'moveDown();', 'codeType': 'action' },
-  'もし  -  なら': { 'code': 'if () {', 'codeType': 'if-start' },
-  'もし  -  おわり': { 'code': '}', 'codeType': 'if-end' },
-  'おなじたかさ': { 'code': 'playerOne.y === playerTwo.y', 'codeType': 'condition' },
-  'ちがうたかさ': { 'code': 'playerOne.y !== playerTwo.y', 'codeType': 'condition' }
-};
-
 const TIME_LIMIT = 60; 
 const maxCodeStackLength = 15;
 const textXOffset = 10;
@@ -17,48 +6,66 @@ const programFontSize = 20;
 let isSubmitted = false;
 let isCodingMode = false;
 let codeStack = [];
-let exeButton, delButton, delAllButton, resetButton;
 let showProgram = false;
 let insertMode = 'normal';
 let textMessage = '';
 let buttons = [];
 let kaiso;
 let timerCount = 0; 
+const textDict = {
+  'こうげき': { code: 'shot();', codeType: 'action', viewText: 'こうげき', position: [20, 60] },
+  'ためる': { code: 'charge();', codeType: 'action', viewText: 'ためる', position: [120, 60] },
+  'うえにうごく': { code: 'moveUp();', codeType: 'action', viewText: 'うえにうごく', position: [20, 120] },
+  'したにうごく': { code: 'moveDown();', codeType: 'action', viewText: 'したにうごく', position: [160, 120] },
+  'もし  -  なら': { code: 'if () {', codeType: 'if-start', viewText: 'もし  -  なら',  position: [20, 180] },
+  'もし  -  おわり': { code: '}', codeType: 'if-end', viewText: 'もし  -  おわり', position: [20, 240] },
+  'おなじたかさ': { code: 'playerOne.y === playerTwo.y', codeType: 'condition', viewText: 'おなじたかさ', position: [20, 300] },
+  'ちがうたかさ': { code: 'playerOne.y !== playerTwo.y', codeType: 'condition', viewText: 'ちがうたかさ', position: [160, 300] }
+};
+
 
 function preload() {
   kaiso = loadFont('../font/kaiso_up/Kaisotai-Next-UP-B.otf');
 }
 
-setInterval(() => {
-  if (!isCodingMode) return;
-  if (timerCount >= TIME_LIMIT) {
-    if (!isSubmitted) submitCode();
-    return;
-  }
-  timerCount++;
-}, 1000);
-
 function setup() {
-  createCanvas(1024, 600);
+  //createCanvas(1024, 600);
+  createCanvas(windowWidth, windowHeight);
   textAlign(LEFT, TOP);
   // Initialize buttons
   initButtons();
 
-  exeButton = createStyledButton('かんせい', 'none', 'green',
-    width * 3/4 - 20, height - 80, submitCode);
-  delButton = createStyledButton('1つけす','none', 'tomato',
-    width / 2 - 100, height*2/3, deleteLine);
-  delAllButton = createStyledButton('ぜんぶけす','none', 'red',
-    width / 2 - 120, height*3/4, deleteAll);
-  resetButton = createStyledButton('ゲームをやめる','none', 'black',
-    20, height*3/4, returnToTitle);
+  const editButtons = {
+    'かんせい': { 
+      value: 'none', color: 'green', viewText: 'かんせい', 
+      position: [width * 3/4 - 20, height - 80], hanlder: submitCode,
+    },
+    '1つけす': { 
+      value: 'none', color: 'tomato', viewText: '1つけす', 
+      position: [width / 2 - 100, height - 160] ,handler: deleteLine,
+    },
+    'ぜんぶけす': {
+      value: 'none', color: 'red', viewText: 'ぜんぶけす', 
+      position: [width / 2 - 120, height - 80], handler: deleteAll,
+    },
+    'ゲームをやめる': { 
+      value: 'none', color: 'black', viewText: 'ゲームをやめる', 
+      position: [20, height - 80], handler: returnToTitle,
+    }
+  };
+  for (const { value, color, viewText, position, handler } of Object.values(editButtons)) {
+    buttons.push(createStyledButton(viewText, value, color, ...position, handler));
+  }
+
   textFont(kaiso);
 }
 
 function draw() {
-  background('#3b4279');
+  background(playerColor);
   drawUI();
   drawProgram();
+  //draw Message
+  //drawMessage();
   if (textMessage !== '') {
     strokeWeight(2);
     stroke('white');
@@ -78,28 +85,35 @@ function draw() {
   textFont(kaiso);
 }
 
-function initButtons() {
-  const buttonPositions = [
-    [20, 60], [120, 60], 
-    //[220, 60],
-    [20, 120], [160, 120],
-    [20, 180],
-    [20, 240],
-    [20, 300], [160, 300],
-  ];
-  Object.keys(textDict).forEach((codeText, i) => {
-    const { codeType, code } = textDict[codeText];
-    const bgColor = getTypeColor(codeType);
-    const position = buttonPositions[i];
-    const handler = getButtonHandler(codeType);
-
-    buttons.push(createStyledButton(codeText, codeType, bgColor, ...position, handler));
-  });
+function drawMessage() {
+  if (textMessage !== '') {
+    strokeWeight(2);
+    stroke('white');
+    textSize(40);
+    textFont('Verdana');
+    fill('navy');
+    const rectWidth = 530;
+    const rectHeight = 110;
+    const x = width/2 - rectWidth/2;
+    const y = height/2 - rectHeight/2 - 60;
+    rect(x, y, rectWidth, rectHeight);
+    fill('white');
+    text(textMessage, width/2 - rectWidth/2, height/2-rectHeight/2-50);
+    textAlign(LEFT);
+  }
 }
 
-function createStyledButton(label, codeType, bgColor, x, y, mousePressedHandler) {
+function initButtons() {
+  for (const { code, codeType, viewText, position } of Object.values(textDict)) {
+    const bgColor = getTypeColor(codeType);
+    const handler = getButtonHandler(codeType);
+    buttons.push(createStyledButton(viewText, codeType, bgColor, ...position, handler));
+  }
+}
+
+function createStyledButton(label, value, bgColor, x, y, mousePressedHandler) {
   const btn = createButton(label);
-  btn.value(codeType)
+  btn.value(value)
      .style('color', 'white')
      .style('border-radius', '8px')
      .style('background-color', bgColor)
@@ -161,8 +175,6 @@ function drawUI() {
   textSize(18);
   noStroke();
   strokeWeight(1);
-
-
 }
 
 function drawProgram() {
@@ -216,6 +228,7 @@ function insertCode() {
   }
 }
 
+//button handler
 function handleIfStart() {
   if (maxCodeStackLength <= codeStack.length) return;
   if (insertMode === 'normal') {
@@ -277,7 +290,12 @@ function deleteAll() {
   insertMode = 'normal';
 }
 
-socket.on('gameStart', (msg) => {
+
+function windowResized() {
+  resizeCanvas(windowWidth, windowHeight);
+}
+
+socket.on('gameStart', (_) => {
   textMessage = 'プログラムじっこうちゅう！\nまんなかのがめんをみてね！';
 });
 
@@ -288,3 +306,13 @@ socket.on('coding', (msg) => {
   isSubmitted = false;
   timerCount = 0;
 });
+
+setInterval(() => {
+  if (!isCodingMode) return;
+  if (timerCount >= TIME_LIMIT) {
+    if (!isSubmitted) submitCode();
+    return;
+  }
+  timerCount++;
+}, 1000);
+

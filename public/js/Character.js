@@ -30,18 +30,19 @@ class Character {
 }
 
 class Player extends Character {
-  constructor(appearance, x, y, w, h) {
+  constructor(appearance, x, y, w, h, col) {
     super(x, y, w, h);
     this._x = this.position.x;
     this._y = this.position.y;
     this._power = 20;
+    this._col = col;
     this.shotCheckCounter = 0;
     this.shotInterval = 10;
     this.shotArray = null;
     this._life = 100;
     this.code = null;
     this.size = 108;
-    this.state = 'wait';
+    this.isCharging = false;
     this.target = null;
     this.r = 0;
     this._appearance = appearance;
@@ -63,6 +64,10 @@ class Player extends Character {
   get power() {
       return this._power;
   }
+  
+  get col() {
+    return this._col;
+  }
 
   //Setter
   set x(value) {
@@ -80,6 +85,7 @@ class Player extends Character {
   set power(value) {
       this._power = value;
   }
+
 
   set appearance(value) {
     this._appearance = value;
@@ -107,16 +113,18 @@ class Player extends Character {
   }
 
   moveUp () {
+    this.isCharging = false;
     this._y -= (bottomEdge - topEdge) / 2;
   }
 
   moveDown () {
+    this.isCharging = false;
     this._y += (bottomEdge - topEdge) / 2;
   }
 
   shot() {
+    this.isCharging = false;
     shotSound.play();
-    this.state = 'shot';
     if (this.shotCheckCounter >= 0) {
       for (let i = 0; i < this.shotArray.length; i++) {
         if (this.shotArray[i].life <= 0) {
@@ -128,29 +136,31 @@ class Player extends Character {
       }
     }
     this.discharge();
-    this.state = 'wait';
   }
 
 
   charge() {
+    this.isCharging = true;
     this.power += 10;
-    if (this.power > 60) return;
+    if (this.power >= 60) this.power = 60;
+    chargeSound.play();
     for (let i = 0; i < this.shotArray.length; i++) {
       this.shotArray[i].setPower(this.power);
     }
   }
 
   discharge() {
+    if (this.power <= 5) return;
     this.power -= 5;
-    if (this.power <= 0) return;
     for (let i = 0; i < this.shotArray.length; i++) {
       this.shotArray[i].setPower(this.power);
     }
   }
 
   explode() {
+    this.isCharging = false;
     push();
-    fill('red');
+    fill(this._col);
     translate(this._x, this._y);
     for (let i = 0; i < TWO_PI; i+= radians(30)) {
       square(this.r * cos(i), this.r * sin(i), 20);
@@ -165,6 +175,17 @@ class Player extends Character {
     textAlign(CENTER, CENTER)
     text(this._appearance, this._x, this._y);
     textAlign(LEFT, BOTTOM);
+    if (this.isCharging) {
+      push();
+      translate(this.x, this.y);
+      stroke('orange');
+      strokeWeight(8);
+      rotate(frameCount * 0.04);
+      for (let i = 0; i <= 360; i+=12) {
+        point(cos(i) * this.size*3/4, sin(i) * this.size*3/4);
+      }
+      pop();
+    }
   }
 
   update() {
@@ -214,9 +235,6 @@ class Shot extends Character {
     }
 
     update() {
-      if (this.power > 20) {
-        this.appearance = "🪐";
-      }
       if (this.life <= 0) return;
       if (this.position.x + this.width < 0 || this.position.x + this.width > width) {
         this.life = 0;

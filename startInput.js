@@ -1,16 +1,13 @@
 const puppeteer = require('puppeteer');
-const { app, BrowserWindow } = require('electron');
+const { app, BrowserWindow, screen } = require('electron');
 
 const deployUrl = 'https://battlehacker.adaptable.app/p1_title';
 
 app.whenReady().then(() => {
-  const { screen } = require('electron');
-  const display = screen.getPrimaryDisplay();
+  const primaryDisplay = screen.getPrimaryDisplay()
+  const { width, height } = primaryDisplay.workAreaSize
   const inputWindow = new BrowserWindow({
-    display.bounds.x,
-    display.bounds.y, 
-    display.bounds.width, 
-    display.bounds.height, 
+    width, height,
     autoHideMenuBar: true, 
   });
   inputWindow.loadURL(deployUrl);

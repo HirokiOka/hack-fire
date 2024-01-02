@@ -33,8 +33,6 @@ let topEdge = 0;
 let centerY = 0;
 let bottomEdge = 0;
 let gameHeight = 0;
-//let TOP = 0;
-//let BOTTOM = 0;
 
 let playerOneCodeStack = [];
 let playerTwoCodeStack = [];
@@ -53,6 +51,47 @@ const conditionDict = {
   'おなじたかさ': { 'code': 'playerOne.y === playerTwo.y', 'codeType': 'condition' },
   'ちがうたかさ': { 'code': 'playerOne.y !== playerTwo.y', 'codeType': 'condition' },
 };
+
+//Init Sounds
+let explodeSound = new Sound();
+explodeSound.load('../sound/explode.mp3', (error) => {
+    if (error != null) {
+        alert('ファイルの読み込みエラーです．');
+        return;
+    }
+});
+
+let shotSound = new Sound();
+shotSound.load('../sound/shot.mp3', (error) => {
+    if (error != null) {
+        alert('ファイルの読み込みエラーです．');
+        return;
+    }
+});
+
+let chargeSound = new Sound();
+chargeSound.load('../sound/charge.mp3', (error) => {
+    if (error != null) {
+        alert('ファイルの読み込みエラーです．');
+        return;
+    }
+});
+
+let hitSound = new Sound();
+hitSound.load('../sound/hit.mp3', (error) => {
+    if (error != null) {
+        alert('ファイルの読み込みエラーです．');
+        return;
+    }
+});
+
+let scratchSound = new Sound();
+scratchSound.load('../sound/scratch_se.mp3', (error) => {
+    if (error != null) {
+        alert('ファイルの読み込みエラーです．');
+        return;
+    }
+});
 
 //Process related to Socket.io 
 socket.on('connection', () => {
@@ -96,7 +135,7 @@ socket.on('playerTwo', (msg) => {
     return;
   }
   if (msg === 'cancel') {
-    window.location.href = '/';
+    window.location.href = '/game';
   }
   if (msg === 'p2_retry') {
     playerTwoRetry = true;
@@ -114,38 +153,6 @@ socket.on('playerTwo', (msg) => {
   }
 });
 
-//Init Sounds
-let explodeSound = new Sound();
-explodeSound.load('../sound/explode.mp3', (error) => {
-    if (error != null) {
-        alert('ファイルの読み込みエラーです．');
-        return;
-    }
-});
-
-let shotSound = new Sound();
-shotSound.load('../sound/shot.mp3', (error) => {
-    if (error != null) {
-        alert('ファイルの読み込みエラーです．');
-        return;
-    }
-});
-
-let hitSound = new Sound();
-hitSound.load('../sound/hit.mp3', (error) => {
-    if (error != null) {
-        alert('ファイルの読み込みエラーです．');
-        return;
-    }
-});
-
-let scratchSound = new Sound();
-scratchSound.load('../sound/scratch_se.mp3', (error) => {
-    if (error != null) {
-        alert('ファイルの読み込みエラーです．');
-        return;
-    }
-});
 
 //p5.js Process
 function preload() {
@@ -153,9 +160,37 @@ function preload() {
   hackgen = loadFont('../font/HackNerdFont-Regular.ttf');
 }
 
+function initPlayers() {
+
+  playerOne = new Player("🚀", barOffset*3, centerY, 40, 40, 'red');
+  playerOne.setVectorFromAngle(HALF_PI);
+  playerOne.setTarget(playerTwo);
+
+  playerTwo = new Player("👾", width-barOffset*3, centerY, 40, 40, 'blue');
+  playerTwo.setVectorFromAngle(-HALF_PI);
+  playerTwo.setTarget(playerOne);
+
+  for (let i = 0; i < SHOT_MAX_COUNT; i++) {
+    playerOneShotArray[i] = new Shot(-100, -100, 32, 32);
+    playerOneShotArray[i].setTarget(playerTwo);
+    playerOneShotArray[i].setOwner(playerOne);
+    playerOneShotArray[i].setVectorFromAngle(HALF_PI);
+    playerOneShotArray[i].setPower(playerOne.power);
+
+    playerTwoShotArray[i] = new Shot(0, 0, 32, 32);
+    playerTwoShotArray[i].setTarget(playerOne);
+    playerOneShotArray[i].setOwner(playerTwo);
+    playerTwoShotArray[i].setVectorFromAngle(-HALF_PI);
+    playerTwoShotArray[i].setPower(playerTwo.power);
+  }
+  playerOne.setShotArray(playerOneShotArray);
+  playerTwo.setShotArray(playerTwoShotArray);
+}
+
 function setup() {
-  //let canvas = createCanvas(1920, 1080, P2D);
-  let canvas = createCanvas(1440, 900, P2D);
+  let canvas = createCanvas(1920, 1080, P2D);
+  //let canvas = createCanvas(1440, 900, P2D);
+  //let canvas = createCanvas(1920, 1200, P2D);
   barOffset = width/24;
   barWidth = width/24;
   topEdge = height / 3 - barOffset;
@@ -166,31 +201,7 @@ function setup() {
   background('#3b4279');
 
   //Init Players
-  playerOne = new Player("🚀", barOffset*3, centerY, 40, 40);
-  playerOne.setVectorFromAngle(HALF_PI);
-  playerOne.setTarget(playerTwo);
-
-  playerTwo = new Player("👾", width-barOffset*3, centerY, 40, 40);
-  playerTwo.setVectorFromAngle(-HALF_PI);
-  playerTwo.setTarget(playerOne);
-
-  for (let i = 0; i < SHOT_MAX_COUNT; i++) {
-    playerOneShotArray[i] = new Shot(-100, -100, 32, 32);
-    playerOneShotArray[i].setTarget(playerTwo);
-    playerOneShotArray[i].setOwner(playerOne);
-    playerOneShotArray[i].setVectorFromAngle(HALF_PI);
-    playerOneShotArray[i].setPower(playerOne.power);
-    //playerOneShotArray[i].setSound(shotSound);
-
-    playerTwoShotArray[i] = new Shot(0, 0, 32, 32);
-    playerTwoShotArray[i].setTarget(playerOne);
-    playerOneShotArray[i].setOwner(playerTwo);
-    playerTwoShotArray[i].setVectorFromAngle(-HALF_PI);
-    playerTwoShotArray[i].setPower(playerTwo.power);
-    //playerTwoShotArray[i].setSound(shotSound);
-  }
-  playerOne.setShotArray(playerOneShotArray);
-  playerTwo.setShotArray(playerTwoShotArray);
+  initPlayers();
 
   //Init Background Star
   for (let i = 0; i < BACKGROUND_STAR_MAX_COUNT; i++) {
@@ -219,7 +230,6 @@ function draw() {
   if (playerOne.life === 0 || playerTwo.life === 0) {
     if (!isGameover) {
       socket.emit('gameOver', 'gameOver');
-      console.log('send');
       explodeSound.play();
       isGameover = true;
       isGameRunning = false;
@@ -232,11 +242,11 @@ function draw() {
       playerOne.explode();
       playerTwo.explode();
     } else if (playerOne.life === 0) {
-      fill('blue');
+      fill(playerTwo.col);
       text('Player2 Win!', width / 2, height / 2);
       playerOne.explode();
     } else {
-      fill('red');
+      fill(playerOne.col);
       text('Player1 Win!', width / 2, height /2);
       playerTwo.explode();
     }
@@ -259,18 +269,17 @@ function draw() {
         playerOne.explode();
         playerTwo.explode();
     } else if (playerOne.life === 0 || playerOne.life < playerTwo.life) {
-        fill('blue');
+        fill(playerTwo.col);
         text('Player2 Win!', width / 2, height / 2);
         playerOne.explode();
     } else if (playerTwo.life === 0 || playerOne.life > playerTwo.life) {
-        fill('red');
+        fill(playerOne.col);
         text('Player1 Win!', width / 2, height /2);
         playerTwo.explode();
     }
   }
 
   textAlign(LEFT);
-
 
   //Draw Stars
   backgroundStarArray.map((v) => v.update());
@@ -281,7 +290,7 @@ function draw() {
   stroke('white');
   fill('dimgray')
   rect(barOffset, barOffset, 100 * (width / 260), barWidth);
-  fill('red');
+  fill(playerOne.col);
   rect(barOffset, barOffset, playerOne.life * (width / 260), barWidth);
   textAlign(CENTER);
   text(playerOne.life, barOffset, barOffset, 100 * (width / 260));
@@ -290,7 +299,7 @@ function draw() {
   stroke('white');
   fill('dimgray')
   rect(width - barOffset, barOffset, -100 * (width / 260), barWidth);
-  fill('blue');
+  fill(playerTwo.col);
   rect(width - barOffset, barOffset, -playerTwo.life * (width / 260), barWidth);
   text(playerTwo.life, width - barOffset, barOffset, -100 * (width / 260));
 
@@ -317,13 +326,13 @@ function draw() {
   //Draw Area
   noFill();
   const areaS = 180;
-  stroke('red');
+  stroke(playerOne.col);
   strokeWeight(4);
   rect(barOffset*3 - areaS/2, topEdge - areaS/2, areaS, areaS);
   rect(barOffset*3 - areaS/2, centerY - areaS/2, areaS, areaS);
   rect(barOffset*3 - areaS/2, bottomEdge - areaS/2, areaS, areaS);
 
-  stroke('blue');
+  stroke(playerTwo.col);
   rect(width-barOffset*3 - areaS/2, topEdge - areaS/2, areaS, areaS);
   rect(width-barOffset*3 - areaS/2, centerY - areaS/2, areaS, areaS);
   rect(width-barOffset*3 - areaS/2, bottomEdge - areaS/2, areaS, areaS);
@@ -342,11 +351,11 @@ function draw() {
     textAlign(CENTER);
     stroke('white')
     if (isPlayerOneReady) {
-      fill('red');
+      fill(playerOne.col);
       text('Player1 Ready', width/4 -40, height/2);
     }
     if (isPlayerTwoReady) {
-      fill('blue');
+      fill(playerTwo.col);
       text('Player2 Ready', width*3/4 - 40, height/2);
     }
     textAlign(LEFT);
@@ -361,7 +370,7 @@ function draw() {
     textSize(codeTextSize);
     if (playerOneCode.length !== 0) {
       playerOneCode.forEach(({ codeText }, i) => {
-        ((i+1) % playerOneCode.length) == playerOneExeIndex ? fill('red') : fill(255, 70);
+        ((i+1) % playerOneCode.length) == playerOneExeIndex ? fill(playerOne.col) : fill(255, 70);
         const codeLineText = `${i+1} ${codeText}`;
         text(codeLineText, barOffset, topEdge + i * codeTextSize);
       });
@@ -369,7 +378,7 @@ function draw() {
 
     if (playerTwoCode.length !== 0) {
       playerTwoCode.forEach(({ codeText }, i) => {
-        ((i+1) % playerTwoCode.length) == playerTwoExeIndex ? fill('blue') : fill(255, 70);
+        ((i+1) % playerTwoCode.length) == playerTwoExeIndex ? fill(playerTwo.col) : fill(255, 70);
         const codeLineText = `${i+1} ${codeText}`;
         text(codeLineText, width/2 + barOffset * 2, topEdge + i * codeTextSize);
       });
@@ -419,7 +428,6 @@ function updateExeIndex(playerId, updatedValue) {
 
 //calc execCode and return [Index, jsCode, increment]
 function calcExeCode(playerCode, codeIndex) {
-  console.log(playerCode, codeIndex);
   const targetCodeText = playerCode[codeIndex].codeText;
   const targetCodeType = playerCode[codeIndex].codeType;
   let inc = 1;
@@ -435,12 +443,9 @@ function calcExeCode(playerCode, codeIndex) {
   } else if (targetCodeType === 'if-start') {
     const condition = targetCodeText.split('(')[1].split(')')[0];
     let nextCodeIndex = 0;
-
     if (eval(condition)) {
-      //if condition is true
       nextCodeIndex = (codeIndex + 1) % playerCode.length;
     } else {
-      //if condition is false
       for (let i = codeIndex; i < playerCode.length; i++) {
         if (playerCode[i].codeType === 'if-end') {
           nextCodeIndex = (i + 1) % playerCode.length;
@@ -448,22 +453,8 @@ function calcExeCode(playerCode, codeIndex) {
         }
       }
       return calcExeCode(playerCode, nextCodeIndex);
-      /*
-      nextCodeIndex = (playerCode.findIndex(v => v.codeType === 'if-end') + 1) % playerCode.length;
-      if (codeIndex === nextCodeIndex) {
-        const res = {
-          codeIndex: nextCodeIndex, 
-          targetCodeText: 'console.log("wait");',
-          inc: 0
-        };
-        return res;
-      } else {
-        return calcExeCode(playerCode, nextCodeIndex);
-      }
-      */
     }
-
-    return calcExeCode(playerCode, nextCodeIndex, inc);
+    return calcExeCode(playerCode, nextCodeIndex);
   }
 }
 
@@ -475,12 +466,12 @@ setInterval(() => {
   }
   if (!isGameRunning) return;
 
+  let p1ExeCode = {};
+  let p2ExeCode = {};
   if (playerOneCode.length !== 0) {
     try {
-      const { codeIndex, targetCodeText, inc } = calcExeCode(playerOneCode, playerOneExeIndex);
-      console.log('[p1Code]', codeIndex, targetCodeText);
-      eval(targetCodeText);
-      playerOneExeIndex = (codeIndex + inc) % playerOneCode.length;
+      p1ExeCode = calcExeCode(playerOneCode, playerOneExeIndex);
+      playerOneExeIndex = (p1ExeCode.codeIndex + p1ExeCode.inc) % playerOneCode.length;
     } catch (e) {
       console.log(e);
     }
@@ -488,12 +479,23 @@ setInterval(() => {
 
   if (playerTwoCode.length !== 0) {
     try {
-      const { codeIndex, targetCodeText, inc } = calcExeCode(playerTwoCode, playerTwoExeIndex);
-      eval(targetCodeText);
-      playerTwoExeIndex = (codeIndex + inc) % playerTwoCode.length;
+      p2ExeCode = calcExeCode(playerTwoCode, playerTwoExeIndex);
+      playerTwoExeIndex = (p2ExeCode.codeIndex + p2ExeCode.inc) % playerTwoCode.length;
     } catch (e) {
       console.log(e);
     }
+  }
+
+  try {
+    eval(p1ExeCode.targetCodeText);
+  } catch (e) {
+    console.log(e);
+  }
+
+  try {
+    eval(p2ExeCode.targetCodeText);
+  } catch (e) {
+    console.log(e);
   }
 
   exeCount--;
@@ -506,6 +508,8 @@ setInterval(() => {
     roundCount++;
     playerOneExeIndex = 0;
     playerTwoExeIndex = 0;
+    playerOne.isCharging = false;
+    playerTwo.isCharging = false;
     socket.emit('coding', 'coding');
   }
 }, 1000);
@@ -518,6 +522,7 @@ function keyPressed(e) {
     playerOne.moveUp();
   } else if (keyCode === 83) {
     playerOne.moveDown();
+    playerOne.charge();
   } else if (keyCode === 32) {
     playerOne.shot();
   } 
@@ -534,45 +539,86 @@ function keyPressed(e) {
 }
 
 function testCode() {
-  playerOneCode = [
-    { codeType: "if-start", codeText: "if (playerOne.y === playerTwo.y) {" },
-    { codeType: "action", codeText: "playerOne.shot();" },
-    { codeType: "if-start", codeText: "if (playerOne.y === playerTwo.y) {" },
-    { codeType: "action", codeText: "playerOne.shot();" },
-    { codeType: "if-end", codeText: "}" },
-    { codeType: "if-start", codeText: "if (playerOne.y !== playerTwo.y) {" },
-    { codeType: "action", codeText: "playerOne.charge();" },
-    { codeType: "if-end", codeText: "}" },
-    { codeType: "if-end", codeText: "}" },
-    { codeType: "if-start", codeText: "if (playerOne.y !== playerTwo.y) {" },
-    { codeType: "action", codeText: "playerOne.charge();" },
-    { codeType: "if-end", codeText: "}" },
-  ];
-
   /*
   playerOneCode = [
-    { codeType: "action", codeText: "playerOne.moveUp();" },
-    { codeType: "action", codeText: "playerOne.moveDown();" },
-    { codeType: "action", codeText: "playerOne.moveDown();" },
-    { codeType: "action", codeText: "playerOne.moveUp();" },
+    { codeType: "if-start", codeText: "if (playerOne.y === playerTwo.y) {" },
+    { codeType: "action", codeText: "playerOne.shot();" },
+    { codeType: "if-start", codeText: "if (playerOne.y === playerTwo.y) {" },
+    { codeType: "action", codeText: "playerOne.shot();" },
+    { codeType: "if-end", codeText: "}" },
+    { codeType: "if-start", codeText: "if (playerOne.y !== playerTwo.y) {" },
+    { codeType: "action", codeText: "playerOne.charge();" },
+    { codeType: "if-end", codeText: "}" },
+    { codeType: "if-end", codeText: "}" },
+    { codeType: "if-start", codeText: "if (playerOne.y !== playerTwo.y) {" },
+    { codeType: "action", codeText: "playerOne.charge();" },
+    { codeType: "if-end", codeText: "}" },
   ];
   */
 
-  playerTwoCode = [
+  /*
+  playerOneCode = [
+    { codeType: "action", codeText: "playerOne.moveUp();" },
+    { codeType: "action", codeText: "playerOne.moveDown();" },
+    { codeType: "action", codeText: "playerOne.moveDown();" },
+    { codeType: "action", codeText: "playerOne.moveUp();" },
+  ];
+
+  playerOneCode = [
+    { codeType: "action", codeText: "playerOne.charge();" },
+  ];
+  playerOneCode = [
     { codeType: "if-start", codeText: "if (playerOne.y === playerTwo.y) {" },
-    { codeType: "action", codeText: "playerTwo.shot();" },
+    { codeType: "action", codeText: "playerOne.shot();" },
     { codeType: "if-end", codeText: "}" },
+    { codeType: "if-start", codeText: "if (playerOne.y !== playerTwo.y) {" },
+    { codeType: "action", codeText: "playerOne.charge();" },
+    { codeType: "if-end", codeText: "}" },
+    { codeType: "action", codeText: "playerOne.moveUp();" },
+    { codeType: "action", codeText: "playerOne.moveDown();" },
+  ];
+*/
+
+  playerOneCode = [
+    { codeType: "action", codeText: "playerOne.moveUp();" },
+    { codeType: "action", codeText: "playerOne.moveDown();" },
+  ];
+
+  playerTwoCode = [
     { codeType: "if-start", codeText: "if (playerOne.y !== playerTwo.y) {" },
     { codeType: "action", codeText: "playerTwo.charge();" },
     { codeType: "if-end", codeText: "}" },
+    { codeType: "if-start", codeText: "if (playerOne.y === playerTwo.y) {" },
+    { codeType: "action", codeText: "playerTwo.shot();" },
+    { codeType: "if-end", codeText: "}" },
   ];
-  /*
+
+  playerOneCode = [
+    { codeType: "if-start", codeText: "if (playerOne.y !== playerTwo.y) {" },
+    { codeType: "action", codeText: "playerOne.charge();" },
+    { codeType: "if-end", codeText: "}" },
+    { codeType: "if-start", codeText: "if (playerOne.y === playerTwo.y) {" },
+    { codeType: "action", codeText: "playerOne.shot();" },
+    { codeType: "if-end", codeText: "}" },
+  ];
+
   playerTwoCode = [
     { codeType: "action", codeText: "playerTwo.moveUp();" },
     { codeType: "action", codeText: "playerTwo.moveDown();" },
+  ];
+
+
+  playerTwoCode = [
+    { codeType: "action", codeText: "playerTwo.charge();" },
+    { codeType: "action", codeText: "playerTwo.charge();" },
+    { codeType: "action", codeText: "playerTwo.charge();" },
+  ];
+  playerTwoCode = [
     { codeType: "action", codeText: "playerTwo.moveDown();" },
     { codeType: "action", codeText: "playerTwo.moveUp();" },
+    { codeType: "action", codeText: "playerTwo.moveDown();" },
   ];
+  /*
 
   playerTwoCode = [
     { codeType: "if-start", codeText: "if (playerOne.y === playerTwo.y) {" },
@@ -587,5 +633,4 @@ function testCode() {
   ];
   */
   isGameRunning = true;
-  exeCode();
 }
