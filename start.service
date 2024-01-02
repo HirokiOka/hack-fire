@@ -1,13 +1,13 @@
 [Unit]
 Description=launch slash-shot input
+After=graphical.target
 
 [Service]
+User=pi
 Type=simple
-ExecStartPre=/bin/sleep 10
-ExecStart=/usr/local/bin/electron /home/pi/Desktop/slash-shot/startInput.js --no-sandbox
-WorkingDirectory=/home/pi/Desktop/slash-shot
-Restart=on-failure
-Environment=DISPLAY=:0
+Environment="DISPLAY=:0"
+ExecStart=/usr/local/bin/electron /home/pi/Desktop/slash-shot/startInput.js
+Restart=always
 
 [Install]
-WantedBy=multi-user.target
+WantedBy=graphical.target
