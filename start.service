@@ -1,0 +1,13 @@
+[Unit]
+Description=launch slash-shot input
+
+[Service]
+Type=simple
+ExecStartPre=/bin/sleep 10
+ExecStart=/usr/local/bin/electron /home/pi/Desktop/slash-shot/startInput.js --no-sandbox
+WorkingDirectory=/home/pi/Desktop/slash-shot
+Restart=on-failure
+Environment=DISPLAY=:0
+
+[Install]
+WantedBy=multi-user.target

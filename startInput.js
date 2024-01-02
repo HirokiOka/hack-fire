@@ -5,6 +5,13 @@ const deployUrl = 'https://battlehacker.adaptable.app/p1_title';
 
 app.whenReady().then(() => {
   const { screen } = require('electron');
+  const primaryDisplay = screen.getPrimaryDisplay()
+  const { width, height } = primaryDisplay.workAreaSize
+  const inputWindow = new BrowserWindow({
+    width, height,
+    autoHideMenuBar: true, 
+  });
+  /*
   const display = screen.getPrimaryDisplay();
   const inputWindow = new BrowserWindow({
     display.bounds.x,
@@ -13,6 +20,7 @@ app.whenReady().then(() => {
     display.bounds.height, 
     autoHideMenuBar: true, 
   });
+  */
   inputWindow.loadURL(deployUrl);
   inputWindow.setFullScreen(true);
 });
