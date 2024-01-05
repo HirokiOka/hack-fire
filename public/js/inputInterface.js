@@ -38,7 +38,7 @@ function setup() {
   const editButtons = {
     'かんせい': { 
       value: 'none', color: 'green', viewText: 'かんせい', 
-      position: [width * 3/4 - 20, height - 80], hanlder: submitCode,
+      position: [width * 3/4 - 20, height - 80], handler: submitCode,
     },
     '1つけす': { 
       value: 'none', color: 'tomato', viewText: '1つけす', 
@@ -260,16 +260,13 @@ function submitCode() {
     sendMessage('submit');
     sendMessage([]);
     return;
-  }
-  if (codeStack.length === 0) {
+  } else if (codeStack.length === 0) {
     alert('プログラムがありません');
     return;
-  }
-  if (calcIndentNum(codeStack) > 0) {
+  } else if (calcIndentNum(codeStack) > 0) {
     alert('[もし - おわり] がたりません');
     return;
-  }
-  if (codeStack.map(v => v.codeType).findIndex(e => e === 'action') === -1) {
+  } else if (codeStack.map(v => v.codeType).findIndex(e => e === 'action') === -1) {
     alert('キャラクターのうごきが入力されていません');
     return;
   }
