@@ -10,7 +10,6 @@
   <body>
   </body>
   <script src="/socket.io/socket.io.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js" integrity="sha512-bcfltY+lNLlNxz38yBBm/HLaUB1gTV6I0e+fahbF9pS6roIdzUytozWdnFV8ZnM6cSAG5EbmO0ag0a/fLZSG4Q==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   <script>
     const canvasWidth = 2560;
     const canvasHeight = 1600;
@@ -27,16 +26,14 @@
         sendMessage('p2_retry');
         window.location.reload();
       } 
-      /*else {
+      else {
         sendMessage('cancel');
         window.location.href = '/p2_title';
       }
-      */
     });
 
     socket.on('cancel', (msg) => {
-      //window.location.href = '/p2_title';
-      window.location.href = '/player2';
+      window.location.href = '/p2_title';
     });
 
     function sendMessage(message) {
@@ -46,10 +43,9 @@
     function returnToTitle() {
       if (window.confirm('ゲームをやめてタイトルにもどります．\nよろしいですか？')) {
         sendMessage('cancel');
-        //window.location.href = '/p2_title';
-        window.location.href = '/player2';
+        window.location.href = '/p2_title';
       }
     }
   </script>
-  <script src="/js/inputInterface.js"></script>
+  <script src="/dist/interface.bundle.js"></script>
 </html>

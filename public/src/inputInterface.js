@@ -1,3 +1,7 @@
+import io from 'socket.io-client';
+import p5 from 'p5';
+const socket = io();
+
 const TIME_LIMIT = 60; 
 const maxCodeStackLength = 15;
 const textXOffset = 10;
@@ -23,67 +27,70 @@ const textDict = {
   'ちがうたかさ': { code: 'playerOne.y !== playerTwo.y', codeType: 'condition', viewText: 'ちがうたかさ', position: [160, 300] }
 };
 
-
-function preload() {
-  kaiso = loadFont('../font/kaiso_up/Kaisotai-Next-UP-B.otf');
-}
-
-function setup() {
-  //createCanvas(1024, 600);
-  createCanvas(windowWidth, windowHeight);
-  textAlign(LEFT, TOP);
-  // Initialize buttons
-  initButtons();
-
-  const editButtons = {
-    'かんせい': { 
-      value: 'none', color: 'green', viewText: 'かんせい', 
-      position: [width * 3/4 - 20, height - 80], handler: submitCode,
-    },
-    '1つけす': { 
-      value: 'none', color: 'tomato', viewText: '1つけす', 
-      position: [width / 2 - 100, height - 160] ,handler: deleteLine,
-    },
-    'ぜんぶけす': {
-      value: 'none', color: 'red', viewText: 'ぜんぶけす', 
-      position: [width / 2 - 120, height - 80], handler: deleteAll,
-    },
-    'ゲームをやめる': { 
-      value: 'none', color: 'black', viewText: 'ゲームをやめる', 
-      position: [20, height - 80], handler: returnToTitle,
-    }
+const sketch = (p) => {
+  p.preload = () => {
+    kaiso = p.loadFont('../font/kaiso_up/Kaisotai-Next-UP-B.otf');
   };
-  for (const { value, color, viewText, position, handler } of Object.values(editButtons)) {
-    buttons.push(createStyledButton(viewText, value, color, ...position, handler));
-  }
 
-  textFont(kaiso);
+  p.setup = () => {
+    p.createCanvas(p.windowWidth, p.windowHeight);
+    p.textAlign(p.LEFT, p.TOP);
+    // Initialize buttons
+    initButtons(p);
+
+    const editButtons = {
+      'かんせい': { 
+        value: 'none', color: 'green', viewText: 'かんせい', 
+        position: [p.width * 3/4 - 20, p.height - 80], handler: submitCode,
+      },
+      '1つけす': { 
+        value: 'none', color: 'tomato', viewText: '1つけす', 
+        position: [p.width / 2 - 100, p.height - 160] ,handler: deleteLine,
+      },
+      'ぜんぶけす': {
+        value: 'none', color: 'red', viewText: 'ぜんぶけす', 
+        position: [p.width / 2 - 120, p.height - 80], handler: deleteAll,
+      },
+      'ゲームをやめる': { 
+        value: 'none', color: 'black', viewText: 'ゲームをやめる', 
+        position: [20, p.height - 80], handler: returnToTitle,
+      }
+    };
+    for (const { value, color, viewText, position, handler } of Object.values(editButtons)) {
+      buttons.push(createStyledButton(p, viewText, value, color, ...position, handler));
+    }
+
+    p.textFont(kaiso);
+  };
+
+  p.draw = () => {
+    p.background(playerColor);
+    drawUI(p);
+    drawProgram(p);
+
+    //draw Message
+    //drawMessage();
+    if (textMessage !== '') {
+      p.strokeWeight(2);
+      p.stroke('white');
+      p.textSize(40);
+      p.textFont('Verdana');
+      p.fill('navy');
+      const rectWidth = 530;
+      const rectHeight = 110;
+      const x = p.width/2 - rectWidth/2;
+      const y = p.height/2 - rectHeight/2 - 60;
+      p.rect(x, y, rectWidth, rectHeight);
+      p.fill('white');
+      //textAlign(p.CENTER);
+      p.text(textMessage, p.width/2 - rectWidth/2, p.height/2-rectHeight/2-50);
+      p.textAlign(p.LEFT);
+    }
+    p.textFont(kaiso);
+  };
 }
 
-function draw() {
-  background(playerColor);
-  drawUI();
-  drawProgram();
-  //draw Message
-  //drawMessage();
-  if (textMessage !== '') {
-    strokeWeight(2);
-    stroke('white');
-    textSize(40);
-    textFont('Verdana');
-    fill('navy');
-    const rectWidth = 530;
-    const rectHeight = 110;
-    const x = width/2 - rectWidth/2;
-    const y = height/2 - rectHeight/2 - 60;
-    rect(x, y, rectWidth, rectHeight);
-    fill('white');
-    //textAlign(CENTER);
-    text(textMessage, width/2 - rectWidth/2, height/2-rectHeight/2-50);
-    textAlign(LEFT);
-  }
-  textFont(kaiso);
-}
+new p5(sketch);
 
 function drawMessage() {
   if (textMessage !== '') {
@@ -94,25 +101,25 @@ function drawMessage() {
     fill('navy');
     const rectWidth = 530;
     const rectHeight = 110;
-    const x = width/2 - rectWidth/2;
-    const y = height/2 - rectHeight/2 - 60;
+    const x = p.width/2 - rectWidth/2;
+    const y = p.height/2 - rectHeight/2 - 60;
     rect(x, y, rectWidth, rectHeight);
     fill('white');
-    text(textMessage, width/2 - rectWidth/2, height/2-rectHeight/2-50);
-    textAlign(LEFT);
+    text(textMessage, p.width/2 - rectWidth/2, p.height/2-rectHeight/2-50);
+    textAlign(p.LEFT);
   }
 }
 
-function initButtons() {
+function initButtons(p) {
   for (const { code, codeType, viewText, position } of Object.values(textDict)) {
     const bgColor = getTypeColor(codeType);
     const handler = getButtonHandler(codeType);
-    buttons.push(createStyledButton(viewText, codeType, bgColor, ...position, handler));
+    buttons.push(createStyledButton(p, viewText, codeType, bgColor, ...position, handler));
   }
 }
 
-function createStyledButton(label, value, bgColor, x, y, mousePressedHandler) {
-  const btn = createButton(label);
+function createStyledButton(p, label, value, bgColor, x, y, mousePressedHandler) {
+  const btn = p.createButton(label);
   btn.value(value)
      .style('color', 'white')
      .style('border-radius', '8px')
@@ -144,42 +151,42 @@ function getButtonHandler(codeType) {
   }
 }
 
-function drawUI() {
-  stroke(0);
+function drawUI(p) {
+  p.stroke(0);
   //Center line
-  textSize(24);
-  noFill();
-  strokeWeight(3);
-  stroke('#d05af0');
-  rect(10, 40, width/2-20, height-60);
-  fill('white');
-  stroke('#d05af0');
-  text("コードブロック", width/4 - 70, 10);
+  p.textSize(24);
+  p.noFill();
+  p.strokeWeight(3);
+  p.stroke('#d05af0');
+  p.rect(10, 40, p.width/2-20, p.height-60);
+  p.fill('white');
+  p.stroke('#d05af0');
+  p.text("コードブロック", p.width/4 - 70, 10);
 
-  noStroke();
-  fill(0);
-  rect(width/2 - 30, 0, 60, 34);
-  fill('white');
-  if (timerCount > 50) fill('red');
-  textAlign(CENTER);
-  textSize(32);
-  text(TIME_LIMIT - timerCount, width/2, 0);
-  textAlign(LEFT);
+  p.noStroke();
+  p.fill(0);
+  p.rect(p.width/2 - 30, 0, 60, 34);
+  p.fill('white');
+  if (timerCount > 50) p.fill('red');
+  p.textAlign(p.CENTER);
+  p.textSize(32);
+  p.text(TIME_LIMIT - timerCount, p.width/2, 0);
+  p.textAlign(p.LEFT);
 
-  noFill();
-  stroke('tomato');
-  rect(width/2+10, 40, width/2-20, height-60);
+  p.noFill();
+  p.stroke('tomato');
+  p.rect(p.width/2+10, 40, p.width/2-20, p.height-60);
 
-  fill('white');
-  text("プログラム", width*3/4 - 50, 10);
-  textSize(18);
-  noStroke();
-  strokeWeight(1);
+  p.fill('white');
+  p.text("プログラム", p.width*3/4 - 50, 10);
+  p.textSize(18);
+  p.noStroke();
+  p.strokeWeight(1);
 }
 
-function drawProgram() {
+function drawProgram(p) {
   if (!codeStack.length) return;
-  textSize(programFontSize);
+  p.textSize(programFontSize);
 
   const indentWidth = 30;
   codeStack.forEach((element, idx) => {
@@ -187,29 +194,29 @@ function drawProgram() {
     const viewCode = showProgram ? textDict[codeText].code : codeText;
     let indentNum = calcIndentNum(codeStack.slice(0, idx));
     if (codeType === 'if-end') indentNum--;
-    const x = width / 2 + 20 + indentWidth * indentNum;
+    const x = p.width / 2 + 20 + indentWidth * indentNum;
     const y = idx * 30 + 60;
-    const rectWidth = textWidth(viewCode) * 5 / 3;
+    const rectWidth = p.textWidth(viewCode) * 5 / 3;
 
     if (showProgram) {
-      fill(0);
+      p.fill(0);
     } else {
-      fill(getTypeColor(codeType));
-      rect(x, y, rectWidth, 24, 16);
-      fill(255);
+      p.fill(getTypeColor(codeType));
+      p.rect(x, y, rectWidth, 24, 16);
+      p.fill(255);
     }
 
     const codeIndex = idx + 1;
-    text(codeIndex + '. ' + viewCode, x + textXOffset, y + textYOffset);
+    p.text(codeIndex + '. ' + viewCode, x + textXOffset, y + textYOffset);
 
     if (codeType === 'if-start') {
       const splittedCode = viewCode.split('  ');
       const condOffsetX = 60;
       if (1 < splittedCode[1].length) {
-        fill(getTypeColor('condition'));
-        rect(x + condOffsetX, y + 2, textWidth(splittedCode[1]) + 12, 20, 16);
-        fill(255);
-        text(splittedCode[1], x + textXOffset + condOffsetX, y + textYOffset);
+        p.fill(getTypeColor('condition'));
+        p.rect(x + condOffsetX, y + 2, p.textWidth(splittedCode[1]) + 12, 20, 16);
+        p.fill(255);
+        p.text(splittedCode[1], x + textXOffset + condOffsetX, y + textYOffset);
       }
     }
   });
