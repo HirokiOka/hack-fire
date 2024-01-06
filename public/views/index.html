@@ -14,8 +14,8 @@
     </div>
   </body>
   <script src="/socket.io/socket.io.js"></script>
-  <script>
-    const socket = io();
+  <script type="module">
+    import io from 'socket.io-client';
     let playerOneJoin = false;
     let playerTwoJoin = false;
 
