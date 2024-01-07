@@ -1,3 +1,8 @@
+import { scratchSound, explodeSound } from './Sound.js';
+import { Player, Shot } from './Character.js';
+import { BackgroundStar } from './BackgroundStar.js';
+import io from 'socket.io-client';
+import p5 from 'p5';
 const socket = io();
 
 const backTitleMilliSec = 30000;
@@ -29,10 +34,7 @@ let isPlayerTwoJoin = false;
 
 let barOffset;
 let barWidth;
-let topEdge = 0;
 let centerY = 0;
-let bottomEdge = 0;
-let gameHeight = 0;
 
 let playerOneCodeStack = [];
 let playerTwoCodeStack = [];
@@ -52,46 +54,6 @@ const conditionDict = {
   'ちがうたかさ': { 'code': 'playerOne.y !== playerTwo.y', 'codeType': 'condition' },
 };
 
-//Init Sounds
-let explodeSound = new Sound();
-explodeSound.load('../sound/explode.mp3', (error) => {
-    if (error != null) {
-        alert('ファイルの読み込みエラーです．');
-        return;
-    }
-});
-
-let shotSound = new Sound();
-shotSound.load('../sound/shot.mp3', (error) => {
-    if (error != null) {
-        alert('ファイルの読み込みエラーです．');
-        return;
-    }
-});
-
-let chargeSound = new Sound();
-chargeSound.load('../sound/charge.mp3', (error) => {
-    if (error != null) {
-        alert('ファイルの読み込みエラーです．');
-        return;
-    }
-});
-
-let hitSound = new Sound();
-hitSound.load('../sound/hit.mp3', (error) => {
-    if (error != null) {
-        alert('ファイルの読み込みエラーです．');
-        return;
-    }
-});
-
-let scratchSound = new Sound();
-scratchSound.load('../sound/scratch_se.mp3', (error) => {
-    if (error != null) {
-        alert('ファイルの読み込みエラーです．');
-        return;
-    }
-});
 
 //Process related to Socket.io 
 socket.on('connection', () => {
@@ -153,238 +115,260 @@ socket.on('playerTwo', (msg) => {
   }
 });
 
+const sketch = (p) => {
+  p.preload = () => {
+    kaiso = p.loadFont('../font/kaiso_up/Kaisotai-Next-UP-B.otf');
+    hackgen = p.loadFont('../font/HackNerdFont-Regular.ttf');
+  }
 
-//p5.js Process
-function preload() {
-  kaiso = loadFont('../font/kaiso_up/Kaisotai-Next-UP-B.otf');
-  hackgen = loadFont('../font/HackNerdFont-Regular.ttf');
+  p.setup = () => {
+    let canvas = p.createCanvas(1920, 1080);
+    barOffset = p.width/24;
+    barWidth = p.width/24;
+    let topEdge = p.height / 3 - barOffset;
+    let bottomEdge = p.height * 2 / 3 + barOffset;
+    let gameHeight = bottomEdge - topEdge;
+    centerY = gameHeight/2 + topEdge;
+    Player.setEdge(topEdge, bottomEdge);
+    canvas.parent('canvas');
+    p.background('#3b4279');
+
+    initPlayers(p);
+
+    //Init Background Star
+    for (let i = 0; i < BACKGROUND_STAR_MAX_COUNT; i++) {
+        let size = p.random(1, BACKGROUND_STAR_MAX_SIZE);
+        let speed = p.random(1, BACKGROUND_STAR_MAX_SPEED);
+        backgroundStarArray[i] = new BackgroundStar(size, speed, p);
+        let x = p.random(p.width);
+        let y = p.random(p.height);
+        backgroundStarArray[i].set(x, y);
+    }
+  };
+
+  p.draw = () => {
+    p.background('#3b4279');
+
+    //Update Characters
+    p.textFont('Georgia');
+    playerOne.update();
+    playerTwo.update();
+    playerOneShotArray.map(v => v.update());
+    playerTwoShotArray.map(v => v.update());
+
+    p.textFont(kaiso);
+    p.textAlign(p.CENTER);
+    //Judge game over
+    if (playerOne.life === 0 || playerTwo.life === 0) {
+      if (!isGameover) {
+        socket.emit('gameOver', 'gameOver');
+        explodeSound.play();
+        isGameover = true;
+        isGameRunning = false;
+        p.textSize(72);
+      }
+
+      if (playerOne.life === 0 && playerTwo.life === 0) {
+        p.fill(255);
+        p.text('Draw!', p.width / 2, p.height / 2);
+        playerOne.explode();
+        playerTwo.explode();
+      } else if (playerOne.life === 0) {
+        p.fill(playerTwo.col);
+        p.text('Player2 Win!', p.width / 2, p.height / 2);
+        playerOne.explode();
+      } else {
+        p.fill(playerOne.col);
+        p.text('Player1 Win!', p.width / 2, p.height /2);
+        playerTwo.explode();
+      }
+      p.fill(255);
+      p.text(reloadTimerCount, p.width / 2, p.height /2 + 78);
+    }
+    
+    if (3 < roundCount && !isGameover) {
+        socket.emit('gameOver', 'gameOver');
+        explodeSound.play();
+        isGameover = true;
+        isGameRunning = false;
+        p.textSize(72);
+    }
+
+    if (isGameover) {
+      if (playerOne.life === playerTwo.life || playerOne.life === 0 && playerTwo.life === 0) {
+          p.fill(255);
+          p.text('Draw!', p.width / 2, height / 2);
+          playerOne.explode();
+          playerTwo.explode();
+      } else if (playerOne.life === 0 || playerOne.life < playerTwo.life) {
+          p.fill(playerTwo.col);
+          p.text('Player2 Win!', p.width / 2, p.height / 2);
+          playerOne.explode();
+      } else if (playerTwo.life === 0 || playerOne.life > playerTwo.life) {
+          p.fill(playerOne.col);
+          p.text('Player1 Win!', p.width / 2, p.height /2);
+          playerTwo.explode();
+      }
+    }
+
+    p.textAlign(p.LEFT);
+
+    //Draw Stars
+    backgroundStarArray.map((v) => v.update());
+
+    //Draw Parameters
+    //Player1 HP
+    p.textSize(64);
+    p.stroke('white');
+    p.fill('dimgray')
+    p.rect(barOffset, barOffset, 100 * (p.width / 260), barWidth);
+    p.fill(playerOne.col);
+    p.rect(barOffset, barOffset, playerOne.life * (p.width / 260), barWidth);
+    p.textAlign(p.CENTER);
+    p.text(playerOne.life, barOffset, barOffset, 100 * (p.width / 260));
+
+    //Player2 HP
+    p.stroke('white');
+    p.fill('dimgray')
+    p.rect(p.width - barOffset, barOffset, -100 * (p.width / 260), barWidth);
+    p.fill(playerTwo.col);
+    p.rect(p.width - barOffset, barOffset, -playerTwo.life * (p.width / 260), barWidth);
+    p.text(playerTwo.life, p.width - barOffset, barOffset, -100 * (p.width / 260));
+
+    //Round
+    p.stroke('mediumpurple');
+    p.strokeWeight(3);
+    p.fill('black')
+    p.textSize(48);
+    p.textAlign(p.CENTER);
+    p.text(`Round ${roundCount}`, p.width/2, barOffset*3/4);
+
+    p.strokeWeight(1);
+    p.stroke('white');
+    p.fill('black');
+    const offX = barOffset;
+    const offY = barOffset*2;
+    p.quad(p.width/2 - offX, offY/2, p.width/2 - offX/2, offY, p.width/2 + offX/2, offY, p.width/2 + offX, offY/2);
+
+    p.fill('white');
+    p.textSize(42);
+    p.text(exeCount, p.width/2, barOffset + offY/3);
+
+
+    //Draw Area
+    p.noFill();
+    const areaS = 180;
+    p.stroke(playerOne.col);
+    p.strokeWeight(4);
+    p.rect(barOffset*3 - areaS/2, Player.TOP_EDGE - areaS/2, areaS, areaS);
+    p.rect(barOffset*3 - areaS/2, centerY - areaS/2, areaS, areaS);
+    p.rect(barOffset*3 - areaS/2, Player.BOTTOM_EDGE - areaS/2, areaS, areaS);
+
+    p.stroke(playerTwo.col);
+    p.rect(p.width-barOffset*3 - areaS/2, Player.TOP_EDGE - areaS/2, areaS, areaS);
+    p.rect(p.width-barOffset*3 - areaS/2, centerY - areaS/2, areaS, areaS);
+    p.rect(p.width-barOffset*3 - areaS/2, Player.BOTTOM_EDGE - areaS/2, areaS, areaS);
+    p.fill(255);
+    p.strokeWeight(1);
+
+    //Draw Characters
+    p.textFont('Georgia');
+    p.textAlign(p.LEFT);
+    playerOne.display();
+    playerTwo.display();
+
+    if (!isGameRunning && !isGameover) {
+      p.textFont(kaiso);
+      p.textSize(64);
+      p.textAlign(p.CENTER);
+      p.stroke('white')
+      if (isPlayerOneReady) {
+        p.fill(playerOne.col);
+        p.text('Player1 Ready', p.width/4 -40, p.height/2);
+      }
+      if (isPlayerTwoReady) {
+        p.fill(playerTwo.col);
+        p.text('Player2 Ready', p.width*3/4 - 40, p.height/2);
+      }
+      p.textAlign(p.LEFT);
+    }
+
+    //Draw Code
+    p.fill(255, 70);
+    p.stroke(255);
+    const codeTextSize = 32;
+    if (isGameRunning) {
+      p.textFont(hackgen);
+      p.textSize(codeTextSize);
+      if (playerOneCode.length !== 0) {
+        playerOneCode.forEach(({ codeText }, i) => {
+          ((i+1) % playerOneCode.length) == playerOneExeIndex ? p.fill(playerOne.col) : p.fill(255, 70);
+          const codeLineText = `${i+1} ${codeText}`;
+          p.text(codeLineText, barOffset, Player.TOP_EDGE + i * codeTextSize);
+        });
+      }
+
+      if (playerTwoCode.length !== 0) {
+        playerTwoCode.forEach(({ codeText }, i) => {
+          ((i+1) % playerTwoCode.length) == playerTwoExeIndex ? p.fill(playerTwo.col) : p.fill(255, 70);
+          const codeLineText = `${i+1} ${codeText}`;
+          p.text(codeLineText, p.width/2 + barOffset * 2, Player.TOP_EDGE + i * codeTextSize);
+        });
+      }
+    }
+    p.fill(255, 255);
+  };
+
+  p.keyPressed = (e) => {
+    e.preventDefault();
+    if (p.keyCode === 87) {
+      playerOne.moveUp();
+    } else if (p.keyCode === 83) {
+      playerOne.moveDown();
+      playerOne.charge();
+    } else if (p.keyCode === 32) {
+      playerOne.shot();
+    } 
+
+    if (p.keyCode === p.UP_ARROW) {
+      playerTwo.moveUp();
+    } else if (p.keyCode === p.DOWN_ARROW) {
+      playerTwo.moveDown();
+      playerTwo.charge();
+    } else if (p.keyCode === p.RETURN) {
+      //playerTwo.shot();
+      testCode();
+    }
+  };
 }
 
-function initPlayers() {
+new p5(sketch);
 
-  playerOne = new Player("🚀", barOffset*3, centerY, 40, 40, 'red');
-  playerOne.setVectorFromAngle(HALF_PI);
+
+function initPlayers(p) {
+  playerOne = new Player("🚀", barOffset*3, centerY, 40, 40, 'red', p);
+  playerOne.setVectorFromAngle(p.HALF_PI);
   playerOne.setTarget(playerTwo);
 
-  playerTwo = new Player("👾", width-barOffset*3, centerY, 40, 40, 'blue');
-  playerTwo.setVectorFromAngle(-HALF_PI);
+  playerTwo = new Player("👾", p.width-barOffset*3, centerY, 40, 40, 'blue', p);
+  playerTwo.setVectorFromAngle(-p.HALF_PI);
   playerTwo.setTarget(playerOne);
 
   for (let i = 0; i < SHOT_MAX_COUNT; i++) {
-    playerOneShotArray[i] = new Shot(-100, -100, 32, 32);
+    playerOneShotArray[i] = new Shot(-100, -100, 32, 32, p);
     playerOneShotArray[i].setTarget(playerTwo);
     playerOneShotArray[i].setOwner(playerOne);
-    playerOneShotArray[i].setVectorFromAngle(HALF_PI);
+    playerOneShotArray[i].setVectorFromAngle(p.HALF_PI);
     playerOneShotArray[i].setPower(playerOne.power);
 
-    playerTwoShotArray[i] = new Shot(0, 0, 32, 32);
+    playerTwoShotArray[i] = new Shot(0, 0, 32, 32, p);
     playerTwoShotArray[i].setTarget(playerOne);
     playerOneShotArray[i].setOwner(playerTwo);
-    playerTwoShotArray[i].setVectorFromAngle(-HALF_PI);
+    playerTwoShotArray[i].setVectorFromAngle(-p.HALF_PI);
     playerTwoShotArray[i].setPower(playerTwo.power);
   }
   playerOne.setShotArray(playerOneShotArray);
   playerTwo.setShotArray(playerTwoShotArray);
-}
-
-function setup() {
-  let canvas = createCanvas(1920, 1080, P2D);
-  //let canvas = createCanvas(1440, 900, P2D);
-  //let canvas = createCanvas(1920, 1200, P2D);
-  barOffset = width/24;
-  barWidth = width/24;
-  topEdge = height / 3 - barOffset;
-  bottomEdge = height * 2 / 3 + barOffset;
-  gameHeight = bottomEdge - topEdge;
-  centerY = gameHeight/2 + topEdge;
-  canvas.parent('canvas');
-  background('#3b4279');
-
-  //Init Players
-  initPlayers();
-
-  //Init Background Star
-  for (let i = 0; i < BACKGROUND_STAR_MAX_COUNT; i++) {
-      let size = random(1, BACKGROUND_STAR_MAX_SIZE);
-      let speed = random(1, BACKGROUND_STAR_MAX_SPEED);
-      backgroundStarArray[i] = new BackgroundStar(size, speed);
-      let x = random(width);
-      let y = random(height);
-      backgroundStarArray[i].set(x, y);
-  }
-}
-
-function draw() {
-  background('#3b4279');
-
-  //Update Characters
-  textFont('Georgia');
-  playerOne.update();
-  playerTwo.update();
-  playerOneShotArray.map(v => v.update());
-  playerTwoShotArray.map(v => v.update());
-
-  textFont(kaiso);
-  textAlign(CENTER);
-  //Judge game over
-  if (playerOne.life === 0 || playerTwo.life === 0) {
-    if (!isGameover) {
-      socket.emit('gameOver', 'gameOver');
-      explodeSound.play();
-      isGameover = true;
-      isGameRunning = false;
-      textSize(72);
-    }
-
-    if (playerOne.life === 0 && playerTwo.life === 0) {
-      fill(255);
-      text('Draw!', width / 2, height / 2);
-      playerOne.explode();
-      playerTwo.explode();
-    } else if (playerOne.life === 0) {
-      fill(playerTwo.col);
-      text('Player2 Win!', width / 2, height / 2);
-      playerOne.explode();
-    } else {
-      fill(playerOne.col);
-      text('Player1 Win!', width / 2, height /2);
-      playerTwo.explode();
-    }
-    fill(255);
-    text(reloadTimerCount, width / 2, height /2 + 78);
-  }
-  
-  if (3 < roundCount && !isGameover) {
-      socket.emit('gameOver', 'gameOver');
-      explodeSound.play();
-      isGameover = true;
-      isGameRunning = false;
-      textSize(72);
-  }
-
-  if (isGameover) {
-    if (playerOne.life === playerTwo.life || playerOne.life === 0 && playerTwo.life === 0) {
-        fill(255);
-        text('Draw!', width / 2, height / 2);
-        playerOne.explode();
-        playerTwo.explode();
-    } else if (playerOne.life === 0 || playerOne.life < playerTwo.life) {
-        fill(playerTwo.col);
-        text('Player2 Win!', width / 2, height / 2);
-        playerOne.explode();
-    } else if (playerTwo.life === 0 || playerOne.life > playerTwo.life) {
-        fill(playerOne.col);
-        text('Player1 Win!', width / 2, height /2);
-        playerTwo.explode();
-    }
-  }
-
-  textAlign(LEFT);
-
-  //Draw Stars
-  backgroundStarArray.map((v) => v.update());
-
-  //Draw Parameters
-  //Player1 HP
-  textSize(64);
-  stroke('white');
-  fill('dimgray')
-  rect(barOffset, barOffset, 100 * (width / 260), barWidth);
-  fill(playerOne.col);
-  rect(barOffset, barOffset, playerOne.life * (width / 260), barWidth);
-  textAlign(CENTER);
-  text(playerOne.life, barOffset, barOffset, 100 * (width / 260));
-
-  //Player2 HP
-  stroke('white');
-  fill('dimgray')
-  rect(width - barOffset, barOffset, -100 * (width / 260), barWidth);
-  fill(playerTwo.col);
-  rect(width - barOffset, barOffset, -playerTwo.life * (width / 260), barWidth);
-  text(playerTwo.life, width - barOffset, barOffset, -100 * (width / 260));
-
-  //Round
-  stroke('mediumpurple');
-  strokeWeight(3);
-  fill('black')
-  textSize(48);
-  textAlign(CENTER);
-  text(`Round ${roundCount}`, width/2, barOffset*3/4);
-
-  strokeWeight(1);
-  stroke('white');
-  fill('black');
-  const offX = barOffset;
-  const offY = barOffset*2;
-  quad(width/2 - offX, offY/2, width/2 - offX/2, offY, width/2 + offX/2, offY, width/2 + offX, offY/2);
-
-  fill('white');
-  textSize(42);
-  text(exeCount, width/2, barOffset + offY/3);
-
-
-  //Draw Area
-  noFill();
-  const areaS = 180;
-  stroke(playerOne.col);
-  strokeWeight(4);
-  rect(barOffset*3 - areaS/2, topEdge - areaS/2, areaS, areaS);
-  rect(barOffset*3 - areaS/2, centerY - areaS/2, areaS, areaS);
-  rect(barOffset*3 - areaS/2, bottomEdge - areaS/2, areaS, areaS);
-
-  stroke(playerTwo.col);
-  rect(width-barOffset*3 - areaS/2, topEdge - areaS/2, areaS, areaS);
-  rect(width-barOffset*3 - areaS/2, centerY - areaS/2, areaS, areaS);
-  rect(width-barOffset*3 - areaS/2, bottomEdge - areaS/2, areaS, areaS);
-  fill(255);
-  strokeWeight(1);
-
-  //Draw Characters
-  textFont('Georgia');
-  textAlign(LEFT);
-  playerOne.display();
-  playerTwo.display();
-
-  if (!isGameRunning && !isGameover) {
-    textFont(kaiso);
-    textSize(64);
-    textAlign(CENTER);
-    stroke('white')
-    if (isPlayerOneReady) {
-      fill(playerOne.col);
-      text('Player1 Ready', width/4 -40, height/2);
-    }
-    if (isPlayerTwoReady) {
-      fill(playerTwo.col);
-      text('Player2 Ready', width*3/4 - 40, height/2);
-    }
-    textAlign(LEFT);
-  }
-
-  //Draw Code
-  fill(255, 70);
-  stroke(255);
-  const codeTextSize = 32;
-  if (isGameRunning) {
-    textFont(hackgen);
-    textSize(codeTextSize);
-    if (playerOneCode.length !== 0) {
-      playerOneCode.forEach(({ codeText }, i) => {
-        ((i+1) % playerOneCode.length) == playerOneExeIndex ? fill(playerOne.col) : fill(255, 70);
-        const codeLineText = `${i+1} ${codeText}`;
-        text(codeLineText, barOffset, topEdge + i * codeTextSize);
-      });
-    }
-
-    if (playerTwoCode.length !== 0) {
-      playerTwoCode.forEach(({ codeText }, i) => {
-        ((i+1) % playerTwoCode.length) == playerTwoExeIndex ? fill(playerTwo.col) : fill(255, 70);
-        const codeLineText = `${i+1} ${codeText}`;
-        text(codeLineText, width/2 + barOffset * 2, topEdge + i * codeTextSize);
-      });
-    }
-  }
-  fill(255, 255);
 }
 
 function convertIf(ifStatement) {
@@ -472,8 +456,8 @@ setInterval(() => {
     try {
       p1ExeCode = calcExeCode(playerOneCode, playerOneExeIndex);
       playerOneExeIndex = (p1ExeCode.codeIndex + p1ExeCode.inc) % playerOneCode.length;
-    } catch (e) {
-      console.log(e);
+    } catch (err) {
+      console.log(err);
     }
   }
 
@@ -481,21 +465,21 @@ setInterval(() => {
     try {
       p2ExeCode = calcExeCode(playerTwoCode, playerTwoExeIndex);
       playerTwoExeIndex = (p2ExeCode.codeIndex + p2ExeCode.inc) % playerTwoCode.length;
-    } catch (e) {
-      console.log(e);
+    } catch (err) {
+      console.log(err);
     }
   }
 
   try {
     eval(p1ExeCode.targetCodeText);
-  } catch (e) {
-    console.log(e);
+  } catch (err) {
+    console.log(err);
   }
 
   try {
     eval(p2ExeCode.targetCodeText);
-  } catch (e) {
-    console.log(e);
+  } catch (err) {
+    console.log(err);
   }
 
   exeCount--;
