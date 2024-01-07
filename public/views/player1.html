@@ -7,45 +7,7 @@
     <link href="output.css" rel="stylesheet">
     <link rel="icon" href="/image/favicon.ico" type="image/x-icon">
   </head>
-  <body class="">
+  <body>
   </body>
-  <script src="/socket.io/socket.io.js"></script>
-  <script>
-    const canvasWidth = 1980;
-    const canvasHeight = 1080;
-    const playerColor = 'brown';
-    const socket = io();
-    socket.on('connection', () => {
-      console.log('connected to server: player1');
-    });
-    sendMessage('join');
-
-
-    socket.on('gameOver', (msg) => {
-      if (window.confirm('リトライしますか？')) {
-        sendMessage('p1_retry');
-        window.location.reload();
-      } 
-      else {
-        sendMessage('cancel');
-        window.location.href = '/p1_title';
-      }
-    });
-
-    socket.on('cancel', (msg) => {
-        window.location.href = '/p1_title';
-    });
-
-    function sendMessage(message) {
-      socket.emit('playerOne', message);
-    }
-
-    function returnToTitle() {
-      if (window.confirm('ゲームをやめてタイトルにもどります．\nよろしいですか？')) {
-        sendMessage('cancel');
-        window.location.href = '/p1_title';
-      }
-    }
-  </script>
-  <script src="/dist/interface.bundle.js"></script>
+  <script src="/dist/player1.bundle.js"></script>
 </html>

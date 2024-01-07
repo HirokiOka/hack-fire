@@ -6,7 +6,8 @@ module.exports = {
   // 複数のエントリーポイントを設定
   entry: {
     game: './public/src/game.js',
-    interface: './public/src/inputInterface.js'
+    player1: './public/src/player1.js',
+    player2: './public/src/player2.js'
   },
 
   // [name]を使って出力ファイル名を動的に設定

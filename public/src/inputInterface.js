@@ -1,5 +1,4 @@
 import io from 'socket.io-client';
-import p5 from 'p5';
 const socket = io();
 
 const TIME_LIMIT = 60; 
@@ -9,25 +8,73 @@ const textYOffset = 3;
 const programFontSize = 20;
 let isSubmitted = false;
 let isCodingMode = false;
-let codeStack = [];
 let showProgram = false;
 let insertMode = 'normal';
+let codeStack = [];
 let textMessage = '';
 let buttons = [];
 let kaiso;
 let timerCount = 0; 
 const textDict = {
-  'こうげき': { code: 'shot();', codeType: 'action', viewText: 'こうげき', position: [20, 60] },
-  'ためる': { code: 'charge();', codeType: 'action', viewText: 'ためる', position: [120, 60] },
-  'うえにうごく': { code: 'moveUp();', codeType: 'action', viewText: 'うえにうごく', position: [20, 120] },
-  'したにうごく': { code: 'moveDown();', codeType: 'action', viewText: 'したにうごく', position: [160, 120] },
-  'もし  -  なら': { code: 'if () {', codeType: 'if-start', viewText: 'もし  -  なら',  position: [20, 180] },
-  'もし  -  おわり': { code: '}', codeType: 'if-end', viewText: 'もし  -  おわり', position: [20, 240] },
-  'おなじたかさ': { code: 'playerOne.y === playerTwo.y', codeType: 'condition', viewText: 'おなじたかさ', position: [20, 300] },
-  'ちがうたかさ': { code: 'playerOne.y !== playerTwo.y', codeType: 'condition', viewText: 'ちがうたかさ', position: [160, 300] }
+  'こうげき': { 
+    code: 'shot();', codeType: 'action',
+    viewText: 'こうげき', position: [20, 60]
+  },
+  'ためる': { 
+    code: 'charge();', codeType: 'action',
+    viewText: 'ためる', position: [120, 60] 
+  },
+  'うえにうごく': {
+    code: 'moveUp();', codeType: 'action',
+    viewText: 'うえにうごく', position: [20, 120]
+  },
+  'したにうごく': {
+    code: 'moveDown();', codeType: 'action',
+    viewText: 'したにうごく', position: [160, 120]
+  },
+  'もし  -  なら': {
+    code: 'if () {', codeType: 'if-start',
+    viewText: 'もし  -  なら',  position: [20, 180]
+  },
+  'もし  -  おわり': {
+    code: '}', codeType: 'if-end',
+    viewText: 'もし  -  おわり', position: [20, 240]
+  },
+  'おなじたかさ': {
+    code: 'playerOne.y === playerTwo.y', codeType: 'condition',
+    viewText: 'おなじたかさ', position: [20, 300] 
+  },
+  'ちがうたかさ': {
+    code: 'playerOne.y !== playerTwo.y', codeType: 'condition',
+    viewText: 'ちがうたかさ', position: [160, 300]
+  }
 };
 
-const sketch = (p) => {
+const sketch = (p, playerNum) => {
+
+  const initMetaData = (playerNum) => {
+    if (playerNum === 1) {
+      return {
+        color: 'brown',
+        returnUrl: '/p1_title',
+        playerId: 'playerOne',
+        retryEventName: 'p1_retry',
+      };
+    } else {
+      return {
+        color: '#3b4279',
+        returnUrl: '/p2_title',
+        playerId: 'playerTwo',
+        retryEventName: 'p2_retry',
+      };
+    }
+  };
+  const metaData = initMetaData(playerNum);
+
+  function sendMessage(message) {
+    socket.emit(metaData.playerId, message);
+  }
+
   p.preload = () => {
     kaiso = p.loadFont('../font/kaiso_up/Kaisotai-Next-UP-B.otf');
   };
@@ -64,11 +111,9 @@ const sketch = (p) => {
   };
 
   p.draw = () => {
-    p.background(playerColor);
+    p.background(metaData.color);
     drawUI(p);
     drawProgram(p);
-
-    //draw Message
     //drawMessage();
     if (textMessage !== '') {
       p.strokeWeight(2);
@@ -82,15 +127,79 @@ const sketch = (p) => {
       const y = p.height/2 - rectHeight/2 - 60;
       p.rect(x, y, rectWidth, rectHeight);
       p.fill('white');
-      //textAlign(p.CENTER);
       p.text(textMessage, p.width/2 - rectWidth/2, p.height/2-rectHeight/2-50);
       p.textAlign(p.LEFT);
     }
     p.textFont(kaiso);
   };
+
+  p.windowResized = () => {
+    p.resizeCanvas(p.windowWidth, p.windowHeight);
+  };
+
+  socket.on('gameStart', (_) => {
+    textMessage = 'プログラムじっこうちゅう！\nまんなかのがめんをみてね！';
+  });
+
+  socket.on('coding', (msg) => {
+    console.log(msg);
+    textMessage = '';
+    isCodingMode = true;
+    isSubmitted = false;
+    timerCount = 0;
+  });
+
+  socket.on('connection', () => {
+    console.log('connected to server: player1');
+    sendMessage(metaData.playerId,'join');
+  });
+
+  socket.on('gameOver', (_) => {
+    if (window.confirm('リトライしますか？')) {
+      sendMessage(metaData.retryEventName);
+      window.location.reload();
+    } else {
+      sendMessage('cancel');
+      window.location.href = metaData.returnUrl;
+    }
+  });
+
+  socket.on('cancel', (_) => {
+      window.location.href = metaData.returnUrl;
+  });
+
+  function submitCode() {
+    if (timerCount >= TIME_LIMIT) {
+      isSubmitted = true;
+      isCodingMode = false;
+      sendMessage('submit');
+      sendMessage([]);
+      return;
+    } else if (codeStack.length === 0) {
+      alert('プログラムがありません');
+      return;
+    } else if (calcIndentNum(codeStack) > 0) {
+      alert('[もし - おわり] がたりません');
+      return;
+    } else if (codeStack.map(v => v.codeType).findIndex(e => e === 'action') === -1) {
+      alert('キャラクターのうごきが入力されていません');
+      return;
+    }
+    isSubmitted = true;
+    isCodingMode = false;
+    sendMessage('submit');
+    sendMessage(codeStack);
+    textMessage = 'じゅんびOK！\nあいてをまっています.';
+  }
+
+  function returnToTitle(href) {
+    if (window.confirm('ゲームをやめてタイトルにもどります．\nよろしいですか？')) {
+      sendMessage('cancel');
+      window.location.href = href;
+    }
+  }
 }
 
-new p5(sketch);
 
 function drawMessage() {
   if (textMessage !== '') {
@@ -109,6 +218,7 @@ function drawMessage() {
     textAlign(p.LEFT);
   }
 }
+
 
 function initButtons(p) {
   for (const { code, codeType, viewText, position } of Object.values(textDict)) {
@@ -260,29 +370,6 @@ function handleIfEnd() {
   }
 }
 
-function submitCode() {
-  if (timerCount >= TIME_LIMIT) {
-    isSubmitted = true;
-    isCodingMode = false;
-    sendMessage('submit');
-    sendMessage([]);
-    return;
-  } else if (codeStack.length === 0) {
-    alert('プログラムがありません');
-    return;
-  } else if (calcIndentNum(codeStack) > 0) {
-    alert('[もし - おわり] がたりません');
-    return;
-  } else if (codeStack.map(v => v.codeType).findIndex(e => e === 'action') === -1) {
-    alert('キャラクターのうごきが入力されていません');
-    return;
-  }
-  isSubmitted = true;
-  isCodingMode = false;
-  sendMessage('submit');
-  sendMessage(codeStack);
-  textMessage = 'じゅんびOK！\nあいてをまっています.';
-}
 
 function deleteLine() {
   codeStack.pop();
@@ -295,28 +382,4 @@ function deleteAll() {
 }
 
 
-function windowResized() {
-  resizeCanvas(windowWidth, windowHeight);
-}
-
-socket.on('gameStart', (_) => {
-  textMessage = 'プログラムじっこうちゅう！\nまんなかのがめんをみてね！';
-});
-
-socket.on('coding', (msg) => {
-  console.log(msg);
-  textMessage = '';
-  isCodingMode = true;
-  isSubmitted = false;
-  timerCount = 0;
-});
-
-setInterval(() => {
-  if (!isCodingMode) return;
-  if (timerCount >= TIME_LIMIT) {
-    if (!isSubmitted) submitCode();
-    return;
-  }
-  timerCount++;
-}, 1000);
-
+export { sketch, isCodingMode, isSubmitted, codeStack, timerCount };

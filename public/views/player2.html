@@ -9,43 +9,5 @@
   </head>
   <body>
   </body>
-  <script src="/socket.io/socket.io.js"></script>
-  <script>
-    const canvasWidth = 2560;
-    const canvasHeight = 1600;
-    const playerColor = '#3b4279';
-    const socket = io();
-    socket.on('connection', () => {
-      console.log('connected to server: player2');
-    });
-    sendMessage('join');
-
-
-    socket.on('gameOver', (msg) => {
-      if (window.confirm('リトライしますか？')) {
-        sendMessage('p2_retry');
-        window.location.reload();
-      } 
-      else {
-        sendMessage('cancel');
-        window.location.href = '/p2_title';
-      }
-    });
-
-    socket.on('cancel', (msg) => {
-      window.location.href = '/p2_title';
-    });
-
-    function sendMessage(message) {
-      socket.emit('playerTwo', message);
-    }
-
-    function returnToTitle() {
-      if (window.confirm('ゲームをやめてタイトルにもどります．\nよろしいですか？')) {
-        sendMessage('cancel');
-        window.location.href = '/p2_title';
-      }
-    }
-  </script>
-  <script src="/dist/interface.bundle.js"></script>
+  <script src="/dist/player2.bundle.js"></script>
 </html>
