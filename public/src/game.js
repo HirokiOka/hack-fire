@@ -1,8 +1,8 @@
 import { scratchSound, explodeSound } from './Sound.js';
 import { Player, Shot } from './Character.js';
 import { BackgroundStar } from './BackgroundStar.js';
-import io from 'socket.io-client';
 import p5 from 'p5';
+import io from 'socket.io-client';
 const socket = io();
 
 const backTitleMilliSec = 30000;
