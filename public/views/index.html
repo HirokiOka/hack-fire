@@ -13,26 +13,5 @@
       <img src="/image/pink2.png" alt="SlashShot-logo" />
     </div>
   </body>
-  <script src="/socket.io/socket.io.js"></script>
-  <script type="module">
-    import io from 'socket.io-client';
-    let playerOneJoin = false;
-    let playerTwoJoin = false;
-
-    socket.on('connection', () => {
-      console.log('connected to server: title');
-    });
-
-    socket.on('playerOne', (msg) => {
-      playerOneJoin = true;
-      console.log('[p1]', msg);
-      if (playerOneJoin && playerTwoJoin) window.location.href = '/game';
-    });
-
-    socket.on('playerTwo', (msg) => {
-      playerTwoJoin = true;
-      console.log('[p2]', msg);
-      if (playerOneJoin && playerTwoJoin) window.location.href = '/game';
-    });
-  </script>
+  <script src="/dist/index.bundle.js"></script>
 </html>

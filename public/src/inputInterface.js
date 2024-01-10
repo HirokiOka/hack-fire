@@ -75,6 +75,11 @@ const sketch = (p, playerNum) => {
     socket.emit(metaData.playerId, message);
   }
 
+  sendMessage('join');
+  socket.on('connection', () => {
+    console.log(`connected to server: ${metaData.playerId}`);
+  });
+
   p.preload = () => {
     kaiso = p.loadFont('../font/kaiso_up/Kaisotai-Next-UP-B.otf');
   };
@@ -149,10 +154,6 @@ const sketch = (p, playerNum) => {
     timerCount = 0;
   });
 
-  socket.on('connection', () => {
-    console.log('connected to server: player1');
-    sendMessage(metaData.playerId,'join');
-  });
 
   socket.on('gameOver', (_) => {
     if (window.confirm('リトライしますか？')) {
@@ -192,10 +193,11 @@ const sketch = (p, playerNum) => {
     textMessage = 'じゅんびOK！\nあいてをまっています.';
   }
 
-  function returnToTitle(href) {
+  function returnToTitle() {
     if (window.confirm('ゲームをやめてタイトルにもどります．\nよろしいですか？')) {
       sendMessage('cancel');
-      window.location.href = href;
+      window.location.href = metaData.returnUrl;
+      console.log(metaData.returnUrl);
     }
   }
 }
