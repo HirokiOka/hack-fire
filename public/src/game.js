@@ -197,7 +197,7 @@ const sketch = (p) => {
     if (isGameover) {
       if (playerOne.life === playerTwo.life || playerOne.life === 0 && playerTwo.life === 0) {
           p.fill(255);
-          p.text('Draw!', p.width / 2, height / 2);
+          p.text('Draw!', p.width / 2, p.height / 2);
           playerOne.explode();
           playerTwo.explode();
       } else if (playerOne.life === 0 || playerOne.life < playerTwo.life) {
