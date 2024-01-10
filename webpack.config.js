@@ -6,6 +6,7 @@ module.exports = {
   // 複数のエントリーポイントを設定
   entry: {
     game: './public/src/game.js',
+    index: './public/src/index.js',
     player1: './public/src/player1.js',
     p1Desc: './public/src/p1Desc.js',
     player2: './public/src/player2.js',
