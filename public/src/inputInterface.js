@@ -192,10 +192,11 @@ const sketch = (p, playerNum) => {
     textMessage = 'じゅんびOK！\nあいてをまっています.';
   }
 
-  function returnToTitle(href) {
+  function returnToTitle() {
     if (window.confirm('ゲームをやめてタイトルにもどります．\nよろしいですか？')) {
       sendMessage('cancel');
-      window.location.href = href;
+      window.location.href = metaData.returnUrl;
+      console.log(metaData.returnUrl);
     }
   }
 }
