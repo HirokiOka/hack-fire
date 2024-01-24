@@ -51,7 +51,6 @@ const textDict = {
 };
 
 const sketch = (p, playerNum) => {
-
   const initMetaData = (playerNum) => {
     if (playerNum === 1) {
       return {
@@ -197,7 +196,6 @@ const sketch = (p, playerNum) => {
     if (window.confirm('ゲームをやめてタイトルにもどります．\nよろしいですか？')) {
       sendMessage('cancel');
       window.location.href = metaData.returnUrl;
-      console.log(metaData.returnUrl);
     }
   }
 }
