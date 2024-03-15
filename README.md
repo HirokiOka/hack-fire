@@ -1,4 +1,4 @@
-#SlashShot
+#　SlashShot
 
 - /Shot (SlashShot) は，プログラミング未経験者でもプログラミングを見て遊んで楽しめる対戦型プログラミングゲームです．
 
