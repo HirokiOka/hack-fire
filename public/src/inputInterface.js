@@ -7,6 +7,40 @@ const textXOffset = 10;
 const textYOffset = 3;
 const programFontSize = 20;
 const fontPath = '../font/kaiso_up/Kaisotai-Next-UP-B.otf';
+const textDict = {
+  'こうげき': { 
+    code: 'shot();', codeType: 'action',
+    viewText: 'こうげき', position: [20, 100]
+  },
+  'ためる': { 
+    code: 'charge();', codeType: 'action',
+    viewText: 'ためる', position: [120, 100] 
+  },
+  'うえにうごく': {
+    code: 'moveUp();', codeType: 'action',
+    viewText: 'うえにうごく', position: [20, 160]
+  },
+  'したにうごく': {
+    code: 'moveDown();', codeType: 'action',
+    viewText: 'したにうごく', position: [160, 160]
+  },
+  'もし  -  なら': {
+    code: 'if () {', codeType: 'if-start',
+    viewText: 'もし  -  なら',  position: [20, 280]
+  },
+  'もし  -  おわり': {
+    code: '}', codeType: 'if-end',
+    viewText: 'もし  -  おわり', position: [20, 340]
+  },
+  'おなじたかさ': {
+    code: 'playerOne.y === playerTwo.y', codeType: 'condition',
+    viewText: 'おなじたかさ', position: [20, 460] 
+  },
+  'ちがうたかさ': {
+    code: 'playerOne.y !== playerTwo.y', codeType: 'condition',
+    viewText: 'ちがうたかさ', position: [160, 460]
+  }
+};
 let isSubmitted = false;
 let isCodingMode = false;
 let showProgram = false;
@@ -16,40 +50,6 @@ let textMessage = '';
 let buttons = [];
 let kaiso;
 let timerCount = 0; 
-const textDict = {
-  'こうげき': { 
-    code: 'shot();', codeType: 'action',
-    viewText: 'こうげき', position: [20, 60]
-  },
-  'ためる': { 
-    code: 'charge();', codeType: 'action',
-    viewText: 'ためる', position: [120, 60] 
-  },
-  'うえにうごく': {
-    code: 'moveUp();', codeType: 'action',
-    viewText: 'うえにうごく', position: [20, 120]
-  },
-  'したにうごく': {
-    code: 'moveDown();', codeType: 'action',
-    viewText: 'したにうごく', position: [160, 120]
-  },
-  'もし  -  なら': {
-    code: 'if () {', codeType: 'if-start',
-    viewText: 'もし  -  なら',  position: [20, 180]
-  },
-  'もし  -  おわり': {
-    code: '}', codeType: 'if-end',
-    viewText: 'もし  -  おわり', position: [20, 240]
-  },
-  'おなじたかさ': {
-    code: 'playerOne.y === playerTwo.y', codeType: 'condition',
-    viewText: 'おなじたかさ', position: [20, 300] 
-  },
-  'ちがうたかさ': {
-    code: 'playerOne.y !== playerTwo.y', codeType: 'condition',
-    viewText: 'ちがうたかさ', position: [160, 300]
-  }
-};
 
 const sketch = (p, playerNum) => {
   const initMetaData = (playerNum) => {
@@ -139,7 +139,6 @@ const sketch = (p, playerNum) => {
     timerCount = 0;
   });
 
-
   socket.on('gameOver', (_) => {
     if (window.confirm('リトライしますか？')) {
       sendMessage(metaData.retryEventName);
@@ -187,25 +186,6 @@ const sketch = (p, playerNum) => {
 }
 
 
-function drawMessage(p) {
-  if (textMessage !== '') {
-    strokeWeight(2);
-    stroke('white');
-    textSize(40);
-    textFont('Verdana');
-    fill('navy');
-    const rectWidth = 530;
-    const rectHeight = 110;
-    const x = p.width/2 - rectWidth/2;
-    const y = p.height/2 - rectHeight/2 - 60;
-    rect(x, y, rectWidth, rectHeight);
-    fill('white');
-    text(textMessage, p.width/2 - rectWidth/2, p.height/2-rectHeight/2-50);
-    textAlign(p.LEFT);
-  }
-}
-
-
 function initButtons(p) {
   for (const { code, codeType, viewText, position } of Object.values(textDict)) {
     const bgColor = getTypeColor(codeType);
@@ -217,13 +197,15 @@ function initButtons(p) {
 function createStyledButton(p, label, value, bgColor, x, y, mousePressedHandler) {
   const btn = p.createButton(label);
   btn.value(value)
-     .style('color', 'white')
-     .style('border-radius', '8px')
-     .style('background-color', bgColor)
-     .style('padding', '10px')
-     .style('font-family', kaiso)
-     .position(x, y)
-     .mousePressed(mousePressedHandler);
+    .style('color', 'white')
+    .style('border-radius', '8px')
+    .style('background-color', bgColor)
+    .style('padding', '10px')
+    .style('font-family', kaiso)
+    .style('font-weight', 'bold')
+    
+    .position(x, y)
+    .mousePressed(mousePressedHandler);
   return btn;
 }
 
@@ -247,20 +229,32 @@ function getButtonHandler(codeType) {
   }
 }
 
+//Functions in p.draw
 function drawUI(p) {
-  p.stroke(0);
+  p.stroke('black');
   //Center line
-  p.textSize(24);
+  p.textSize(32);
   p.noFill();
   p.strokeWeight(3);
   p.stroke('#d05af0');
+
+  //Code blocks
   p.rect(10, 40, p.width/2-20, p.height-60);
   p.fill('white');
   p.stroke('#d05af0');
   p.text("コードブロック", p.width/4 - 70, 10);
+  p.stroke('#6f9efd');
+  p.text("アクション", 20, 60);
+  p.stroke('#7122fa');
+  p.text("もしも", 20, 240);
+  p.stroke('#ffacfc');
+  p.text("こんなとき", 20, 420);
 
+
+
+  //Timer
   p.noStroke();
-  p.fill(0);
+  p.fill('black');
   p.rect(p.width/2 - 30, 0, 60, 34);
   p.fill('white');
   if (timerCount > 50) p.fill('red');
@@ -274,7 +268,7 @@ function drawUI(p) {
   p.rect(p.width/2+10, 40, p.width/2-20, p.height-60);
 
   p.fill('white');
-  p.text("プログラム", p.width*3/4 - 50, 10);
+  p.text("あなたのプログラム", p.width*3/4 - 80, 10);
   p.textSize(18);
   p.noStroke();
   p.strokeWeight(1);
@@ -295,11 +289,11 @@ function drawProgram(p) {
     const rectWidth = p.textWidth(viewCode) * 5 / 3;
 
     if (showProgram) {
-      p.fill(0);
+      p.fill('black');
     } else {
       p.fill(getTypeColor(codeType));
       p.rect(x, y, rectWidth, 24, 16);
-      p.fill(255);
+      p.fill('white');
     }
 
     const codeIndex = idx + 1;
@@ -311,11 +305,29 @@ function drawProgram(p) {
       if (1 < splittedCode[1].length) {
         p.fill(getTypeColor('condition'));
         p.rect(x + condOffsetX, y + 2, p.textWidth(splittedCode[1]) + 12, 20, 16);
-        p.fill(255);
+        p.fill('white');
         p.text(splittedCode[1], x + textXOffset + condOffsetX, y + textYOffset);
       }
     }
   });
+}
+
+function drawMessage(p) {
+  if (textMessage !== '') {
+    const rectWidth = 530;
+    const rectHeight = 110;
+    const x = p.width/2 - rectWidth/2;
+    const y = p.height/2 - rectHeight/2 - 60;
+    strokeWeight(2);
+    stroke('white');
+    textSize(40);
+    textFont('Verdana');
+    fill('navy');
+    rect(x, y, rectWidth, rectHeight);
+    fill('white');
+    text(textMessage, p.width/2 - rectWidth/2, p.height/2-rectHeight/2-50);
+    textAlign(p.LEFT);
+  }
 }
 
 function calcIndentNum(codeStackSlice) {
@@ -355,7 +367,6 @@ function handleIfEnd() {
     codeStack.push({ "codeType": this.value(), "codeText": this.html() });
   }
 }
-
 
 function deleteLine() {
   codeStack.pop();
