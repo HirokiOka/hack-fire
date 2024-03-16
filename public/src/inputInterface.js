@@ -6,6 +6,7 @@ const maxCodeStackLength = 15;
 const textXOffset = 10;
 const textYOffset = 3;
 const programFontSize = 20;
+const fontPath = '../font/kaiso_up/Kaisotai-Next-UP-B.otf';
 let isSubmitted = false;
 let isCodingMode = false;
 let showProgram = false;
@@ -80,7 +81,7 @@ const sketch = (p, playerNum) => {
   });
 
   p.preload = () => {
-    kaiso = p.loadFont('../font/kaiso_up/Kaisotai-Next-UP-B.otf');
+    kaiso = p.loadFont(fontPath);
   };
 
   p.setup = () => {
@@ -118,22 +119,7 @@ const sketch = (p, playerNum) => {
     p.background(metaData.color);
     drawUI(p);
     drawProgram(p);
-    //drawMessage();
-    if (textMessage !== '') {
-      p.strokeWeight(2);
-      p.stroke('white');
-      p.textSize(40);
-      p.textFont('Verdana');
-      p.fill('navy');
-      const rectWidth = 530;
-      const rectHeight = 110;
-      const x = p.width/2 - rectWidth/2;
-      const y = p.height/2 - rectHeight/2 - 60;
-      p.rect(x, y, rectWidth, rectHeight);
-      p.fill('white');
-      p.text(textMessage, p.width/2 - rectWidth/2, p.height/2-rectHeight/2-50);
-      p.textAlign(p.LEFT);
-    }
+    drawMessage(p);
     p.textFont(kaiso);
   };
 
@@ -201,7 +187,7 @@ const sketch = (p, playerNum) => {
 }
 
 
-function drawMessage() {
+function drawMessage(p) {
   if (textMessage !== '') {
     strokeWeight(2);
     stroke('white');
