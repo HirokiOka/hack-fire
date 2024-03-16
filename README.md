@@ -1,7 +1,7 @@
 # SlashShot
 
 - /Shot (SlashShot) は，プログラミング未経験者でもプログラミングを見て遊んで楽しめる対戦型プログラミングゲームです．
-
+![SlashShot](https://github.com/HirokiOka/slash-shot/blob/main/public/image/game.png)
 ## 使い方
 
 - 1対1でプログラミングで対戦するシューティングゲーム
