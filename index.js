@@ -1,109 +1,51 @@
 const express = require('express');
 const path = require('path');
-const app = express();
 const http = require('http');
 const socketIo = require('socket.io');
-const server = http.createServer(app);
-const PORT = process.env.PORT || 3000;
-const io = socketIo(server);
-/*
-const { Client } = require('pg');
 
-const client = new Client({
-  user: process.env.PGUSER,
-  host: process.env.PGHOST,
-  database: process.env.PGDATABASE,
-  password: process.env.PGPASSWORD,
-  port: process.env.PGPORT,
+const app = express();
+const server = http.createServer(app);
+const io = socketIo(server);
+const PORT = process.env.PORT || 3000;
+const publicPath = path.join(__dirname, 'public');
+const viewPath = path.join(publicPath, 'views');
+
+app.use(express.static(publicPath));
+
+
+//Routing
+const pages = ['/', '/game', '/description', '/mode_select', '/p1_title', '/p1_desc', '/player1', '/p2_title', '/p2_desc', '/player2'];
+
+pages.forEach((page) => {
+  app.get(page, (_, res) => {
+    res.sendFile(path.join(viewPath, page.endsWith('/') ? '/index.html' : page + '.html'));
+  });
 });
 
-client.connect().then(() => console.log('DB connected successfully'));
-*/
-
-app.use(express.static('public'));
+//socket
+function handlePlayerEvent(socket, player) {
+  socket.on(player, (data) => {
+    console.log(`[${player}]`, data);
+    io.emit(player, data);
+    if (['cancel', 'join'].includes(data)){
+      io.emit(data, data);
+    }
+  });
+}
 
 io.on('connection', (socket) => {
   console.log('client connected');
 
-  socket.on('playerOne', (data) => {
-    console.log('[p1]', data);
-    io.emit('playerOne', data);
-    if (data === 'cancel') io.emit('cancel', data);
-    if (data === 'join') io.emit('join', data);
+  handlePlayerEvent(socket, 'playerOne');
+  handlePlayerEvent(socket, 'playerTwo');
+
+  const events = ['gameStart', 'gameOver', 'coding'];
+  events.forEach((event) => {
+    socket.on(event, (data) => {
+      console.log(event);
+      io.emit(event, data);
+    });
   });
-
-  socket.on('playerTwo', (data) => {
-    console.log('[p2]', data);
-    io.emit('playerTwo', data);
-    if (data === 'cancel') io.emit('cancel', data);
-    if (data === 'join') io.emit('join', data);
-  });
-
-  socket.on('gameStart', (data) => {
-    console.log('gameStart');
-    io.emit('gameStart', data);
-  });
-
-  socket.on('gameOver', (data) => {
-    console.log('game over');
-    io.emit('gameOver', data);
-  });
-
-  socket.on('coding', (data) => {
-    console.log('coding');
-    setTimeout(() => {
-      io.emit('coding', data);
-    }, 1000);
-  });
-
 });
 
-
-//Game Display
-const viewPath = path.join(__dirname, '/public', '/views');
-app.get('/', (_, res) => {
-  res.sendFile(viewPath + '/index.html');
-});
-
-app.get('/game', (_, res) => {
-  res.sendFile(viewPath + '/game.html');
-});
-
-app.get('/description', (_, res) => {
-  res.sendFile(viewPath + '/description.html');
-});
-
-app.get('/mode_select', (_, res) => {
-  res.sendFile(viewPath + '/mode_select.html');
-});
-
-//Input Display
-//player1
-app.get('/p1_title', (_, res) => {
-  res.sendFile(viewPath + '/p1_title.html');
-});
-
-app.get('/p1_desc', (_, res) => {
-  res.sendFile(viewPath + '/p1_desc.html');
-});
-
-app.get('/player1', (_, res) => {
-  res.sendFile(viewPath + '/player1.html');
-});
-
-//player2
-app.get('/p2_title', (_, res) => {
-  res.sendFile(viewPath + '/p2_title.html');
-});
-
-app.get('/p2_desc', (_, res) => {
-  res.sendFile(viewPath + '/p2_desc.html');
-});
-
-app.get('/player2', (_, res) => {
-  res.sendFile(viewPath + '/player2.html');
-});
-
-server.listen(PORT, () => {
-  console.log(`listening on http://localhost:${PORT}`);
-});
+server.listen(PORT, () => console.log(`listening on http://localhost:${PORT}`));

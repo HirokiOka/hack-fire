@@ -1,5 +1,9 @@
 import io from 'socket.io-client';
-const socket = io();
+const socket = io({
+  reconnection: true,
+  reconnectionAttempts: 5,
+  reconnectionDelay: 2000,
+});
 
 const TIME_LIMIT = 60; 
 const maxCodeStackLength = 15;
@@ -72,11 +76,20 @@ const sketch = (p, playerNum) => {
   const metaData = initMetaData(playerNum);
 
   function sendMessage(message) {
-    socket.emit(metaData.playerId, message);
+    socket.emit(metaData.playerId, message, (res) => {
+      if (res.error) {
+        console.error(`Message sending failed: ${res.error}`);
+        return;
+      }
+    });
   }
 
   sendMessage('join');
-  socket.on('connection', () => {
+  socket.on('connection', (err) => {
+    if (err) {
+      console.error(err);
+      return;
+    }
     console.log(`connected to server: ${metaData.playerId}`);
   });
 
@@ -154,13 +167,7 @@ const sketch = (p, playerNum) => {
   });
 
   function submitCode() {
-    if (timerCount >= TIME_LIMIT) {
-      isSubmitted = true;
-      isCodingMode = false;
-      sendMessage('submit');
-      sendMessage([]);
-      return;
-    } else if (codeStack.length === 0) {
+    if (codeStack.length === 0) {
       alert('プログラムがありません');
       return;
     } else if (calcIndentNum(codeStack) > 0) {
@@ -172,9 +179,12 @@ const sketch = (p, playerNum) => {
     }
     isSubmitted = true;
     isCodingMode = false;
-    sendMessage('submit');
-    sendMessage(codeStack);
     textMessage = 'じゅんびOK！\nあいてをまっています.';
+    if (!isSubmitted && (timerCount >= TIME_LIMIT)) {
+      sendMessage([]);
+    } else {
+      sendMessage(codeStack);
+    }
   }
 
   function returnToTitle() {
@@ -250,8 +260,6 @@ function drawUI(p) {
   p.stroke('#ffacfc');
   p.text("こんなとき", 20, 420);
 
-
-
   //Timer
   p.noStroke();
   p.fill('black');
@@ -318,15 +326,15 @@ function drawMessage(p) {
     const rectHeight = 110;
     const x = p.width/2 - rectWidth/2;
     const y = p.height/2 - rectHeight/2 - 60;
-    strokeWeight(2);
-    stroke('white');
-    textSize(40);
-    textFont('Verdana');
-    fill('navy');
-    rect(x, y, rectWidth, rectHeight);
-    fill('white');
-    text(textMessage, p.width/2 - rectWidth/2, p.height/2-rectHeight/2-50);
-    textAlign(p.LEFT);
+    p.strokeWeight(2);
+    p.stroke('white');
+    p.textSize(40);
+    p.textFont('Verdana');
+    p.fill('navy');
+    p.rect(x, y, rectWidth, rectHeight);
+    p.fill('white');
+    p.text(textMessage, p.width/2 - rectWidth/2, p.height/2-rectHeight/2-50);
+    p.textAlign(p.LEFT);
   }
 }
 
