@@ -1,10 +1,10 @@
 import io from 'socket.io-client';
+
 const socket = io({
   reconnection: true,
   reconnectionAttempts: 5,
   reconnectionDelay: 2000,
 });
-
 const TIME_LIMIT = 60; 
 const maxCodeStackLength = 15;
 const textXOffset = 10;
@@ -62,21 +62,19 @@ const sketch = (p, playerNum) => {
         color: 'brown',
         returnUrl: '/p1_title',
         playerId: 'playerOne',
-        retryEventName: 'p1_retry',
       };
     } else {
       return {
         color: '#3b4279',
         returnUrl: '/p2_title',
         playerId: 'playerTwo',
-        retryEventName: 'p2_retry',
       };
     }
   };
   const metaData = initMetaData(playerNum);
 
-  function emitEvent(event) {
-    socket.emit(metaData.playerId, event, (res) => {
+  function emitEvent(event, data = null) {
+    socket.emit(event, { playerId: metaData.playerId, data: data }, (res) => {
       if (res.error) {
         console.error(`Message sending failed: ${res.error}`);
         return;
@@ -152,13 +150,12 @@ const sketch = (p, playerNum) => {
     timerCount = 0;
   });
 
-  socket.on('gemeOver', (_) => {
+  socket.on('gameOver', (_) => {
     if (window.confirm('リトライしますか？')) {
-      emitEvent(metaData.retryEventName);
+      emitEvent('retry');
       window.location.reload();
     } else {
       emitEvent('quit');
-      window.location.href = metaData.returnUrl;
     }
   });
 
@@ -181,9 +178,9 @@ const sketch = (p, playerNum) => {
     isCodingMode = false;
     textMessage = 'じゅんびOK！\nあいてをまっています.';
     if (!isSubmitted && (timerCount >= TIME_LIMIT)) {
-      emitEvent([]);
+      emitEvent('submit', []);
     } else {
-      emitEvent(codeStack);
+      emitEvent('submit', codeStack);
     }
   }
 

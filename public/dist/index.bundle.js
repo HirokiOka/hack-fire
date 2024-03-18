@@ -16,7 +16,7 @@
   \*****************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var socket_io_client__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! socket.io-client */ \"./node_modules/socket.io-client/build/esm/index.js\");\n\n\nconst socket = (0,socket_io_client__WEBPACK_IMPORTED_MODULE_0__[\"default\"])();\nlet playerOneJoin = false;\nlet playerTwoJoin = false;\n\nsocket.on('connection', () => {\n  console.log('connected to server: title');\n});\n\nsocket.on('playerOne', (msg) => {\n  playerOneJoin = true;\n  console.log('[p1]', msg);\n  if (playerOneJoin && playerTwoJoin) window.location.href = '/game';\n});\n\nsocket.on('playerTwo', (msg) => {\n  playerTwoJoin = true;\n  console.log('[p2]', msg);\n  if (playerOneJoin && playerTwoJoin) window.location.href = '/game';\n});\n\n\n//# sourceURL=webpack://slash-shot/./public/src/index.js?");
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var socket_io_client__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! socket.io-client */ \"./node_modules/socket.io-client/build/esm/index.js\");\n\n\nconst socket = (0,socket_io_client__WEBPACK_IMPORTED_MODULE_0__[\"default\"])({\n  reconnection: true,\n  reconnectionAttempts: 5,\n  reconnectionDelay: 2000,\n});\n\nsocket.on('connection', () => {\n  console.log('connected to server: title');\n});\n\nsocket.on('gameStart', (msg) => {\n  console.log(msg);\n  window.location.href = '/game';\n});\n\n\n//# sourceURL=webpack://slash-shot/./public/src/index.js?");
 
 /***/ }),
 

@@ -7,8 +7,6 @@ const socket = io();
 
 const backTitleMilliSec = 30000;
 let reloadTimerCount = 30;
-let playerOneRetry = false;
-let playerTwoRetry = false;
 
 const SHOT_MAX_COUNT = 10;
 const GAME_INTERVAL = 20;
@@ -29,8 +27,6 @@ let isPlayerOneReady = false;
 let isPlayerTwoReady = false;
 let isGameRunning = false;
 let exeCount = GAME_INTERVAL;
-let isPlayerOneJoin = false;
-let isPlayerTwoJoin = false;
 
 let barOffset;
 let barWidth;
@@ -60,60 +56,35 @@ socket.on('connection', () => {
   console.log('connected to server: main');
 });
 
-////playerOne
-socket.on('playerOne', (msg) => {
-  console.log('[p1]:', msg);
-  if (msg === 'join') {
-    isPlayerOneJoin = true;
-    if (isPlayerOneJoin && isPlayerTwoJoin) socket.emit('coding', 'coding');
-    return;
-  }
-  if (msg === 'quit') {
-    window.location.href = '/';
-  }
-  if (msg === 'p1_retry') {
-    playerOneRetry = true;
-    if (playerOneRetry && playerTwoRetry) window.location.reload();
-  }
-
-  if (isGameRunning || isGameover) return;
-  const receivedData = JSON.parse(JSON.stringify(msg, ''));
-  playerOneCodeStack = receivedData;
-  isPlayerOneReady = true;
-  playerOneCode = getJSCodeString(playerOneCodeStack, 1);
-  if (isPlayerOneReady && isPlayerTwoReady && !isGameRunning) {
-    isGameRunning = true;
-    socket.emit('battleStart', 'battleStart');
-  }
+socket.on('quit', (_) => {
+  window.location.href = '/';
 });
 
-////playerTwo
-socket.on('playerTwo', (msg) => {
-  console.log('[p2]:', msg);
-  if (msg === 'join') {
-    isPlayerTwoJoin = true;
-    if (isPlayerOneJoin && isPlayerTwoJoin) socket.emit('coding', 'coding');
-    return;
-  }
-  if (msg === 'quit') {
-    window.location.href = '/';
-  }
-  if (msg === 'p2_retry') {
-    playerTwoRetry = true;
-    if (playerOneRetry && playerTwoRetry) window.location.reload();
-  }
+socket.on('playerOneReady', ({ code }) => {
+  playerOneCodeStack = JSON.parse(JSON.stringify(code, ''));
+  playerOneCode = getJSCodeString(playerOneCodeStack, 1);
+  isPlayerOneReady = true;
+});
 
-  if (isGameRunning || isGameover) return;
-  const receivedData = JSON.parse(JSON.stringify(msg, ''));
-  playerTwoCodeStack = receivedData;
+socket.on('playerTwoReady', ({ code }) => {
+  playerTwoCodeStack = JSON.parse(JSON.stringify(code, ''));
   playerTwoCode = getJSCodeString(playerTwoCodeStack, 2);
   isPlayerTwoReady = true;
-  if (isPlayerOneReady && isPlayerTwoReady && !isGameRunning) {
-    isGameRunning = true;
-    socket.emit('battleStart', 'battleStart');
-  }
 });
 
+socket.on('battleStart', (_) => {
+  isGameRunning = true;
+});
+
+socket.on('retry', (_) => {
+  isGameRunning = false;
+  isPlayerOneReady = false;
+  isPlayerTwoReady = false;
+  window.location.reload();
+});
+
+
+//Sketch
 const sketch = (p) => {
   p.preload = () => {
     const kaisoFontPath = '../font/kaiso_up/Kaisotai-Next-UP-B.otf';
@@ -447,7 +418,7 @@ function calcExeCode(playerCode, codeIndex) {
 setInterval(() => {
   if (isGameover) {
     reloadTimerCount--;
-    if (reloadTimerCount < 1) window.location.href = '/game';
+    if (reloadTimerCount < 1) window.location.href = '/';
   }
   if (!isGameRunning) return;
 
@@ -495,6 +466,8 @@ setInterval(() => {
     playerTwoExeIndex = 0;
     playerOne.isCharging = false;
     playerTwo.isCharging = false;
+    playerOneCode = [];
+    playerTwoCode = [];
     socket.emit('coding', 'coding');
   }
 }, 1000);

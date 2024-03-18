@@ -15,6 +15,12 @@ const DB_COLLECTION = process.env.DB_COLLECTION;
 const publicPath = path.join(__dirname, 'public');
 const viewPath = path.join(publicPath, 'views');
 
+let isPlayerOneJoined = false;
+let isPlayerTwoJoined = false;
+let isPlayerOneReady = false;
+let isPlayerTwoReady = false;
+let isPlayerOneRetry = false;
+let isPlayerTwoRetry = false;
 
 app.use(express.static(publicPath));
 
@@ -64,19 +70,68 @@ function handlePlayerEvent(socket, player) {
   });
 }
 
+
+
 io.on('connection', (socket) => {
   console.log('client connected');
 
-  handlePlayerEvent(socket, 'playerOne');
-  handlePlayerEvent(socket, 'playerTwo');
+  socket.on('join', ({ playerId }) => {
+    if (playerId === 'playerOne') isPlayerOneJoined = true;
+    if (playerId === 'playerTwo') isPlayerTwoJoined = true;
 
-  const events = ['battleStart', 'gameOver', 'coding'];
-  events.forEach((event) => {
-    socket.on(event, (data) => {
-      console.log(event, data);
-      io.emit(event, data);
-    });
+    if (isPlayerOneJoined && isPlayerTwoJoined) {
+      io.emit('gameStart', 'gameStart');
+    }
   });
+
+  socket.on('quit', (_) => {
+    isPlayerOneJoined = false;
+    isPlayerTwoJoined = false;
+    io.emit('quit', 'quit');
+    isPlayerOneRetry = false;
+    isPlayerTwoRetry = false;    
+  });
+
+  socket.on('gameOver', (_) => {
+    io.emit('gameOver', 'gameOver');
+    isPlayerOneRetry = false;
+    isPlayerTwoRetry = false;    
+  });
+
+  socket.on('retry', ({ playerId }) => {
+    if (playerId === 'playerOne') isPlayerOneRetry = true;
+    if (playerId === 'playerTwo') isPlayerTwoRetry = true;
+
+    if (isPlayerOneRetry && isPlayerTwoRetry) {
+      io.emit('retry', 'retry');
+    }
+  });
+
+  socket.on('submit', ({ playerId, data }) => {
+    if (playerId === 'playerOne') {
+      isPlayerOneReady = true;
+      playerOneCode = data;
+      io.emit('playerOneReady', { code: data });
+    }
+    if (playerId === 'playerTwo') {
+      isPlayerTwoReady = true;
+      playerTwoCode = data;
+      io.emit('playerTwoReady', { code: data });
+    }
+
+    if (isPlayerOneReady && isPlayerTwoReady) {
+      io.emit('battleStart', 'battleStart');
+      isPlayerOneReady = false;
+      isPlayerTwoReady = false;
+    }
+  });
+
+  socket.on('coding', (_) => {
+    isPlayerOneReady = false;
+    isPlayerTwoReady = false;
+    io.emit('coding', 'coding');
+  });
+
 });
 
 server.listen(PORT, () => console.log(`listening on http://localhost:${PORT}`));
