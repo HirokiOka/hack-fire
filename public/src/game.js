@@ -6,7 +6,7 @@ import io from 'socket.io-client';
 const socket = io();
 
 const backTitleMilliSec = 30000;
-let reloadTimerCount = 30;
+let resetTimerCount = 30;
 
 const SHOT_MAX_COUNT = 10;
 const GAME_INTERVAL = 20;
@@ -133,7 +133,13 @@ const sketch = (p) => {
     //Judge game over
     if (playerOne.life === 0 || playerTwo.life === 0) {
       if (!isGameover) {
-        socket.emit('gameOver', 'gameOver');
+        if (playerOne.life !== playerTwo.life) {
+          const result = (playerOne.life === 0) ? "Player2 Win" : "Player1 Win";
+          socket.emit('gameOver', { result } );
+        } else {
+          const result = "Draw";
+          socket.emit('gameOver', { result } );
+        }
         explodeSound.play();
         isGameover = true;
         isGameRunning = false;
@@ -155,11 +161,12 @@ const sketch = (p) => {
         playerTwo.explode();
       }
       p.fill(255);
-      p.text(reloadTimerCount, p.width / 2, p.height /2 + 78);
+      p.text(resetTimerCount, p.width / 2, p.height /2 + 78);
     }
     
     if (3 < roundCount && !isGameover) {
-        socket.emit('gameOver', 'gameOver');
+        const result = (playerOne.life < playerTwo.life) ? "Player2 Win" : "Player1 Win";
+        socket.emit('gameOver', { result } );
         explodeSound.play();
         isGameover = true;
         isGameRunning = false;
@@ -308,8 +315,7 @@ const sketch = (p) => {
       playerTwo.moveDown();
       playerTwo.charge();
     } else if (p.keyCode === p.RETURN) {
-      //playerTwo.shot();
-      testCode();
+      playerTwo.shot();
     }
   };
 }
@@ -417,8 +423,8 @@ function calcExeCode(playerCode, codeIndex) {
 
 setInterval(() => {
   if (isGameover) {
-    reloadTimerCount--;
-    if (reloadTimerCount < 1) window.location.href = '/';
+    resetTimerCount--;
+    if (resetTimerCount < 1) window.location.href = '/';
   }
   if (!isGameRunning) return;
 
@@ -471,26 +477,3 @@ setInterval(() => {
     socket.emit('coding', 'coding');
   }
 }, 1000);
-
-
-//For Debugging
-function keyPressed(e) {
-  e.preventDefault();
-  if (keyCode === 87) {
-    playerOne.moveUp();
-  } else if (keyCode === 83) {
-    playerOne.moveDown();
-    playerOne.charge();
-  } else if (keyCode === 32) {
-    playerOne.shot();
-  } 
-
-  if (keyCode === UP_ARROW) {
-    playerTwo.moveUp();
-  } else if (keyCode === DOWN_ARROW) {
-    playerTwo.moveDown();
-    playerTwo.charge();
-  } else if (keyCode === RETURN) {
-    playerTwo.shot();
-  }
-}

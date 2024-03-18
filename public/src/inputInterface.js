@@ -142,8 +142,7 @@ const sketch = (p, playerNum) => {
     textMessage = 'プログラムじっこうちゅう！\nまんなかのがめんをみてね！';
   });
 
-  socket.on('coding', (msg) => {
-    console.log(msg);
+  socket.on('coding', (_) => {
     textMessage = '';
     isCodingMode = true;
     isSubmitted = false;
@@ -160,10 +159,11 @@ const sketch = (p, playerNum) => {
   });
 
   socket.on('quit', (_) => {
-      window.location.href = metaData.returnUrl;
+    window.location.href = metaData.returnUrl;
   });
 
   function submitCode() {
+    if (isSubmitted) return;
     if (codeStack.length === 0) {
       alert('プログラムがありません');
       return;

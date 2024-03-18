@@ -21,6 +21,9 @@ let isPlayerOneReady = false;
 let isPlayerTwoReady = false;
 let isPlayerOneRetry = false;
 let isPlayerTwoRetry = false;
+let gameId;
+let playerOneCode = [];
+let playerTwoCode = [];
 
 app.use(express.static(publicPath));
 
@@ -32,15 +35,26 @@ const client = new MongoClient(MONGO_URI, {
   }
 });
 
-async function sendToMongo(postData) {
+client.connect().then(() => {
+  console.log('MongoDB connected');
+}).catch(err => {
+  console.error('MongoDB connection error:', err);
+});
+
+async function sendToMongo(eventName, codeStack=null) {
   try {
-    await client.connect();
     const database = client.db(DB_NAME);
     const col = database.collection(DB_COLLECTION);
+    const postData = {
+      insertedAt: new Date(),
+      gameId: gameId,
+      event: eventName,
+      codeStack: codeStack,
+    };
     const result = await col.insertOne(postData);
     return result;
-  } finally {
-    await client.close();
+  } catch (err) {
+    console.log(err);
   }
 }
 
@@ -54,23 +68,6 @@ pages.forEach((page) => {
 });
 
 //socket
-function handlePlayerEvent(socket, player) {
-  socket.on(player, (data) => {
-    console.log(`[${player}] data`);
-    io.emit(player, data);
-    if (['quit', 'join'].includes(data)){
-      io.emit(data, data);
-      const postData = {
-        player,
-        event: data,
-        insertedAt: new Date(),
-      };
-      //sendToMongo(postData).catch(console.error);
-    }
-  });
-}
-
-
 
 io.on('connection', (socket) => {
   console.log('client connected');
@@ -81,6 +78,8 @@ io.on('connection', (socket) => {
 
     if (isPlayerOneJoined && isPlayerTwoJoined) {
       io.emit('gameStart', 'gameStart');
+      gameId = Date.now().toString();
+      sendToMongo('gameStart').catch(console.error);
     }
   });
 
@@ -88,12 +87,14 @@ io.on('connection', (socket) => {
     isPlayerOneJoined = false;
     isPlayerTwoJoined = false;
     io.emit('quit', 'quit');
+    sendToMongo('quit').catch(console.error);
     isPlayerOneRetry = false;
     isPlayerTwoRetry = false;    
   });
 
-  socket.on('gameOver', (_) => {
+  socket.on('gameOver', ({ result }) => {
     io.emit('gameOver', 'gameOver');
+    sendToMongo(result).catch(console.error);
     isPlayerOneRetry = false;
     isPlayerTwoRetry = false;    
   });
@@ -104,6 +105,8 @@ io.on('connection', (socket) => {
 
     if (isPlayerOneRetry && isPlayerTwoRetry) {
       io.emit('retry', 'retry');
+      gameId = Date.now().toString();
+      sendToMongo('retry').catch(console.error);
     }
   });
 
@@ -121,6 +124,8 @@ io.on('connection', (socket) => {
 
     if (isPlayerOneReady && isPlayerTwoReady) {
       io.emit('battleStart', 'battleStart');
+      const codeStack = { p1: playerOneCode, p2: playerTwoCode };
+      sendToMongo('battleStart', codeStack).catch(console.error);
       isPlayerOneReady = false;
       isPlayerTwoReady = false;
     }
@@ -135,3 +140,26 @@ io.on('connection', (socket) => {
 });
 
 server.listen(PORT, () => console.log(`listening on http://localhost:${PORT}`));
+
+// SIGINTシグナルを捕捉（例：Ctrl+Cによる終了）
+process.on('SIGINT', () => {
+  client.close().then(() => {
+    console.log('MongoDB connection closed due to app termination');
+    process.exit(0);
+  });
+});
+
+// プロセスのexitイベントを捕捉
+process.on('exit', (code) => {
+  client.close().then(() => {
+    console.log(`MongoDB connection closed with exit code ${code}`);
+  });
+});
+
+// 未処理の例外を捕捉
+process.on('uncaughtException', (err) => {
+  console.error('There was an uncaught error', err);
+  client.close().then(() => {
+    process.exit(1); // 0以外の終了コードでプロセスを終了
+  });
+});
