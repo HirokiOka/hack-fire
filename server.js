@@ -9,17 +9,14 @@ const app = express();
 const server = http.createServer(app);
 const io = socketIo(server);
 const PORT = process.env.PORT || 3000;
+const MONGO_URI = process.env.MONGO_URI;
+const DB_NAME = process.env.DB_NAME;
+const DB_COLLECTION = process.env.DB_COLLECTION;
 const publicPath = path.join(__dirname, 'public');
 const viewPath = path.join(publicPath, 'views');
 
 
 app.use(express.static(publicPath));
-
-
-const MONGO_URI = process.env.MONGO_URI;
-const DB_NAME = process.env.DB_NAME;
-const DB_COLLECTION = process.env.DB_COLLECTION;
-
 
 const client = new MongoClient(MONGO_URI, {
   serverApi: {
@@ -53,9 +50,9 @@ pages.forEach((page) => {
 //socket
 function handlePlayerEvent(socket, player) {
   socket.on(player, (data) => {
-    console.log(`[${player}]`, data);
+    console.log(`[${player}] data`);
     io.emit(player, data);
-    if (['cancel', 'join'].includes(data)){
+    if (['quit', 'join'].includes(data)){
       io.emit(data, data);
       const postData = {
         player,
@@ -73,10 +70,10 @@ io.on('connection', (socket) => {
   handlePlayerEvent(socket, 'playerOne');
   handlePlayerEvent(socket, 'playerTwo');
 
-  const events = ['gameStart', 'gameOver', 'coding'];
+  const events = ['battleStart', 'gameOver', 'coding'];
   events.forEach((event) => {
     socket.on(event, (data) => {
-      console.log(event);
+      console.log(event, data);
       io.emit(event, data);
     });
   });

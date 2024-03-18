@@ -60,7 +60,6 @@ socket.on('connection', () => {
   console.log('connected to server: main');
 });
 
-//Get and exec Codes
 ////playerOne
 socket.on('playerOne', (msg) => {
   console.log('[p1]:', msg);
@@ -69,7 +68,7 @@ socket.on('playerOne', (msg) => {
     if (isPlayerOneJoin && isPlayerTwoJoin) socket.emit('coding', 'coding');
     return;
   }
-  if (msg === 'cancel') {
+  if (msg === 'quit') {
     window.location.href = '/';
   }
   if (msg === 'p1_retry') {
@@ -84,7 +83,7 @@ socket.on('playerOne', (msg) => {
   playerOneCode = getJSCodeString(playerOneCodeStack, 1);
   if (isPlayerOneReady && isPlayerTwoReady && !isGameRunning) {
     isGameRunning = true;
-    socket.emit('gameStart', 'gameStart');
+    socket.emit('battleStart', 'battleStart');
   }
 });
 
@@ -96,7 +95,7 @@ socket.on('playerTwo', (msg) => {
     if (isPlayerOneJoin && isPlayerTwoJoin) socket.emit('coding', 'coding');
     return;
   }
-  if (msg === 'cancel') {
+  if (msg === 'quit') {
     window.location.href = '/';
   }
   if (msg === 'p2_retry') {
@@ -111,14 +110,16 @@ socket.on('playerTwo', (msg) => {
   isPlayerTwoReady = true;
   if (isPlayerOneReady && isPlayerTwoReady && !isGameRunning) {
     isGameRunning = true;
-    socket.emit('gameStart', 'gameStart');
+    socket.emit('battleStart', 'battleStart');
   }
 });
 
 const sketch = (p) => {
   p.preload = () => {
-    kaiso = p.loadFont('../font/kaiso_up/Kaisotai-Next-UP-B.otf');
-    hackgen = p.loadFont('../font/HackNerdFont-Regular.ttf');
+    const kaisoFontPath = '../font/kaiso_up/Kaisotai-Next-UP-B.otf';
+    const hackgenFontPath = '../font/HackNerdFont-Regular.ttf';
+    kaiso = p.loadFont(kaisoFontPath);
+    hackgen = p.loadFont(hackgenFontPath);
   }
 
   p.setup = () => {
@@ -517,104 +518,6 @@ function keyPressed(e) {
     playerTwo.moveDown();
     playerTwo.charge();
   } else if (keyCode === RETURN) {
-    //playerTwo.shot();
-    testCode();
+    playerTwo.shot();
   }
-}
-
-function testCode() {
-  /*
-  playerOneCode = [
-    { codeType: "if-start", codeText: "if (playerOne.y === playerTwo.y) {" },
-    { codeType: "action", codeText: "playerOne.shot();" },
-    { codeType: "if-start", codeText: "if (playerOne.y === playerTwo.y) {" },
-    { codeType: "action", codeText: "playerOne.shot();" },
-    { codeType: "if-end", codeText: "}" },
-    { codeType: "if-start", codeText: "if (playerOne.y !== playerTwo.y) {" },
-    { codeType: "action", codeText: "playerOne.charge();" },
-    { codeType: "if-end", codeText: "}" },
-    { codeType: "if-end", codeText: "}" },
-    { codeType: "if-start", codeText: "if (playerOne.y !== playerTwo.y) {" },
-    { codeType: "action", codeText: "playerOne.charge();" },
-    { codeType: "if-end", codeText: "}" },
-  ];
-  */
-
-  /*
-  playerOneCode = [
-    { codeType: "action", codeText: "playerOne.moveUp();" },
-    { codeType: "action", codeText: "playerOne.moveDown();" },
-    { codeType: "action", codeText: "playerOne.moveDown();" },
-    { codeType: "action", codeText: "playerOne.moveUp();" },
-  ];
-
-  playerOneCode = [
-    { codeType: "action", codeText: "playerOne.charge();" },
-  ];
-  playerOneCode = [
-    { codeType: "if-start", codeText: "if (playerOne.y === playerTwo.y) {" },
-    { codeType: "action", codeText: "playerOne.shot();" },
-    { codeType: "if-end", codeText: "}" },
-    { codeType: "if-start", codeText: "if (playerOne.y !== playerTwo.y) {" },
-    { codeType: "action", codeText: "playerOne.charge();" },
-    { codeType: "if-end", codeText: "}" },
-    { codeType: "action", codeText: "playerOne.moveUp();" },
-    { codeType: "action", codeText: "playerOne.moveDown();" },
-  ];
-*/
-
-  playerOneCode = [
-    { codeType: "action", codeText: "playerOne.moveUp();" },
-    { codeType: "action", codeText: "playerOne.moveDown();" },
-  ];
-
-  playerTwoCode = [
-    { codeType: "if-start", codeText: "if (playerOne.y !== playerTwo.y) {" },
-    { codeType: "action", codeText: "playerTwo.charge();" },
-    { codeType: "if-end", codeText: "}" },
-    { codeType: "if-start", codeText: "if (playerOne.y === playerTwo.y) {" },
-    { codeType: "action", codeText: "playerTwo.shot();" },
-    { codeType: "if-end", codeText: "}" },
-  ];
-
-  playerOneCode = [
-    { codeType: "if-start", codeText: "if (playerOne.y !== playerTwo.y) {" },
-    { codeType: "action", codeText: "playerOne.charge();" },
-    { codeType: "if-end", codeText: "}" },
-    { codeType: "if-start", codeText: "if (playerOne.y === playerTwo.y) {" },
-    { codeType: "action", codeText: "playerOne.shot();" },
-    { codeType: "if-end", codeText: "}" },
-  ];
-
-  playerTwoCode = [
-    { codeType: "action", codeText: "playerTwo.moveUp();" },
-    { codeType: "action", codeText: "playerTwo.moveDown();" },
-  ];
-
-
-  playerTwoCode = [
-    { codeType: "action", codeText: "playerTwo.charge();" },
-    { codeType: "action", codeText: "playerTwo.charge();" },
-    { codeType: "action", codeText: "playerTwo.charge();" },
-  ];
-  playerTwoCode = [
-    { codeType: "action", codeText: "playerTwo.moveDown();" },
-    { codeType: "action", codeText: "playerTwo.moveUp();" },
-    { codeType: "action", codeText: "playerTwo.moveDown();" },
-  ];
-  /*
-
-  playerTwoCode = [
-    { codeType: "if-start", codeText: "if (playerOne.y === playerTwo.y) {" },
-    { codeType: "action", codeText: "playerTwo.shot();" },
-    { codeType: "if-start", codeText: "if (playerOne.y === playerTwo.y) {" },
-    { codeType: "action", codeText: "playerTwo.shot();" },
-    { codeType: "if-end", codeText: "}" },
-    { codeType: "if-end", codeText: "}" },
-    { codeType: "if-start", codeText: "if (playerOne.y !== playerTwo.y) {" },
-    { codeType: "action", codeText: "playerTwo.charge();" },
-    { codeType: "if-end", codeText: "}" },
-  ];
-  */
-  isGameRunning = true;
 }

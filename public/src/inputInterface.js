@@ -75,8 +75,8 @@ const sketch = (p, playerNum) => {
   };
   const metaData = initMetaData(playerNum);
 
-  function sendMessage(message) {
-    socket.emit(metaData.playerId, message, (res) => {
+  function emitEvent(event) {
+    socket.emit(metaData.playerId, event, (res) => {
       if (res.error) {
         console.error(`Message sending failed: ${res.error}`);
         return;
@@ -84,7 +84,7 @@ const sketch = (p, playerNum) => {
     });
   }
 
-  sendMessage('join');
+  emitEvent('join');
   socket.on('connection', (err) => {
     if (err) {
       console.error(err);
@@ -100,7 +100,6 @@ const sketch = (p, playerNum) => {
   p.setup = () => {
     p.createCanvas(p.windowWidth, p.windowHeight);
     p.textAlign(p.LEFT, p.TOP);
-    // Initialize buttons
     initButtons(p);
 
     const editButtons = {
@@ -140,7 +139,8 @@ const sketch = (p, playerNum) => {
     p.resizeCanvas(p.windowWidth, p.windowHeight);
   };
 
-  socket.on('gameStart', (_) => {
+  //handle socket events
+  socket.on('battleStart', (_) => {
     textMessage = 'プログラムじっこうちゅう！\nまんなかのがめんをみてね！';
   });
 
@@ -152,17 +152,17 @@ const sketch = (p, playerNum) => {
     timerCount = 0;
   });
 
-  socket.on('gameOver', (_) => {
+  socket.on('gemeOver', (_) => {
     if (window.confirm('リトライしますか？')) {
-      sendMessage(metaData.retryEventName);
+      emitEvent(metaData.retryEventName);
       window.location.reload();
     } else {
-      sendMessage('cancel');
+      emitEvent('quit');
       window.location.href = metaData.returnUrl;
     }
   });
 
-  socket.on('cancel', (_) => {
+  socket.on('quit', (_) => {
       window.location.href = metaData.returnUrl;
   });
 
@@ -181,15 +181,15 @@ const sketch = (p, playerNum) => {
     isCodingMode = false;
     textMessage = 'じゅんびOK！\nあいてをまっています.';
     if (!isSubmitted && (timerCount >= TIME_LIMIT)) {
-      sendMessage([]);
+      emitEvent([]);
     } else {
-      sendMessage(codeStack);
+      emitEvent(codeStack);
     }
   }
 
   function returnToTitle() {
     if (window.confirm('ゲームをやめてタイトルにもどります．\nよろしいですか？')) {
-      sendMessage('cancel');
+      emitEvent('quit');
       window.location.href = metaData.returnUrl;
     }
   }
