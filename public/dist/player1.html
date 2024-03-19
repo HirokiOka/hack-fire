@@ -5,12 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Player1</title>
     <link href="output.css" rel="stylesheet">
-  </head>
+    <link rel="icon" href="/image/favicon.ico" type="image/x-icon">
+  <script defer src="interface.bundle.js"></script></head>
   <body class="">
   </body>
   <script src="/socket.io/socket.io.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js" integrity="sha512-bcfltY+lNLlNxz38yBBm/HLaUB1gTV6I0e+fahbF9pS6roIdzUytozWdnFV8ZnM6cSAG5EbmO0ag0a/fLZSG4Q==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   <script>
+    const canvasWidth = 1980;
+    const canvasHeight = 1080;
+    const playerColor = 'brown';
     const socket = io();
     socket.on('connection', () => {
       console.log('connected to server: player1');
@@ -22,7 +26,8 @@
       if (window.confirm('リトライしますか？')) {
         sendMessage('p1_retry');
         window.location.reload();
-      } else {
+      } 
+      else {
         sendMessage('cancel');
         window.location.href = '/p1_title';
       }

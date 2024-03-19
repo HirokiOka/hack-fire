@@ -2,11 +2,13 @@
   "name": "slash-shot",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
-    "start": "node index.js",
-    "watch": "nodemon index.js",
+    "start": "node server.js",
+    "watch": "nodemon server.js",
     "launch": "npx electron launch.js",
+    "webpack": "npx webpack --watch",
+    "interface": "npx electron startInput.js",
     "tailwind": "npx tailwindcss -i ./public/input.css -o ./public/output.css --watch"
   },
   "keywords": [],
@@ -15,11 +17,21 @@
   "dependencies": {
     "electron": "^27.0.2",
     "express": "^4.18.2",
+    "mongodb": "^6.5.0",
+    "p5": "^1.9.0",
+    "pg": "^8.11.3",
     "puppeteer": "^21.4.1",
-    "socket.io": "^4.7.2"
+    "socket.io": "^4.7.2",
+    "socket.io-client": "^4.7.3"
   },
   "devDependencies": {
+    "dotenv": "^16.4.5",
+    "eslint": "^8.55.0",
+    "html-webpack-plugin": "^5.6.0",
     "nodemon": "^3.0.1",
-    "tailwindcss": "^3.3.3"
+    "tailwindcss": "^3.3.3",
+    "webpack": "^5.89.0",
+    "webpack-cli": "^5.1.4",
+    "webpack-dev-server": "^4.15.1"
   }
 }
