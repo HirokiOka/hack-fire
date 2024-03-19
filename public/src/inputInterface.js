@@ -107,15 +107,15 @@ const sketch = (p, playerNum) => {
       },
       '1つけす': { 
         value: 'none', color: 'tomato', viewText: '1つけす', 
-        position: [p.width / 2 - 100, p.height - 160] ,handler: deleteLine,
+        position: [p.width/2 - 100, 100] ,handler: deleteLine,
       },
       'ぜんぶけす': {
         value: 'none', color: 'red', viewText: 'ぜんぶけす', 
-        position: [p.width / 2 - 120, p.height - 80], handler: deleteAll,
+        position: [p.width/2 - 120, 160], handler: deleteAll,
       },
       'ゲームをやめる': { 
         value: 'none', color: 'black', viewText: 'ゲームをやめる', 
-        position: [20, p.height - 80], handler: returnToTitle,
+        position: [p.width - 140, 4], handler: returnToTitle,
       }
     };
     for (const { value, color, viewText, position, handler } of Object.values(editButtons)) {
@@ -248,7 +248,7 @@ function getTypeColor(codeType) {
     case 'action': return '#6f9efd';
     case 'if-start':return '#7122fa';
     case 'if-end': return '#7122fa';
-    case 'condition': return '#ffacfc';
+    case 'condition': return '#C5C02C';
   }
 }
 
@@ -271,7 +271,7 @@ function drawUI(p) {
   p.stroke('#d05af0');
 
   //Code blocks
-  p.rect(10, 40, p.width/2-20, p.height-60);
+  p.rect(10, 50, p.width/2-20, p.height-60);
   p.fill('white');
   p.stroke('#d05af0');
   p.text("コードブロック", p.width/4 - 70, 10);
@@ -279,8 +279,10 @@ function drawUI(p) {
   p.text("アクション", 20, 60);
   p.stroke('#7122fa');
   p.text("もしも", 20, 240);
-  p.stroke('#ffacfc');
+  p.stroke('#C5C02C');
   p.text("こんなとき", 20, 420);
+  p.stroke('red');
+  p.text("ブロックをけす", 760, 60);
 
   //Timer
   p.noStroke();
@@ -295,7 +297,7 @@ function drawUI(p) {
 
   p.noFill();
   p.stroke('tomato');
-  p.rect(p.width/2+10, 40, p.width/2-20, p.height-60);
+  p.rect(p.width/2+10, 50, p.width/2-20, p.height-60);
 
   p.fill('white');
   p.text("あなたのプログラム", p.width*3/4 - 80, 10);
