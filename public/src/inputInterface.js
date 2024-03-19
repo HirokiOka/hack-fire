@@ -30,19 +30,19 @@ const textDict = {
   },
   'もし  -  なら': {
     code: 'if () {', codeType: 'if-start',
-    viewText: 'もし  -  なら',  position: [20, 280]
+    viewText: 'もし  ◇  なら',  position: [20, 280]
   },
   'もし  -  おわり': {
     code: '}', codeType: 'if-end',
-    viewText: 'もし  -  おわり', position: [20, 340]
+    viewText: 'もしおわり', position: [20, 340]
   },
   'おなじたかさ': {
     code: 'playerOne.y === playerTwo.y', codeType: 'condition',
-    viewText: 'おなじたかさ', position: [20, 460] 
+    viewText: 'おなじたかさ', position: [40, 480] 
   },
   'ちがうたかさ': {
     code: 'playerOne.y !== playerTwo.y', codeType: 'condition',
-    viewText: 'ちがうたかさ', position: [160, 460]
+    viewText: 'ちがうたかさ', position: [180, 480]
   }
 };
 let isSubmitted = false;
@@ -197,8 +197,33 @@ function initButtons(p) {
   for (const { code, codeType, viewText, position } of Object.values(textDict)) {
     const bgColor = getTypeColor(codeType);
     const handler = getButtonHandler(codeType);
-    buttons.push(createStyledButton(p, viewText, codeType, bgColor, ...position, handler));
+    if (codeType === 'condition') {
+      buttons.push(createConditiondButton(p, viewText, codeType, bgColor, ...position, handler));
+    } else {
+      buttons.push(createStyledButton(p, viewText, codeType, bgColor, ...position, handler));
+    }
   }
+}
+
+function createConditiondButton(p, label, value, bgColor, x, y, mousePressedHandler) {
+  const btn = p.createButton(label);
+  btn.value(value)
+    .style('color', 'white')
+    .style('border-radius', '2px')
+    .style('background-color', bgColor)
+    .style('padding', '20px')
+    .style('font-family', kaiso)
+    .style('font-weight', 'bold')
+    .style('font-size', '14px')
+    .style('text-align', 'center')
+    .style('transform', 'rotate(45deg)')
+    .style('width', '82px')
+    .style('height', '82px')
+    
+    .position(x, y)
+    .mousePressed(mousePressedHandler);
+  btn.html(`<span style="transform: rotate(-45deg); display: block;">${label}</span>`);
+  return btn;
 }
 
 function createStyledButton(p, label, value, bgColor, x, y, mousePressedHandler) {
@@ -360,7 +385,8 @@ function handleIfStart() {
 function insertCondition() {
   if (maxCodeStackLength <= codeStack.length) return;
   if (insertMode === 'condition') {
-    const replacedText = codeStack[codeStack.length-1].codeText.replace('-', this.html());
+    const conditionText = this.elt.textContent;
+    const replacedText = codeStack[codeStack.length-1].codeText.replace('◇', conditionText);
     codeStack[codeStack.length-1].codeText = replacedText;
     insertMode = 'normal';
   }
