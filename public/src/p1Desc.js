@@ -5,6 +5,9 @@ const leftImage = document.getElementById("inputImg");
 const rightImage = document.getElementById("gameImg");
 const triSvg = document.getElementById("triangle");
 
+const playerImagePath = "/image/p1_play.png";
+const editorUrl = "/player1";
+
 const p1Html = 'あなたはプログラマーです。キャラのうごきをプログラムしてバトルにかちましょう。<br/>うえ、まんなか、したの移動と、 "こうげき" 、 "ためる"といったブロックをタッチして<br/>キャラのうごきをプログラムできます。';
 
 const p2Html = 'まずはコードブロックをタッチしてブロックをならべてプログラムをつくりましょう。<br/> <span class="bg-purple-700 rounded-lg">もし-なら</span>のブロックでは、 <span class="bg-pink-300 rounded-lg">ばあい</span>のときだけキャラが<span class="bg-blue-300 rounded-lg">アクション</span>を行います。<br/>さいごは<span class="bg-purple-700 rounded-lg">もし-おわり</span>でとじましょう。プログラムができたら<span class="bg-green-600 rounded-lg">かんせい</span>をタッチしましょう。 ';
@@ -12,7 +15,7 @@ const p2Html = 'まずはコードブロックをタッチしてブロックを�
 prevButton.addEventListener("click", (e) => {
   e.preventDefault();
   descEle.innerHTML = p1Html;
-  rightImage.src = "/image/p1_play.png";
+  rightImage.src = playerImagePath;
   leftImage.classList.remove('hidden');
   triSvg.classList.remove('hidden');
   prevButton.classList.add('hidden');
@@ -24,7 +27,7 @@ prevButton.addEventListener("click", (e) => {
 nextButton.addEventListener("click", (e) => {
   e.preventDefault();
   if (nextButton.textContent === 'はじめる！') {
-    window.location.href = '/player1';
+    window.location.href = editorUrl;
   }
   descEle.innerHTML = p2Html;
   leftImage.classList.add('hidden');

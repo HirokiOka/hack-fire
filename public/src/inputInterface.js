@@ -282,7 +282,7 @@ function drawUI(p) {
   p.stroke('#C5C02C');
   p.text("こんなとき", 20, 420);
   p.stroke('red');
-  p.text("ブロックをけす", 760, 60);
+  p.text("ブロックをけす", p.width/2 - 200, 60);
 
   //Timer
   p.noStroke();
