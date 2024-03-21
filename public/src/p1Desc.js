@@ -8,9 +8,12 @@ const triSvg = document.getElementById("triangle");
 const playerImagePath = "/image/p1_play.png";
 const editorUrl = "/player1";
 
-const p1Html = 'あなたはプログラマーです。キャラのうごきをプログラムしてバトルにかちましょう。<br/>うえ、まんなか、したの移動と、 "こうげき" 、 "ためる"といったブロックをタッチして<br/>キャラのうごきをプログラムできます。';
+//const p1Html = 'あなたはプログラマーです。キャラのうごきをプログラムしてバトルにかちましょう。<br/>うえ、まんなか、したの移動と、 "こうげき" 、 "ためる"といったブロックをタッチして<br/>キャラのうごきをプログラムできます。';
+const p1Html = '/Shotはプログラミングでたたかうシューティングゲームです．<br/>キャラクターのうごきをプログラミングして，相手を倒しましょう．<br/>コードブロックの「アクション」にあるブロックをタッチするとプログラムをつくれます．<ul><li><span class="bg-blue-300 rounded-lg font-bold">こうげき</span>：相手をこうげき</li><li><span class="bg-blue-300 rounded-lg font-bold">ためる</span>: こうげき力をあげる</li><li><span class="bg-blue-300 rounded-lg font-bold">うえ/したにうごく</span>：うえやしたにうごく</li>';
 
-const p2Html = 'まずはコードブロックをタッチしてブロックをならべてプログラムをつくりましょう。<br/> <span class="bg-purple-700 rounded-lg">もし-なら</span>のブロックでは、 <span class="bg-pink-300 rounded-lg">ばあい</span>のときだけキャラが<span class="bg-blue-300 rounded-lg">アクション</span>を行います。<br/>さいごは<span class="bg-purple-700 rounded-lg">もし-おわり</span>でとじましょう。プログラムができたら<span class="bg-green-600 rounded-lg">かんせい</span>をタッチしましょう。 ';
+//const p2Html = 'まずはコードブロックをタッチしてブロックをならべてプログラムをつくりましょう。<br/> <span class="bg-purple-700 rounded-lg">もし-なら</span>のブロックでは、 <span class="bg-pink-300 rounded-lg">ばあい</span>のときだけキャラが<span class="bg-blue-300 rounded-lg">アクション</span>を行います。<br/>さいごは<span class="bg-purple-700 rounded-lg">もし-おわり</span>でとじましょう。プログラムができたら<span class="bg-green-600 rounded-lg">かんせい</span>をタッチしましょう。 ';
+
+const p2Html = '「もしも」と「こんなとき」<br/><span class="bg-purple-700 rounded-lg font-bold">もし◇なら</span>と「こんなとき」の◇ブロックをあわせると，とくべつなうごきができます．</br>とくべつなうごきのおわりには，<span class="bg-purple-700 rounded-lg font-bold">もしおわり</span>をタッチしましょう.</br>プログラムができたら<span class="bg-green-500 rounded-lg font-bold">かんせい</span>をタッチします.</br>2人ともプログラムができたらバトル開始！';
 
 prevButton.addEventListener("click", (e) => {
   e.preventDefault();
