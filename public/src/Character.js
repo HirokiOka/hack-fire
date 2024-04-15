@@ -221,7 +221,7 @@ class Shot extends Character {
     super(x, y, w, h, p);
     this.p = p;
     this.size = 52;
-    this.speed = 60;
+    this.speed = 64;
     this.power = 20;
     this.sound = null;
     this.owner = null;

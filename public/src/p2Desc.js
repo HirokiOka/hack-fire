@@ -1,23 +1,34 @@
 const descEle = document.getElementById("desc");
 const nextButton = document.getElementById("nextBtn");
 const prevButton = document.getElementById("prevBtn");
-const leftImage = document.getElementById("inputImg");
-const rightImage = document.getElementById("gameImg");
+const blocks = document.getElementById("blocks");
+const blockImg = document.getElementById("blockImg");
+const codeExample = document.getElementById("codeExample");
+const codeImg = document.getElementById("codeImg");
+const codeText = document.getElementById("codeText");
+const game = document.getElementById("game");
+const gameImg = document.getElementById("gameImg");
+const gameText = document.getElementById("gameText");
 const triSvg = document.getElementById("triangle");
 
-const p1Html = 'あなたはプログラマーです。キャラのうごきをプログラムしてバトルにかちましょう。<br/>うえ、まんなか、したの移動と、 "こうげき" 、 "ためる"といったブロックをタッチして<br/>キャラのうごきをプログラムできます。';
+const playerImagePath = "/image/p1_basic_action.gif";
+const editorUrl = "/player2";
 
-const p2Html = 'まずはコードブロックをタッチしてブロックをならべてプログラムをつくりましょう。<br/> <span class="bg-purple-700 rounded-lg">もし-なら</span>のブロックでは、 <span class="bg-pink-300 rounded-lg">ばあい</span>のときだけキャラが<span class="bg-blue-300 rounded-lg">アクション</span>を行います。<br/>さいごは<span class="bg-purple-700 rounded-lg">もし-おわり</span>でとじましょう。プログラムができたら<span class="bg-green-600 rounded-lg">かんせい</span>をタッチしましょう。 ';
+const p1Html = '<span class="text-2xl font-bold">きほん</span></br>このゲームはプログラミングでたたかうシューティングゲームです。<br/>キャラクターのうごきをプログラミングして、あいてをたおしましょう。<br/>コードブロックの「アクション」にあるブロックをタッチするとプログラムをつくれます。<ul class="m-2"><li><span class="bg-blue-300 rounded-lg font-bold p-1 my-2">こうげき</span>：あいてをこうげき</li><li><span class="bg-blue-300 rounded-lg font-bold p-1 my-2">ためる</span>: こうげき力をあげる</li><li><span class="bg-blue-300 rounded-lg font-bold p-1 my-2">うえ/したにうごく</span>：うえやしたにうごく</li>';
+
+const p2Html = '<span class="font-bold text-2xl">「もしも」と「こんなとき」</span><br/><span class="bg-purple-700 rounded-lg font-bold p-1">もし◇なら</span>と「こんなとき」の<span class="bg-yellow-500 rounded-lg font-bold p-1">◇ブロック</span>をあわせると、とくべつなうごきができます。</br>たとえば、<span class="bg-purple-700 rounded-lg font-bold p-1">もし◇なら</span> + <span class="bg-yellow-500 rounded-lg font-bold p-1">おなじたかさ</span> をタッチすると、あいてとじぶんのキャラクターのたかさがおなじときだけうごけます。</br>とくべつなうごきのおわりには、<span class="bg-purple-700 rounded-lg font-bold p-1">もしおわり</span>をタッチしましょう.</br>プログラムができたら<span class="bg-green-700 rounded-lg font-bold p-1">かんせい</span>をタッチします.</br>2人ともプログラムができたらバトルはじめ！';
 
 prevButton.addEventListener("click", (e) => {
   e.preventDefault();
   descEle.innerHTML = p1Html;
-  rightImage.src = "/image/p1_play.png";
-  leftImage.classList.remove('hidden');
-  triSvg.classList.remove('hidden');
+  gameImg.src = playerImagePath;
+  blocks.innerText = "1. ブロックをタッチ！";
+  codeText.innerText = "2. ブロックが\nプログラムになるよ!";
+  gameText.innerText = "3. プログラムでキャラがうごく!";
+  codeImg.width = 200;
+  codeImg.src = "/image/basic_code.png";
+  gameImg.width = 480;
   prevButton.classList.add('hidden');
-  rightImage.classList.remove('w-2/3');
-  rightImage.classList.add('w-1/3');
   nextButton.textContent = 'つぎへ';
 });
 
@@ -27,11 +38,13 @@ nextButton.addEventListener("click", (e) => {
     window.location.href = '/player2';
   }
   descEle.innerHTML = p2Html;
-  leftImage.classList.add('hidden');
-  triSvg.classList.add('hidden');
-  rightImage.src = "/image/input_example2.png";
-  rightImage.classList.remove('w-1/3');
-  rightImage.classList.add('w-2/3');
+  blocks.innerText = "1. 「もし◇なら」と\n「おなじたかさ」をくみあわせて...";
+  codeText.innerText = "2. 「もしおわり」でとじる";
+  gameText.innerText = "3. あいてとおなじたかさのときだけこうげきできる！";
+  codeImg.src = "/image/condition_code.png";
+  codeImg.width = 320;
+  gameImg.src = "/image/condition_movie.gif";
+  gameImg.width = 320;
   prevButton.classList.remove('hidden');
   nextButton.textContent = 'はじめる！';
 });

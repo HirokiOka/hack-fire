@@ -304,6 +304,7 @@ const sketch = (p) => {
       playerOne.moveUp();
     } else if (p.keyCode === 83) {
       playerOne.moveDown();
+    } else if (p.keyCode === 67) {
       playerOne.charge();
     } else if (p.keyCode === 32) {
       playerOne.shot();
@@ -313,6 +314,7 @@ const sketch = (p) => {
       playerTwo.moveUp();
     } else if (p.keyCode === p.DOWN_ARROW) {
       playerTwo.moveDown();
+    } else if (p.keyCode === p.RETURN) {
       playerTwo.charge();
     } else if (p.keyCode === p.RETURN) {
       playerTwo.shot();

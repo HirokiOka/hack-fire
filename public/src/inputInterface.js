@@ -126,7 +126,7 @@ const sketch = (p, playerNum) => {
   };
 
   p.draw = () => {
-    p.background(metaData.color);
+    p.background("#35374B");
     drawUI(p);
     drawProgram(p);
     drawMessage(p);
