@@ -25,7 +25,7 @@ prevButton.addEventListener("click", (e) => {
   blocks.innerText = "1. ブロックをタッチ！";
   codeText.innerText = "2. ブロックが\nプログラムになるよ!";
   gameText.innerText = "3. プログラムでキャラがうごく!";
-  codeImg.width = 200;
+  codeImg.width = 180;
   codeImg.src = "/image/basic_code.png";
   gameImg.width = 480;
   prevButton.classList.add('hidden');
@@ -42,7 +42,7 @@ nextButton.addEventListener("click", (e) => {
   codeText.innerText = "2. 「もしおわり」でとじる";
   gameText.innerText = "3. あいてとおなじたかさのときだけこうげきできる！";
   codeImg.src = "/image/condition_code.png";
-  codeImg.width = 320;
+  codeImg.width = 200;
   gameImg.src = "/image/condition_movie.gif";
   gameImg.width = 320;
   prevButton.classList.remove('hidden');
