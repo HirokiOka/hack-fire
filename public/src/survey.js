@@ -23,9 +23,9 @@ function openSurvey() {
     surveyWindow.focus();
 
     function submitSurvey() {
-        const selectedFood = surveyWindow.document.querySelector('input[name="food"]:checked').value;
-        alert("あなたが選んだのは " + selectedFood + " です。");
-        surveyWindow.close();
+      const selected = surveyWindow.document.querySelector('input[name="programming"]:checked').value;
+      alert(`You selected ${selected}.`);
+      surveyWindow.close();
     }
     surveyWindow.submitSurvey = submitSurvey;
 }
