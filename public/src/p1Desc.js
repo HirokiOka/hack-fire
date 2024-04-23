@@ -22,14 +22,14 @@ prevButton.addEventListener("click", (e) => {
   e.preventDefault();
   descEle.innerHTML = p1Html;
   gameImg.src = playerImagePath;
+  gameImg.width = 420;
   blocks.innerText = "1. ブロックをタッチ！";
   codeText.innerText = "2. ブロックが\nプログラム\nなるよ!";
   gameText.innerText = "3. プログラムでキャラがうごく!";
   blockImg.src = "/image/action_block.png";
   blockImg.width = 160;
-  codeImg.width = 180;
   codeImg.src = "/image/basic_code.png";
-  gameImg.width = 420;
+  codeImg.width = 180;
   prevButton.classList.add('hidden');
   nextButton.textContent = 'つぎへ';
 });
