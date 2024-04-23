@@ -2,7 +2,7 @@ const express = require('express');
 const path = require('path');
 const http = require('http');
 const socketIo = require('socket.io');
-const { MongoClient, ServerApiVersion } = require('mongodb');
+//const { MongoClient, ServerApiVersion } = require('mongodb');
 require('dotenv').config();
 
 const app = express();
@@ -27,6 +27,7 @@ let playerTwoCode = [];
 
 app.use(express.static(publicPath));
 
+/*
 const client = new MongoClient(MONGO_URI, {
   serverApi: {
     version: ServerApiVersion.v1,
@@ -40,6 +41,7 @@ client.connect().then(() => {
 }).catch(err => {
   console.error('MongoDB connection error:', err);
 });
+*/
 
 async function sendToMongo(eventName, codeStack=null) {
   try {
@@ -79,7 +81,7 @@ io.on('connection', (socket) => {
     if (isPlayerOneJoined && isPlayerTwoJoined) {
       io.emit('gameStart', 'gameStart');
       gameId = Date.now().toString();
-      sendToMongo('gameStart').catch(console.error);
+      //sendToMongo('gameStart').catch(console.error);
     }
   });
 
@@ -87,14 +89,14 @@ io.on('connection', (socket) => {
     isPlayerOneJoined = false;
     isPlayerTwoJoined = false;
     io.emit('quit', 'quit');
-    sendToMongo('quit').catch(console.error);
+    //sendToMongo('quit').catch(console.error);
     isPlayerOneRetry = false;
     isPlayerTwoRetry = false;    
   });
 
   socket.on('gameOver', ({ result }) => {
     io.emit('gameOver', 'gameOver');
-    sendToMongo(result).catch(console.error);
+    //sendToMongo(result).catch(console.error);
     isPlayerOneRetry = false;
     isPlayerTwoRetry = false;    
   });
@@ -106,7 +108,7 @@ io.on('connection', (socket) => {
     if (isPlayerOneRetry && isPlayerTwoRetry) {
       io.emit('retry', 'retry');
       gameId = Date.now().toString();
-      sendToMongo('retry').catch(console.error);
+      //sendToMongo('retry').catch(console.error);
     }
   });
 
@@ -125,7 +127,7 @@ io.on('connection', (socket) => {
     if (isPlayerOneReady && isPlayerTwoReady) {
       io.emit('battleStart', 'battleStart');
       const codeStack = { p1: playerOneCode, p2: playerTwoCode };
-      sendToMongo('battleStart', codeStack).catch(console.error);
+      //sendToMongo('battleStart', codeStack).catch(console.error);
       isPlayerOneReady = false;
       isPlayerTwoReady = false;
     }
