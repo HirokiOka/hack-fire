@@ -29,7 +29,7 @@ prevButton.addEventListener("click", (e) => {
   blockImg.width = 160;
   codeImg.width = 180;
   codeImg.src = "/image/basic_code.png";
-  gameImg.width = 480;
+  gameImg.width = 420;
   prevButton.classList.add('hidden');
   nextButton.textContent = 'つぎへ';
 });
@@ -48,7 +48,7 @@ nextButton.addEventListener("click", (e) => {
   codeImg.src = "/image/condition_code.png";
   codeImg.width = 200;
   gameImg.src = "/image/condition_movie.gif";
-  gameImg.width = 300;
+  gameImg.width = 280;
   prevButton.classList.remove('hidden');
   nextButton.textContent = 'はじめる！';
 });
