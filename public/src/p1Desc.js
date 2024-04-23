@@ -54,23 +54,25 @@ nextButton.addEventListener("click", (e) => {
 });
 
 function openSurvey() {
-  const surveyWindow = window.open('', 'survey', 'width=400,height=300');
+  const surveyWindow = window.open('', 'survey', 'width=1920,height=1080');
   surveyWindow.document.write(`
-      <h1>しつもんです</h1>
-      <form>
-          <p>プログラミングをしてみたい？</p>
-          <input type="radio" id="very-high" name="programming" value="very-high">
-          <label for="very-high">とてもしてみたい！</label><br>
-          <input type="radio" id="high" name="programming" value="high">
-          <label for="high">してみたい</label><br>
-          <input type="radio" id="normal" name="programming" value="normal">
-          <label for="low">ふつう</label><br>
-          <input type="radio" id="low" name="programming" value="low">
-          <label for="low">してみたくない</label><br>
-          <input type="radio" id="very-low" name="programming" value="very-low">
-          <label for="very-low">ぜんぜんしてみたくない</label><br>
-          <button type="button" onclick="submitSurvey()">けってい！</button>
-      </form>
+        <h1 style="text-align: center;">アンケート</h1>
+        <form>
+            <p>プログラミングのやるきはどれくらいですか？</p>
+            <input type="radio" id="very-high" name="programming" value="very-high">
+            <label for="very-high">5.とてもある</label><br>
+            <input type="radio" id="high" name="programming" value="high">
+            <label for="high">4.まあまあある</label><br>
+            <input type="radio" id="normal" name="programming" value="normal">
+            <label for="low">3.ふつう</label><br>
+            <input type="radio" id="low" name="programming" value="low">
+            <label for="low">2.あまりない</label><br>
+            <input type="radio" id="very-low" name="programming" value="very-low">
+            <label for="very-low">1.まったくない</label><br>
+            <div style="text-align: center;">
+              <button type="button" onclick="submitSurvey()">けってい</button>
+            </div>
+        </form>
   `);
 
   surveyWindow.document.close();
