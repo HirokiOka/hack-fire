@@ -8,7 +8,7 @@
     <title>Slash Shot</title>
   </head>
   <body class="bg-red-700 h-screen">
-    <div class="flex justify-center py-8">
+    <div class="flex justify-center py-2">
       <div class="w-11/12 rounded-lg border bg-gray-700">
         <h1 class="font-bold text-center text-3xl bg-gray-400 py-2">あそびかた</h1>
         <div id="desc" class="text-xl py-4 px-4 leading-relaxed text-white"><span class="text-2xl font-bold">ゲームのきほん</span></br>このゲームはプログラミングでたたかうシューティングゲームです。<br/>キャラクターのうごきをプログラミングして、あいてをたおしましょう。<br/>水色のアクションブロックをタッチするとプログラムをつくれます。<ul class="m-2"><li><span class="bg-blue-400 rounded-lg font-bold p-1 my-2">こうげき</span>：あいてをこうげき</li><li><span class="bg-blue-400 rounded-lg font-bold p-1 my-2">ためる</span>: こうげき力をあげる</li><li><span class="bg-blue-400 rounded-lg font-bold p-1 my-2">うえ/したにうごく</span>：うえやしたにうごく</li></div>
@@ -18,33 +18,33 @@
               <img 
                 id="blockImg"
                 class="m-2"
-                src="/image/code_blocks.png"
+                src="/image/action_block.png"
                 alt="input example image"
                 width="160"
                 height="160"
               />
-              <p id="blocks" class="pt-2 text-xl font-bold m-2">1. ブロックをタッチ！<p>
+              <p id="blocks" class="pt-2 text-xl font-bold m-2">1. ブロックをタッチしてならべる<p>
             </div>
             <div class="flex items-center m-auto">
-              <svg id="triangle" width="80" height="80">
-                  <polygon points="25,0 75,40 25,80" fill="lightgray"/>
+              <svg id="triangle" width="60" height="60">
+                  <polygon points="15,0 45,30 15,60" fill="lightgray"/>
               </svg>
             </div>
             <div id="codeExample" class="text-center border-2 rounded-xl">
               <img  
                 id="codeImg"
-                class="my-8 mx-2"
+                class="my-2"
                 src="/image/basic_code.png"
                 alt="code example"
                 width="180"
                 height="180"
               />
-              <p id="codeText" class="pt-8 text-xl font-bold m-2">2. ブロックが<br/>プログラムになるよ!<p>
+              <p id="codeText" class="pt-8 text-xl font-bold m-2">2. ブロックが<br/>プログラムに<br/>なるよ!<p>
             </div>
 
             <div class="flex items-center m-auto">
-              <svg id="triangle" width="80" height="80">
-                  <polygon points="25,0 75,40 25,80" fill="lightgray"/>
+              <svg id="triangle" width="60" height="60">
+                  <polygon points="15,0 45,30 15,60" fill="lightgray"/>
               </svg>
             </div>
             <div id="game" class="text-center border-2 rounded-xl">
@@ -62,12 +62,12 @@
         </div>
 
         <div class="flex items-center m-auto">
-          <div class="text-center py-2 mx-8">
+          <div class="text-center py-2 m-auto">
             <button id="prevBtn" class="text-lg bg-gray-400 hover:bg-gray-700 text-black py-2 px-8 rounded hidden font-bold">
              まえへ 
             </button>
           </div>
-          <div class="text-center py-2 mx-8">
+          <div class="text-center py-2 m-auto">
             <button  id="nextBtn" class="text-lg bg-gray-400 hover:bg-gray-700 text-black py-2 px-8 rounded font-bold">
               つぎへ
             </button>

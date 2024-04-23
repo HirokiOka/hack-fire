@@ -23,8 +23,10 @@ prevButton.addEventListener("click", (e) => {
   descEle.innerHTML = p1Html;
   gameImg.src = playerImagePath;
   blocks.innerText = "1. ブロックをタッチ！";
-  codeText.innerText = "2. ブロックが\nプログラムになるよ!";
+  codeText.innerText = "2. ブロックが\nプログラム\nなるよ!";
   gameText.innerText = "3. プログラムでキャラがうごく!";
+  blockImg.src = "/image/action_block.png";
+  blockImg.width = 160;
   codeImg.width = 180;
   codeImg.src = "/image/basic_code.png";
   gameImg.width = 480;
@@ -35,12 +37,14 @@ prevButton.addEventListener("click", (e) => {
 nextButton.addEventListener("click", (e) => {
   e.preventDefault();
   if (nextButton.textContent === 'はじめる！') {
-    window.location.href = '/player1';
+    openSurvey();
   }
   descEle.innerHTML = p2Html;
-  blocks.innerText = "1. 「もし◇なら」と\n「おなじたかさ」をくみあわせて...";
+  blocks.innerText = "1. 「もし◇なら」と\n「おなじたかさ」を\nくみあわせて...";
   codeText.innerText = "2. 「もしおわり」でとじる";
-  gameText.innerText = "3. あいてとおなじたかさのときだけこうげきできる！";
+  gameText.innerText = "3. あいてとおなじたかさのときだけ\nこうげきできる！";
+  blockImg.src = "/image/condition_block.png";
+  blockImg.width = 120;
   codeImg.src = "/image/condition_code.png";
   codeImg.width = 200;
   gameImg.src = "/image/condition_movie.gif";
@@ -48,3 +52,35 @@ nextButton.addEventListener("click", (e) => {
   prevButton.classList.remove('hidden');
   nextButton.textContent = 'はじめる！';
 });
+
+function openSurvey() {
+  const surveyWindow = window.open('', 'survey', 'width=400,height=300');
+  surveyWindow.document.write(`
+      <h1>しつもんです</h1>
+      <form>
+          <p>プログラミングをしてみたい？</p>
+          <input type="radio" id="very-high" name="programming" value="very-high">
+          <label for="very-high">とてもしてみたい！</label><br>
+          <input type="radio" id="high" name="programming" value="high">
+          <label for="high">してみたい</label><br>
+          <input type="radio" id="normal" name="programming" value="normal">
+          <label for="low">ふつう</label><br>
+          <input type="radio" id="low" name="programming" value="low">
+          <label for="low">してみたくない</label><br>
+          <input type="radio" id="very-low" name="programming" value="very-low">
+          <label for="very-low">ぜんぜんしてみたくない</label><br>
+          <button type="button" onclick="submitSurvey()">けってい！</button>
+      </form>
+  `);
+
+  surveyWindow.document.close();
+  surveyWindow.focus();
+
+  function submitSurvey() {
+    const selected = surveyWindow.document.querySelector('input[name="programming"]:checked').value;
+    alert(`You selected ${selected}.`);
+    surveyWindow.close();
+    window.location.href = '/player1';
+  }
+  surveyWindow.submitSurvey = submitSurvey;
+}
