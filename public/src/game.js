@@ -426,7 +426,9 @@ function calcExeCode(playerCode, codeIndex) {
 setInterval(() => {
   if (isGameover) {
     resetTimerCount--;
-    if (resetTimerCount < 1) window.location.href = '/';
+    if (resetTimerCount < 1) {
+      window.location.href = '/';
+    }
   }
   if (!isGameRunning) return;
 

@@ -61,12 +61,14 @@ const sketch = (p, playerNum) => {
       return {
         color: 'brown',
         returnUrl: '/p1_title',
+        postUrl: '/p1PostSurvey',
         playerId: 'playerOne',
       };
     } else {
       return {
         color: '#3b4279',
         returnUrl: '/p2_title',
+        postUrl: '/p2PostSurvey',
         playerId: 'playerTwo',
       };
     }
@@ -155,12 +157,12 @@ const sketch = (p, playerNum) => {
       window.location.reload();
     } else {
       emitEvent('quit');
-      window.location.href = metaData.returnUrl;
+      window.location.href = metaData.postUrl;
     }
   });
 
   socket.on('quit', (_) => {
-    window.location.href = metaData.returnUrl;
+    window.location.href = metaData.postUrl;
   });
 
   function submitCode() {

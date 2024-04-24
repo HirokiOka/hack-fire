@@ -22,8 +22,7 @@ let isPlayerOneReady = false;
 let isPlayerTwoReady = false;
 let isPlayerOneRetry = false;
 let isPlayerTwoRetry = false;
-let gameId;
-let p1UniqueId, p2UniqueId;
+let gameId = null;
 let playerOneCode = [];
 let playerTwoCode = [];
 
@@ -65,13 +64,12 @@ async function sendSurveyDataToMongo(data) {
   try {
     const database = client.db(DB_NAME);
     const col = database.collection(SURVEY_DB_COLLECTION);
-    const uniqueUserId = Date.now().toString();
+    if (gameId === null) gameId = Date.now().toString();
     const postData = {
       insertedAt: new Date(),
       gameId: gameId,
       timing: data.timing,
       playerId: data.playerId,
-      uniqueUserId: uniqueUserId,
       surveyValue: data.surveyValue,
     };
     const result = await col.insertOne(postData);
@@ -94,7 +92,7 @@ app.post('/survey', (req, res) => {
     .catch(err => res.status(400).json('Error: ' + err));
 });
 
-const pages = ['/', '/game', '/description', '/mode_select', '/p1_title', '/p1_desc', '/player1', '/p2_title', '/p2_desc', '/player2', '/p1Survey', '/p2Survey'];
+const pages = ['/', '/game', '/description', '/mode_select', '/p1_title', '/p1_desc', '/player1', '/p2_title', '/p2_desc', '/player2', '/p1Survey', '/p2Survey', '/p1PostSurvey', '/p2PostSurvey'];
 pages.forEach((page) => {
   app.get(page, (_, res) => {
     res.sendFile(path.join(viewPath, page.endsWith('/') ? '/index.html' : page + '.html'));
@@ -124,6 +122,7 @@ io.on('connection', (socket) => {
     sendEventDataToMongo('quit').catch(console.error);
     isPlayerOneRetry = false;
     isPlayerTwoRetry = false;    
+    gameId = null;
   });
 
   socket.on('gameOver', ({ result }) => {
