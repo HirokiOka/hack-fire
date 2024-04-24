@@ -82,7 +82,7 @@ const sketch = (p, playerNum) => {
     });
   }
 
-  emitEvent('join');
+  //emitEvent('join');
   socket.on('connection', (err) => {
     if (err) {
       console.error(err);

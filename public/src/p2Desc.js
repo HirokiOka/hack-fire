@@ -1,3 +1,6 @@
+import io from 'socket.io-client';
+const socket = io();
+
 const descEle = document.getElementById("desc");
 const nextButton = document.getElementById("nextBtn");
 const prevButton = document.getElementById("prevBtn");
@@ -52,4 +55,11 @@ nextButton.addEventListener("click", (e) => {
   gameImg.width = 280;
   prevButton.classList.remove('hidden');
   nextButton.textContent = 'はじめる！';
+});
+
+socket.emit('join', { playerId: 'playerTwo' }, (res) => {
+  if (res.error) {
+    console.error(`Message sending failed: ${res.error}`);
+    return;
+  }
 });

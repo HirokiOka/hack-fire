@@ -11,7 +11,8 @@ const io = socketIo(server);
 const PORT = process.env.PORT || 3000;
 const MONGO_URI = process.env.MONGO_URI;
 const DB_NAME = process.env.DB_NAME;
-const DB_COLLECTION = process.env.DB_COLLECTION;
+const CODE_DB_COLLECTION = process.env.CODE_DB_COLLECTION;
+const SURVEY_DB_COLLECTION = process.env.SURVEY_DB_COLLECTION;
 const publicPath = path.join(__dirname, 'public');
 const viewPath = path.join(publicPath, 'views');
 
@@ -26,6 +27,7 @@ let playerOneCode = [];
 let playerTwoCode = [];
 
 app.use(express.static(publicPath));
+app.use(express.json());
 
 const client = new MongoClient(MONGO_URI, {
   serverApi: {
@@ -41,10 +43,10 @@ client.connect().then(() => {
   console.error('MongoDB connection error:', err);
 });
 
-async function sendToMongo(eventName, codeStack=null) {
+async function sendEventDataToMongo(eventName, codeStack=null) {
   try {
     const database = client.db(DB_NAME);
-    const col = database.collection(DB_COLLECTION);
+    const col = database.collection(CODE_DB_COLLECTION);
     const postData = {
       insertedAt: new Date(),
       gameId: gameId,
@@ -58,17 +60,46 @@ async function sendToMongo(eventName, codeStack=null) {
   }
 }
 
+async function sendSurveyDataToMongo(data) {
+  try {
+    const database = client.db(DB_NAME);
+    const col = database.collection(SURVEY_DB_COLLECTION);
+    const postData = {
+      insertedAt: new Date(),
+      gameId: gameId,
+      timing: data.timing,
+      playerId: data.playerId,
+      surveyValue: data.surveyValue,
+    };
+    const result = await col.insertOne(postData);
+    console.log(result);
+    return result;
+  } catch (err) {
+    console.log(err);
+  }
+}
 //Routing
-const pages = ['/', '/game', '/description', '/mode_select', '/p1_title', '/p1_desc', '/player1', '/p2_title', '/p2_desc', '/player2', '/p1Survey', '/p2Survey'];
 
+app.post('/survey', (req, res) => {
+  const surveyData = {
+    timing: req.body.timing,
+    playerId: req.body.playerId,
+    surveyValue: req.body.surveyValue,
+  };
+  sendSurveyDataToMongo(surveyData)
+    .then((res) => res.status(200).send('Survey data sent to MongoDB'))
+    .catch(err => res.status(400).json('Error: ' + err));
+});
+
+const pages = ['/', '/game', '/description', '/mode_select', '/p1_title', '/p1_desc', '/player1', '/p2_title', '/p2_desc', '/player2', '/p1Survey', '/p2Survey'];
 pages.forEach((page) => {
   app.get(page, (_, res) => {
     res.sendFile(path.join(viewPath, page.endsWith('/') ? '/index.html' : page + '.html'));
   });
 });
 
-//socket
 
+//socket
 io.on('connection', (socket) => {
   console.log('client connected');
 
@@ -79,7 +110,7 @@ io.on('connection', (socket) => {
     if (isPlayerOneJoined && isPlayerTwoJoined) {
       io.emit('gameStart', 'gameStart');
       gameId = Date.now().toString();
-      sendToMongo('gameStart').catch(console.error);
+      sendEventDataToMongo('gameStart').catch(console.error);
     }
   });
 
@@ -87,14 +118,14 @@ io.on('connection', (socket) => {
     isPlayerOneJoined = false;
     isPlayerTwoJoined = false;
     io.emit('quit', 'quit');
-    sendToMongo('quit').catch(console.error);
+    sendEventDataToMongo('quit').catch(console.error);
     isPlayerOneRetry = false;
     isPlayerTwoRetry = false;    
   });
 
   socket.on('gameOver', ({ result }) => {
     io.emit('gameOver', 'gameOver');
-    sendToMongo(result).catch(console.error);
+    sendEventDataToMongo(result).catch(console.error);
     isPlayerOneRetry = false;
     isPlayerTwoRetry = false;    
   });
@@ -106,7 +137,7 @@ io.on('connection', (socket) => {
     if (isPlayerOneRetry && isPlayerTwoRetry) {
       io.emit('retry', 'retry');
       gameId = Date.now().toString();
-      sendToMongo('retry').catch(console.error);
+      sendEventDataToMongo('retry').catch(console.error);
     }
   });
 
@@ -125,7 +156,7 @@ io.on('connection', (socket) => {
     if (isPlayerOneReady && isPlayerTwoReady) {
       io.emit('battleStart', 'battleStart');
       const codeStack = { p1: playerOneCode, p2: playerTwoCode };
-      sendToMongo('battleStart', codeStack).catch(console.error);
+      sendEventDataToMongo('battleStart', codeStack).catch(console.error);
       isPlayerOneReady = false;
       isPlayerTwoReady = false;
     }
@@ -141,7 +172,7 @@ io.on('connection', (socket) => {
 
 server.listen(PORT, () => console.log(`listening on http://localhost:${PORT}`));
 
-// SIGINTシグナルを捕捉（例：Ctrl+Cによる終了）
+//exit ctrl+c
 process.on('SIGINT', () => {
   client.close().then(() => {
     console.log('MongoDB connection closed due to app termination');
@@ -149,17 +180,17 @@ process.on('SIGINT', () => {
   });
 });
 
-// プロセスのexitイベントを捕捉
+//exit process
 process.on('exit', (code) => {
   client.close().then(() => {
     console.log(`MongoDB connection closed with exit code ${code}`);
   });
 });
 
-// 未処理の例外を捕捉
+//catch uncaught exception
 process.on('uncaughtException', (err) => {
   console.error('There was an uncaught error', err);
   client.close().then(() => {
-    process.exit(1); // 0以外の終了コードでプロセスを終了
+    process.exit(1);
   });
 });

@@ -10,7 +10,7 @@
   <body class="h-screen m-0 flex items-center justify-center bg-cover bg-red-700" >
     <div class="py-2 px-48 text-white rounded-3xl bg-gray-700">
       <h1 class="text-center text-4xl m-4">ゲームのまえにしつもんです！</h1>
-        <form>
+        <form id="surveyForm">
           <p class="text-3xl text-center p-4">Q.プログラミングにきょうみはある？</p>
           <div class="grid w-[40rem] grid-cols-5 gap-2 rounded-xl bg-gray-200 py-2">
             <div>
@@ -41,10 +41,31 @@
     </div>
     <script>
       function submitSurvey() {
-        const selected = document.querySelector('input[name="motivation"]:checked').value;
-        alert(`You selected ${selected}.`);
-        window.location.href = '/player1';
+        const form = document.getElementById('surveyForm');
+        const surveyValue = form.motivation.value;
+        const surveyData = {
+          timing: "pre",
+          playerId: 1,
+          surveyValue: surveyValue,
+        };
+        
+        fetch('/survey', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(surveyData),
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            console.log('Success:', data);
+          })
+          .catch((error) => {
+            console.error('Error:', error);
+          });
+          window.location.href = '/player1';
       }
+
     </script>
   </body>
 </html>
