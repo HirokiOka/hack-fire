@@ -1,6 +1,3 @@
-import io from 'socket.io-client';
-const socket = io();
-
 const descEle = document.getElementById("desc");
 const nextButton = document.getElementById("nextBtn");
 const prevButton = document.getElementById("prevBtn");
