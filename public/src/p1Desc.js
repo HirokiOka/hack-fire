@@ -55,11 +55,3 @@ nextButton.addEventListener("click", (e) => {
   prevButton.classList.remove('hidden');
   nextButton.textContent = 'はじめる！';
 });
-
-
-socket.emit('join', { playerId: 'playerOne' }, (res) => {
-  if (res.error) {
-    console.error(`Message sending failed: ${res.error}`);
-    return;
-  }
-});

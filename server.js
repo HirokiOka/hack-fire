@@ -23,6 +23,7 @@ let isPlayerTwoReady = false;
 let isPlayerOneRetry = false;
 let isPlayerTwoRetry = false;
 let gameId;
+let p1UniqueId, p2UniqueId;
 let playerOneCode = [];
 let playerTwoCode = [];
 
@@ -64,11 +65,13 @@ async function sendSurveyDataToMongo(data) {
   try {
     const database = client.db(DB_NAME);
     const col = database.collection(SURVEY_DB_COLLECTION);
+    const uniqueUserId = Date.now().toString();
     const postData = {
       insertedAt: new Date(),
       gameId: gameId,
       timing: data.timing,
       playerId: data.playerId,
+      uniqueUserId: uniqueUserId,
       surveyValue: data.surveyValue,
     };
     const result = await col.insertOne(postData);
@@ -83,7 +86,7 @@ async function sendSurveyDataToMongo(data) {
 app.post('/survey', (req, res) => {
   const surveyData = {
     timing: req.body.timing,
-    playerId: req.body.playerId,
+    playerNum: req.body.playerId,
     surveyValue: req.body.surveyValue,
   };
   sendSurveyDataToMongo(surveyData)

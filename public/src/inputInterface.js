@@ -82,7 +82,7 @@ const sketch = (p, playerNum) => {
     });
   }
 
-  //emitEvent('join');
+  emitEvent('join');
   socket.on('connection', (err) => {
     if (err) {
       console.error(err);
@@ -150,12 +150,12 @@ const sketch = (p, playerNum) => {
   });
 
   socket.on('gameOver', (_) => {
-    const result = window.confirm('リトライしますか？');
-    if (result) {
+    if (window.confirm('リトライしますか？')) {
       emitEvent('retry');
       window.location.reload();
     } else {
       emitEvent('quit');
+      window.location.href = metaData.returnUrl;
     }
   });
 
@@ -169,7 +169,7 @@ const sketch = (p, playerNum) => {
       alert('プログラムがありません');
       return;
     } else if (calcIndentNum(codeStack) > 0) {
-      alert('[もし - おわり] がたりません');
+      alert('[もしおわり] がたりません');
       return;
     } else if (codeStack.map(v => v.codeType).findIndex(e => e === 'action') === -1) {
       alert('キャラクターのうごきが入力されていません');
