@@ -30,7 +30,7 @@ const textDict = {
   },
   'もし  -  なら': {
     code: 'if () {', codeType: 'if-start',
-    viewText: 'もし  ◇  なら',  position: [20, 280]
+    viewText: 'もし  ◆  なら',  position: [20, 280]
   },
   'もし  -  おわり': {
     code: '}', codeType: 'if-end',
@@ -388,7 +388,7 @@ function insertCondition() {
   if (maxCodeStackLength <= codeStack.length) return;
   if (insertMode === 'condition') {
     const conditionText = this.elt.textContent;
-    const replacedText = codeStack[codeStack.length-1].codeText.replace('◇', conditionText);
+    const replacedText = codeStack[codeStack.length-1].codeText.replace('◆', conditionText);
     codeStack[codeStack.length-1].codeText = replacedText;
     insertMode = 'normal';
   }
