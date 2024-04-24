@@ -150,7 +150,8 @@ const sketch = (p, playerNum) => {
   });
 
   socket.on('gameOver', (_) => {
-    if (window.confirm('リトライしますか？')) {
+    const result = window.confirm('リトライしますか？');
+    if (result) {
       emitEvent('retry');
       window.location.reload();
     } else {
