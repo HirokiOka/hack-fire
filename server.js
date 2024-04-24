@@ -84,7 +84,7 @@ async function sendSurveyDataToMongo(data) {
 app.post('/survey', (req, res) => {
   const surveyData = {
     timing: req.body.timing,
-    playerNum: req.body.playerId,
+    playerId: req.body.playerId,
     surveyValue: req.body.surveyValue,
   };
   sendSurveyDataToMongo(surveyData)
