@@ -1,0 +1,50 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="/output.css" rel="stylesheet">
+    <link rel="icon" href="/image/favicon.ico" type="image/x-icon">
+    <title>しつもん</title>
+  </head>
+  <body class="h-screen m-0 flex items-center justify-center bg-cover bg-red-700" >
+    <div class="py-2 px-48 text-white border-8  border-gray rounded-3xl bg-gray-700">
+      <h1 class="text-center text-5xl m-4">ゲームのまえにしつもんです！</h1>
+        <form>
+          <p class="text-3xl text-center p-4">Q.プログラミングにきょうみはある？</p>
+          <div class="grid w-[40rem] grid-cols-5 gap-2 rounded-xl bg-gray-200 py-2">
+            <div>
+              <input type="radio" name="motivation" id="1" value="1" class="peer hidden"/>
+              <label for="1" class="text-xl block cursor-pointer select-none rounded-xl p-2 text-center peer-checked:bg-blue-500 peer-checked:font-bold peer-checked:text-white">ない</label>
+            </div>
+            <div>
+              <input type="radio" name="motivation" id="2" value="2" class="peer hidden" />
+              <label for="2" class="text-xl block cursor-pointer select-none rounded-xl p-2 text-center peer-checked:bg-blue-500 peer-checked:font-bold peer-checked:text-white">あまりない</label>
+            </div>
+            <div>
+              <input type="radio" name="motivation" id="3" value="3" class="peer hidden" checked />
+              <label for="3" class="text-xl block cursor-pointer select-none rounded-xl p-2 text-center peer-checked:bg-blue-500 peer-checked:font-bold peer-checked:text-white">ふつう</label>
+            </div>
+            <div>
+              <input type="radio" name="motivation" id="4" value="4" class="peer hidden" />
+              <label for="4" class="text-xl block cursor-pointer select-none rounded-xl p-2 text-center peer-checked:bg-blue-500 peer-checked:font-bold peer-checked:text-white">まあまあ</label>
+            </div>
+            <div>
+              <input type="radio" name="motivation" id="5" value="5" class="peer hidden" />
+              <label for="5" class="text-xl block cursor-pointer select-none rounded-xl p-2 text-center peer-checked:bg-blue-500 peer-checked:font-bold peer-checked:text-white">とてもある</label>
+            </div>
+          </div>
+          <div class="text-center py-4">
+            <button class="text-3xl bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" type="button" id="submit" onclick="submitSurvey()">けってい!</button>
+          </div>
+        </form>
+    </div>
+    <script>
+      function submitSurvey() {
+        const selected = document.querySelector('input[name="motivation"]:checked').value;
+        alert(`You selected ${selected}.`);
+        window.location.href = '/player1';
+      }
+    </script>
+  </body>
+</html>

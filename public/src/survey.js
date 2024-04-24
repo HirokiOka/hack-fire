@@ -15,7 +15,6 @@ function openSurvey() {
             <input type="radio" id="very-low" name="programming" value="very-low">
             <label for="very-low">ぜんぜんしてみたくない</label><br>
             <button type="button" onclick="submitSurvey()">送信</button>
-
         </form>
     `);
 

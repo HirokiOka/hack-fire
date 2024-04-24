@@ -37,7 +37,8 @@ prevButton.addEventListener("click", (e) => {
 nextButton.addEventListener("click", (e) => {
   e.preventDefault();
   if (nextButton.textContent === 'はじめる！') {
-    openSurvey();
+//    openSurvey();
+    window.location.href = '/survey';
   }
   descEle.innerHTML = p2Html;
   blocks.innerText = "1. 「もし◇なら」と\n「おなじたかさ」を\nくみあわせて...";

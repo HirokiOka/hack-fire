@@ -61,7 +61,7 @@ async function sendToMongo(eventName, codeStack=null) {
 }
 
 //Routing
-const pages = ['/', '/game', '/description', '/mode_select', '/p1_title', '/p1_desc', '/player1', '/p2_title', '/p2_desc', '/player2'];
+const pages = ['/', '/game', '/description', '/mode_select', '/p1_title', '/p1_desc', '/player1', '/p2_title', '/p2_desc', '/player2', '/survey'];
 
 pages.forEach((page) => {
   app.get(page, (_, res) => {
