@@ -1,5 +1,6 @@
 import p5 from 'p5';
-import { sketch, isCodingMode, isSubmitted, timerCount } from './inputInterface.js';
+import { sketch, isCodingMode, isSubmitted, timerCount, submitCode, TIME_LIMIT } from './inputInterface.js';
+
 const playerNum = 1;
 
 setInterval(() => {
