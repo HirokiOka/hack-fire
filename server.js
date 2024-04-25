@@ -136,11 +136,11 @@ io.on('connection', (socket) => {
     if (playerId === 'playerOne') isPlayerOneRetry = true;
     if (playerId === 'playerTwo') isPlayerTwoRetry = true;
 
-    if (isPlayerOneRetry && isPlayerTwoRetry) {
+    //if (isPlayerOneRetry && isPlayerTwoRetry) {
       io.emit('retry', 'retry');
       gameId = Date.now().toString();
       sendEventDataToMongo('retry').catch(console.error);
-    }
+    //}
   });
 
   socket.on('submit', ({ playerId, data }) => {
