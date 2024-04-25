@@ -166,7 +166,7 @@ const sketch = (p, playerNum) => {
   });
 
   socket.on('quit', (_) => {
-    window.location.href = metaData.postUrl;
+    window.location.href = metaData.returnUrl;
   });
 
   function submitCode() {
