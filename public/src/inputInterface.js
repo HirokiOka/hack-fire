@@ -161,6 +161,10 @@ const sketch = (p, playerNum) => {
     }
   });
 
+  socket.on('retry', (_) => {
+    window.location.reload();
+  });
+
   socket.on('quit', (_) => {
     window.location.href = metaData.postUrl;
   });
