@@ -3,16 +3,12 @@ const nextButton = document.getElementById("nextBtn");
 const prevButton = document.getElementById("prevBtn");
 const blocks = document.getElementById("blocks");
 const blockImg = document.getElementById("blockImg");
-const codeExample = document.getElementById("codeExample");
 const codeImg = document.getElementById("codeImg");
 const codeText = document.getElementById("codeText");
-const game = document.getElementById("game");
 const gameImg = document.getElementById("gameImg");
 const gameText = document.getElementById("gameText");
-const triSvg = document.getElementById("triangle");
 
 const playerImagePath = "/image/p1_basic_action.gif";
-const editorUrl = "/player1";
 
 const p1Html = 'このゲームはプログラミングでたたかうシューティングゲームです。<br/>キャラクターのうごきをプログラミングして、あいてをたおしましょう。<br/>水色のアクションブロックをタッチするとプログラムをつくれます。<ul class="m-2"><li><span class="bg-blue-300 rounded-lg font-bold p-1 my-2">こうげき</span>：あいてをこうげき</li><li><span class="bg-blue-300 rounded-lg font-bold p-1 my-2">ためる</span>: こうげき力をあげる</li><li><span class="bg-blue-300 rounded-lg font-bold p-1 my-2">うえ/したにうごく</span>：うえやしたにうごく</li>';
 
