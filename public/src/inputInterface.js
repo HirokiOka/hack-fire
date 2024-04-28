@@ -356,7 +356,7 @@ function drawMessage(p) {
     const rectWidth = 530;
     const rectHeight = 110;
     const x = p.width/2 - rectWidth/2;
-    const y = p.height/2 - rectHeight/2 - 60;
+    const y = p.height/2 - rectHeight/2 - 80;
     p.strokeWeight(2);
     p.stroke('white');
     p.textSize(40);
@@ -364,7 +364,7 @@ function drawMessage(p) {
     p.fill('navy');
     p.rect(x, y, rectWidth, rectHeight);
     p.fill('white');
-    p.text(textMessage, p.width/2 - rectWidth/2, p.height/2-rectHeight/2-50);
+    p.text(textMessage, p.width/2 - rectWidth/2, p.height/2-rectHeight/2-70);
     p.textAlign(p.LEFT);
   }
 }
