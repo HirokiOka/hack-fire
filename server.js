@@ -89,7 +89,7 @@ app.post('/survey', (req, res) => {
   };
   sendSurveyDataToMongo(surveyData)
     .then((res) => res.status(200).send('Survey data sent to MongoDB'))
-    .catch(err => res.status(400).json('Error: ' + err));
+    .catch((err) => res.status(400).json('Error: ' + err));
 });
 
 const pages = ['/', '/game', '/description', '/mode_select', '/p1_title', '/p1_desc', '/player1', '/p2_title', '/p2_desc', '/player2', '/p1Survey', '/p2Survey', '/p1PostSurvey', '/p2PostSurvey'];
