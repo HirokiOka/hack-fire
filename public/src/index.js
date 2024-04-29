@@ -7,6 +7,6 @@ const socket = io({
 });
 
 socket.on('gameStart', (msg) => {
-  console.log(msg);
+  socket.disconnect();
   window.location.href = '/game';
 });

@@ -90,6 +90,7 @@ const sketch = (p) => {
   }
 
   p.setup = () => {
+    socket.emit('transition', 'transition');
     let canvas = p.createCanvas(1920, 1080);
     barOffset = p.width/24;
     barWidth = p.width/24;
