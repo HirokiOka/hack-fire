@@ -1,4 +1,4 @@
-import { Sound, hitSound, shotSound, chargeSound } from './Sound.js';
+import { hitSound, shotSound, chargeSound } from './Sound.js';
 
 class Character {
     constructor(x, y, w, h, p) {
