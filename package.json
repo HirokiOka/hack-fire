@@ -21,7 +21,6 @@
     "mongodb": "^6.5.0",
     "p5": "1.9.3",
     "pg": "^8.11.3",
-    "puppeteer": "22.7.1",
     "socket.io": "^4.7.2",
     "socket.io-client": "^4.7.3"
   },

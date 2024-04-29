@@ -1,6 +1,6 @@
-const puppeteer = require('puppeteer');
 const { app, BrowserWindow, screen } = require('electron');
 
+//const deployUrl = 'http://slash-shot.adaptable.app/p1_title';
 const deployUrl = 'https://battlehacker.adaptable.app/p1_title';
 
 app.whenReady().then(() => {
@@ -10,6 +10,20 @@ app.whenReady().then(() => {
     width, height,
     autoHideMenuBar: true, 
   });
-  inputWindow.loadURL(deployUrl);
-  inputWindow.setFullScreen(true);
+  inputWindow.loadURL(deployUrl)
+    .then(() => {
+      inputWindow.setFullScreen(true);
+    })
+    .catch((error) => {
+      console.error('Error loading URL: ', error);
+      inputWindow.loadFile('error.html');
+    });
+
+  inputWindow.on('closed', () => {
+    app.quit();
+  });
+});
+
+app.on('window-all-closed', () => {
+  app.quit();
 });
