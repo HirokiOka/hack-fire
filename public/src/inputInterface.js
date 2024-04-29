@@ -85,13 +85,6 @@ const sketch = (p, playerNum) => {
   }
 
   emitEvent('join');
-  socket.on('connection', (err) => {
-    if (err) {
-      console.error(err);
-      return;
-    }
-    console.log(`connected to server: ${metaData.playerId}`);
-  });
 
   p.preload = () => {
     kaiso = p.loadFont(fontPath);

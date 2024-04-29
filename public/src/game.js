@@ -5,7 +5,7 @@ import p5 from 'p5';
 import io from 'socket.io-client';
 const socket = io();
 
-const backTitleMilliSec = 30000;
+//const backTitleMilliSec = 30000;
 let resetTimerCount = 30;
 
 const SHOT_MAX_COUNT = 10;
@@ -52,10 +52,6 @@ const conditionDict = {
 
 
 //Process related to Socket.io 
-socket.on('connection', () => {
-  console.log('connected to server: main');
-});
-
 socket.on('quit', (_) => {
   window.location.href = '/';
 });
