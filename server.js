@@ -115,6 +115,10 @@ io.on('connection', (socket) => {
     }
   });
 
+  socket.on('transition', (_) => {
+    console.log('transition');
+  });
+
   socket.on('quit', (_) => {
     isPlayerOneJoined = false;
     isPlayerTwoJoined = false;

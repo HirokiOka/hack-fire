@@ -60,11 +60,12 @@
           .then((response) => response.json())
           .then((data) => {
             console.log('Success:', data);
+            window.location.href = '/p2_title';
           })
           .catch((error) => {
             console.error('Error:', error);
+            window.location.href = '/p2_title';
           });
-          window.location.href = '/p2_title';
         }
     </script>
   </body>

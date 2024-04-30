@@ -6,11 +6,7 @@ const socket = io({
   reconnectionDelay: 2000,
 });
 
-socket.on('connection', () => {
-  console.log('connected to server: title');
-});
-
 socket.on('gameStart', (msg) => {
-  console.log(msg);
+  socket.disconnect();
   window.location.href = '/game';
 });

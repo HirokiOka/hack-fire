@@ -44,7 +44,6 @@
         const form = document.getElementById('surveyForm');
         const surveyValue = form.motivation.value;
 
-
         const surveyData = {
           timing: "pre",
           playerId: 1,
@@ -61,11 +60,12 @@
           .then((response) => response.json())
           .then((data) => {
             console.log('Success:', data);
+            window.location.href = '/player1';
           })
           .catch((error) => {
             console.error('Error:', error);
+            window.location.href = '/player1';
           });
-          window.location.href = '/player1';
       }
     </script>
   </body>
