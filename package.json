@@ -7,7 +7,7 @@
     "start": "node server.js",
     "client": "npx webpack serve --mode development --watch",
     "watch": "nodemon server.js",
-    "launch": "npx electron launch.js",
+    "launch": "electron launch.js",
     "webpack": "npx webpack --watch",
     "interface": "electron startInput.js",
     "tailwind": "npx tailwindcss -i ./public/input.css -o ./public/output.css --watch"
