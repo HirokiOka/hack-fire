@@ -1,4 +1,5 @@
 import io from 'socket.io-client';
+import { insertSound, deleteSound, sendSound } from './Sound.js';
 
 const socket = io({
   reconnection: true,
@@ -176,6 +177,7 @@ const sketch = (p, playerNum) => {
     }
     isSubmitted = true;
     isCodingMode = false;
+    sendSound.play();
     textMessage = 'じゅんびOK！\nあいてをまっています.';
     if (!isSubmitted && (timerCount >= TIME_LIMIT)) {
       emitEvent('submit', []);
@@ -369,6 +371,8 @@ function calcIndentNum(codeStackSlice) {
 }
 
 function insertCode() {
+  insertSound.play();
+  console.log('insert Played');
   if (maxCodeStackLength <= codeStack.length) return;
   if (insertMode === 'normal') {
     codeStack.push({ "codeType": this.value(), "codeText": this.html() });
@@ -403,11 +407,13 @@ function handleIfEnd() {
 
 function deleteLine() {
   codeStack.pop();
+  deleteSound.play();
   insertMode = 'normal';
 }
 
 function deleteAll() {
   codeStack.splice(0);
+  deleteSound.play();
   insertMode = 'normal';
 }
 

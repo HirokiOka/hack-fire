@@ -74,4 +74,29 @@ scratchSound.load('../sound/scratch_se.mp3', (error) => {
     }
 });
 
-export { Sound, explodeSound, shotSound, chargeSound, hitSound, scratchSound };
+let insertSound = new Sound();
+scratchSound.load('../sound/block.mp3', (error) => {
+    if (error != null) {
+        alert('ファイルの読み込みエラーです．');
+        return;
+    }
+});
+
+let deleteSound = new Sound();
+scratchSound.load('../sound/delete.mp3', (error) => {
+    if (error != null) {
+        alert('ファイルの読み込みエラーです．');
+        return;
+    }
+});
+
+let sendSound = new Sound();
+scratchSound.load('../sound/send.mp3', (error) => {
+    if (error != null) {
+        alert('ファイルの読み込みエラーです．');
+        return;
+    }
+});
+
+
+export { Sound, explodeSound, shotSound, chargeSound, hitSound, scratchSound, insertSound, deleteSound, sendSound };
