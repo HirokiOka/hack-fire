@@ -8,6 +8,11 @@
     <title>しつもん</title>
   </head>
   <body class="h-screen m-0 flex items-center justify-center bg-cover bg-red-700" >
+    <button
+      class="px-4 py-2 text-2xl absolute top-2 right-2 bg-blue-500 hover:bg-blue-700 text-white font-bold rounded"
+      onclick="endGame()">
+      スキップ
+    </button>
     <div class="py-2 px-48 text-white rounded-3xl bg-gray-700">
       <h1 class="text-center text-4xl m-4">あそんでくれてありがとう！</h1>
         <form id="surveyForm">
@@ -22,7 +27,7 @@
               <label for="2" class="text-xl block cursor-pointer select-none rounded-xl p-2 text-center peer-checked:bg-blue-500 peer-checked:font-bold peer-checked:text-white">あまりない</label>
             </div>
             <div>
-              <input type="radio" name="motivation" id="3" value="3" class="peer hidden" checked />
+              <input type="radio" name="motivation" id="3" value="3" class="peer hidden" />
               <label for="3" class="text-xl block cursor-pointer select-none rounded-xl p-2 text-center peer-checked:bg-blue-500 peer-checked:font-bold peer-checked:text-white">ふつう</label>
             </div>
             <div>
@@ -68,6 +73,9 @@
           });
       }
 
+      function endGame() {
+        window.location.href = '/p1_title';
+      }
     </script>
   </body>
 </html>
